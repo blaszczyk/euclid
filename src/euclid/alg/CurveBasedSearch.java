@@ -8,7 +8,7 @@ import java.util.Queue;
 
 import euclid.model.*;
 
-public class CurvedBasedSearch extends AbstractSearch{
+public class CurveBasedSearch extends AbstractSearch{
 	
 	@Override
 	Collection<Board> find(final Board initial, final Board required, final int depth, final boolean first) {

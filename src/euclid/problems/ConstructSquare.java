@@ -4,7 +4,7 @@ import static euclid.model.Sugar.*;
 
 import java.util.Optional;
 
-import euclid.alg.CurvedBasedSearch;
+import euclid.alg.CurveBasedSearch;
 import euclid.alg.Search;
 import euclid.model.*;
 
@@ -12,7 +12,7 @@ public class ConstructSquare {
 
 	public static void main(String[] args) {
 
-		final Search search = new CurvedBasedSearch();
+		final Search search = new CurveBasedSearch();
 		
 		// center and corners of a square
 		final Point c=p(0,0), p1=p(1,0), p2=p(0,1), p3=p(-1,0), p4=p(0,-1);
