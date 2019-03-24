@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract class ThreadedSearch<T, B> implements Search<B> {
 
@@ -14,6 +15,8 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	
 	private final Collection<SearchThread> threads = new ConcurrentLinkedQueue<>();
 	
+	private final AtomicInteger count = new AtomicInteger(0);
+
 	private final int maxThreads = Runtime.getRuntime().availableProcessors();
 	
 	private boolean firstSolution;
@@ -42,8 +45,10 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	
 	private void execute() {
 		enqueue(first());
+		log("executing search with %d threads", maxThreads);
 		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
+			log("queued: %d, finished: %d", queue.size(), count.get());
 		}
 		halt = true;
 	}
@@ -58,16 +63,16 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		}
 		else if(depth(candidate) < maxDepth) {
 			final Collection<T> next = generateNext(candidate);
-			synchronized (queue) {
-				next.forEach(this::enqueue);
-			}
+			next.forEach(this::enqueue);
 		}
+		count.incrementAndGet();
 	}
 
 	private void enqueue(final T t) {
-		if(!queue.contains(t))
+		if(!queue.contains(t)) {
 			queue.add(t);
-		if(threads.size() < maxThreads) {
+		}
+		if(!halt && (threads.size() < maxThreads)) {
 			final SearchThread thread = new SearchThread();
 			threads.add(thread);
 			thread.start();
@@ -114,10 +119,14 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	
 	private static void hibernate() {
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		}
 		catch(InterruptedException e) {
 		}
 	}
 	
+	void log(final String format, final Object... args) {
+		System.out.println(String.format(format, args));
+	}
+
 }
