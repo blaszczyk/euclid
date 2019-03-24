@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 public class Calculator {
 	
+	@FunctionalInterface
 	public static interface ValueLookUp {
 		public Optional<Double> lookUp(final String key);
 	}

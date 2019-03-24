@@ -13,9 +13,11 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 
 	private final Queue<B> solutions = new ConcurrentLinkedQueue<>();
 	
-	private final AtomicInteger finishedCount = new AtomicInteger(0);
+	private final AtomicInteger finishedCount = new AtomicInteger();
 	
-	private final AtomicInteger dupeCount = new AtomicInteger(0);
+	private final AtomicInteger dupeCount = new AtomicInteger();
+	
+	private final AtomicInteger currentDepth = new AtomicInteger();
 
 	private final int threadCount = Runtime.getRuntime().availableProcessors();
 	
@@ -44,6 +46,11 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		execute();
 		return solutions.isEmpty() ? Optional.empty() : Optional.of(solutions.iterator().next());
 	}
+
+	@Override
+	public String report() {
+		return String.format("queued: %d, finished: %d, dupes: %d, depth: %d", queue.size(), finishedCount.get(), dupeCount.get(), currentDepth.get());
+	}
 	
 	private void execute() {
 		enqueue(first());
@@ -53,27 +60,33 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 			threads.add(thread);
 			thread.start();
 		}
-		log("executing search with %d threads", threadCount);
 		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
-			log("queued: %d, finished: %d, dupes: %d", queue.size(), finishedCount.get(), dupeCount.get());
 		}
 		halt = true;
 	}
 	
 	private void process(final T t) {
 		final B candidate = digest(t);
+		final int depth = depth(candidate);
+		checkDepth(depth);
 		if(solves(candidate)) {
 			solutions.add(candidate);
 			if(findFirst) {
 				halt = true;
 			}
 		}
-		else if(depth(candidate) < maxDepth) {
+		else if(depth < maxDepth) {
 			final Collection<T> next = generateNext(candidate);
 			next.forEach(this::enqueue);
 		}
 		finishedCount.incrementAndGet();
+	}
+
+	private void checkDepth(final int depth) {
+		if(depth > currentDepth.get()) {
+			currentDepth.set(depth);
+		}
 	}
 
 	private void enqueue(final T t) {
@@ -132,10 +145,6 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		}
 		catch(InterruptedException e) {
 		}
-	}
-	
-	void log(final String format, final Object... args) {
-		System.out.println(String.format(format, args));
 	}
 
 }

@@ -8,7 +8,7 @@ import euclid.model.*;
 public class CurveBasedSearch extends BoardSearch<CurveSet>{
 	
 	public CurveBasedSearch(final Board initial, final Board required, final int maxDepth) {
-		super(initial, required, maxDepth + initial.curves().size());
+		super(initial, required, maxDepth);
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class CurveBasedSearch extends BoardSearch<CurveSet>{
 
 	@Override
 	int depth(final Board board) {
-		return board.curves().size();
+		return board.curves().size() - initial.curves().size();
 	}
 
 	@Override

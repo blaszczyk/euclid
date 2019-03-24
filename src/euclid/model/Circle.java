@@ -1,8 +1,8 @@
 package euclid.model;
 
-import static euclid.model.Sugar.*;
+import static euclid.model.ElementLifeTimeManager.*;
 
-public class Circle implements Curve{
+public class Circle extends IntersectionCache implements Curve {
 	
 	final Point center;
 	final Constructable radiusSquare;
@@ -18,7 +18,7 @@ public class Circle implements Curve{
 	}
 
 	@Override
-	public PointSet intersect(final Curve other) {
+	public PointSet doIntersect(final Curve other) {
 		if(other instanceof Line) {
 			final Line line = (Line) other;
 			final Point normal = line.normal;
@@ -42,7 +42,7 @@ public class Circle implements Curve{
 				final Point normal = center.sub(circle.center).mul(m_two());
 				final Constructable distance = radiusSquare.sub(center.square()).sub(circle.radiusSquare.sub(circle.center.square()));
 				final Line commonSection = new Line(normal, distance);
-				return circle.intersect(commonSection);
+				return intersect(commonSection);
 			}
 		}
 		return PointSet.empty();
@@ -52,7 +52,7 @@ public class Circle implements Curve{
 	public boolean isEqual(final Curve other) {
 		if(other instanceof Circle) {
 			final Circle circle = (Circle) other;
-			return circle.center.equals(center) && circle.radiusSquare.isEqual(radiusSquare);
+			return circle.center.isEqual(center) && circle.radiusSquare.isEqual(radiusSquare);
 		}
 		return false;
 	}
@@ -60,27 +60,6 @@ public class Circle implements Curve{
 	@Override
 	public String toString() {
 		return "circle ( p - " + center + " )^2 = " + radiusSquare;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Circle other = (Circle) obj;
-		return isEqual(other);
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((center == null) ? 0 : center.hashCode());
-		result = prime * result + ((radiusSquare == null) ? 0 : radiusSquare.hashCode());
-		return result;
 	}
 
 }

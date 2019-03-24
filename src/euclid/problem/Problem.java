@@ -1,5 +1,6 @@
 package euclid.problem;
 
+import euclid.alg.*;
 import euclid.model.Board;
 
 public class Problem {
@@ -43,6 +44,16 @@ public class Problem {
 
 	public final Algorithm algorithm() {
 		return algorithm;
+	}
+
+	public Search<Board> createSearch() {
+		switch (algorithm) {
+		case CURVE_BASED:
+			return new CurveBasedSearch(initial, required, maxDepth);
+		case POINT_BASED:
+			return new PointBasedSearch(initial, required, maxDepth);
+		}
+		return null;
 	}
 	
 }

@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static euclid.model.Sugar.*;
+import static euclid.model.ElementLifeTimeManager.*;
 import euclid.model.*;
 import euclid.problem.Problem.Algorithm;
 
@@ -207,18 +207,6 @@ public class ProblemParser {
 		}
 		else {
 			return Optional.empty();
-		}
-	}
-	
-	@SuppressWarnings("serial")
-	public static class ProblemParserException extends RuntimeException {
-		
-		public ProblemParserException(final String format, final Object... args) {
-			super(String.format(format, args));
-		}
-		
-		public ProblemParserException(final Throwable cause, final String format, final Object... args) {
-			super(String.format(format, args), cause);
 		}
 	}
 

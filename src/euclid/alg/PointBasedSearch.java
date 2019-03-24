@@ -8,7 +8,7 @@ import euclid.model.*;
 public class PointBasedSearch extends BoardSearch<PointSet> {
 	
 	public PointBasedSearch(final Board initial, final Board required, final int maxDepth) {
-		super(initial, required, maxDepth + initial.points().size());
+		super(initial, required, maxDepth);
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class PointBasedSearch extends BoardSearch<PointSet> {
 
 	@Override
 	int depth(final Board board) {
-		return board.points().size();
+		return board.points().size() - initial.points().size();
 	}
 
 	@Override

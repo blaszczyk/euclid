@@ -14,8 +14,8 @@ l1=l(o;p1)
 lhalf=l(o;phalf)
 l2=l(o;p2)
 
-initialpoints = p1: o
-initialcurves = l2
+initialpoints = p1
+initialcurves = l2 : l1
 requiredpoints =
 requiredcurves = lhalf
 maxdepth = 4

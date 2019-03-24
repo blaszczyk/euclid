@@ -1,7 +1,6 @@
 package euclid.model;
 
-import static euclid.model.Sugar.c;
-import static euclid.model.Sugar.l;
+import static euclid.model.ElementLifeTimeManager.*;
 
 import java.util.TreeSet;
 

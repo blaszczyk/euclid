@@ -1,6 +1,6 @@
 package euclid.model;
 
-public interface Constructable extends Comparable<Constructable>
+public interface Constructable extends Comparable<Constructable>, Element<Constructable>
 {
 	public Constructable add(final Constructable other);
 	public Constructable sub(final Constructable other);
@@ -11,8 +11,6 @@ public interface Constructable extends Comparable<Constructable>
 	public Constructable inverse();
 	public Constructable square();
 	public Constructable root();
-	
-	public boolean isEqual(final Constructable other);
 	
 	public double doubleValue();
 

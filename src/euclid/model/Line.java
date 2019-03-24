@@ -1,8 +1,8 @@
 package euclid.model;
 
-import static euclid.model.Sugar.*;
+import static euclid.model.ElementLifeTimeManager.*;
 
-public class Line implements Curve {
+public class Line extends IntersectionCache implements Curve {
 	
 	final Point normal;
 	final Constructable offset;
@@ -22,11 +22,11 @@ public class Line implements Curve {
 	
 	@Override
 	public boolean contains(final Point point) {
-		return point.mul(normal).equals(offset);
+		return point.mul(normal).isEqual(offset);
 	}
 
 	@Override
-	public PointSet intersect(final Curve other) {
+	public PointSet doIntersect(final Curve other) {
 		if(other instanceof Line) {
 			final Line line = (Line) other;
 			if(!normal.colinear(line.normal)) {
@@ -50,7 +50,7 @@ public class Line implements Curve {
 			if(offset.isEqual(zero()) && line.offset.isEqual(zero())) {
 				return normal.colinear(line.normal);
 			}
-			return line.normal.mul(offset).equals(normal.mul(line.offset));
+			return line.normal.mul(offset).isEqual(normal.mul(line.offset));
 		}
 		return false;
 	}
@@ -58,23 +58,6 @@ public class Line implements Curve {
 	@Override
 	public String toString() {
 		return "line " + normal + " * p = " + offset;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Line other = (Line) obj;
-		return isEqual(other);
-	}
-
-	@Override
-	public int hashCode() {
-		throw new UnsupportedOperationException();
 	}
 
 }
