@@ -1,42 +1,37 @@
 package euclid.alg;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.stream.Collectors;
 
 import euclid.model.*;
 
-public class CurveBasedSearch extends AbstractSearch{
+public class CurveBasedSearch extends BoardSearch<CurveSet>{
 	
+	public CurveBasedSearch(final Board initial, final Board required, final int depth) {
+		super(initial, required, depth);
+	}
+
 	@Override
-	Collection<Board> find(final Board initial, final Board required, final int depth, final boolean first) {
-		final List<Board> solutions = new ArrayList<>();
-		final Queue<CurveSet> queue = new LinkedList<>();
-		queue.add(initial.curves());
-		while(!queue.isEmpty())
-		{
-			final CurveSet curves = queue.remove();
-			final PointSet points = curves.intersections().adjoin(initial.points());
-			if(curves.containsAll(required.curves()) && points.containsAll(required.points())) {
-				solutions.add(Board.withPoints(points).andCurves(curves));
-				if(first)
-					break;
-				else
-					continue;
-			}
-			if(curves.size() > depth)
-				continue;
-			final CurveSet successors = points.curves();
-			successors.removeAll(curves);
-			for(final Curve c : successors) {
-				final CurveSet next = curves.adjoin(c);
-				if(!queue.contains(next))
-					queue.add(next);
-			}
-		}
-		
-		return solutions;
+	CurveSet first() {
+		return initial.curves();
+	}
+
+	@Override
+	Board digest(final CurveSet curves) {
+		final PointSet points = curves.intersections().adjoin(initial.points());
+		return Board.withPoints(points).andCurves(curves);
+	}
+
+	@Override
+	boolean exceedsDepth(final Board board) {
+		return board.curves().size() >= depth;
+	}
+
+	@Override
+	Collection<CurveSet> generateNext(final Board board) {
+		final CurveSet curves = board.curves();
+		final CurveSet successors = board.points().curves();
+		successors.removeAll(curves);
+		return successors.stream().map(curves::adjoin).collect(Collectors.toList());
 	}
 }

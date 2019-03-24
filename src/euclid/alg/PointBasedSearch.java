@@ -1,41 +1,38 @@
 package euclid.alg;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.stream.Collectors;
 
 import euclid.model.*;
 
-public class PointBasedSearch extends AbstractSearch {
+public class PointBasedSearch extends BoardSearch<PointSet> {
 	
-	@Override
-	public Collection<Board> find(final Board initial, final Board required, final int depth, final boolean first) {
-		final List<Board> solutions = new ArrayList<>();
-		final Queue<PointSet> queue = new LinkedList<>();
-		queue.add(initial.points());
-		while(!queue.isEmpty())
-		{
-			final PointSet points = queue.remove();
-			final CurveSet curves = points.curves().adjoin(initial.curves());
-			if(curves.containsAll(required.curves()) && points.containsAll(required.points())) {
-				solutions.add(Board.withPoints(points).andCurves(curves));
-				if(first)
-					break;
-				else
-					continue;
-			}
-			if(points.size() > depth)
-				continue;
-			final PointSet successors = curves.intersections();
-			successors.removeAll(points);
-			for(final Point p : successors) {
-				final PointSet next = points.adjoin(p);
-				if(!queue.contains(next))
-					queue.add(next);
-			}
-		}
-		return solutions;
+	public PointBasedSearch(final Board initial, final Board required, final int depth) {
+		super(initial, required, depth + initial.points().size());
 	}
+
+	@Override
+	PointSet first() {
+		return initial.points();
+	}
+
+	@Override
+	Board digest(final PointSet points) {
+		final CurveSet curves = points.curves().adjoin(initial.curves());
+		return Board.withPoints(points).andCurves(curves);
+	}
+
+	@Override
+	boolean exceedsDepth(final Board board) {
+		return board.points().size() >= depth;
+	}
+
+	@Override
+	Collection<PointSet> generateNext(final Board board) {
+		final PointSet points = board.points();
+		final PointSet successors = board.curves().intersections();
+		successors.removeAll(points);
+		return successors.stream().map(points::adjoin).collect(Collectors.toList());
+	}
+	
 }

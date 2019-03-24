@@ -7,16 +7,17 @@ import java.util.Optional;
 import euclid.alg.CurveBasedSearch;
 import euclid.model.*;
 
-public class ConstructSquare {
+public class EquilateralTriangle {
 
 	public static void main(String[] args) {
 		
-		// center and corners of a square
-		Point c=p(0,0), p1=p(1,0), p2=p(0,1), p3=p(-1,0), p4=p(0,-1);
-		CurveSet square = CurveSet.of(l(p1,p2), l(p2,p3), l(p3,p4), l(p4,p1));
+		// equilateral triangle from two points
+		double sqrt3 = Math.sqrt(3);
+		Point p0=p(-1,0), p1=p(1,0), p2=p(0,sqrt3);
+		CurveSet triangle = CurveSet.of(l(p1,p2), l(p2,p0), l(p0,p1));
 
-		Board init = Board.withPoints(c,p1).andCurves(c(c,p1));
-		Board req = Board.withPoints().andCurves(l(p1,p2));
+		Board init = Board.withPoints(p0,p1).andCurves();
+		Board req = Board.withPoints().andCurves(triangle);
 		
 		Optional<Board> solution = new CurveBasedSearch(init, req, 5).findFirst();
 		if(solution.isPresent())
