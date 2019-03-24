@@ -1,7 +1,5 @@
 package euclid.model;
 
-import java.util.stream.Collectors;
-
 public class Board {
 
 	public static BoardBuilder withPoints(final Point... points) {
@@ -26,14 +24,6 @@ public class Board {
 
 	public final PointSet points() {
 		return points;
-	}
-	
-	public void print() {
-		for(Curve c : curves) {
-			System.out.println(c);
-			System.out.println(points.stream().filter(c::contains).collect(Collectors.toList()));
-		}
-			
 	}
 	
 	public static class BoardBuilder {
