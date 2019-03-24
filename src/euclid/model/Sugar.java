@@ -15,19 +15,19 @@ public class Sugar {
 	}
 	
 	public static Point p(final double x, final double y) {
-		return p(implement(x), implement(y));
+		return p(n(x), n(y));
 	}
 
-	private static Constructable implement(final double x) {
+	public static Constructable n(final double x) {
 		return new CFloat(x);
 //		return new CFixed(x); // not good
 	}
 
-	private static final Constructable M_TWO = implement(-2);
-	private static final Constructable M_ONE = implement(-1);
-	private static final Constructable ZERO = implement(0);
-	private static final Constructable ONE = implement(1);
-	private static final Constructable TWO = implement(2);
+	private static final Constructable M_TWO = n(-2);
+	private static final Constructable M_ONE = n(-1);
+	private static final Constructable ZERO = n(0);
+	private static final Constructable ONE = n(1);
+	private static final Constructable TWO = n(2);
 	
 	public static Constructable m_two() {
 		return M_TWO;

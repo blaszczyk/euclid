@@ -1,52 +1,56 @@
 package euclid.problem;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Calculator {
 		
-	private static final Pattern DOUBLE_PATTERN = Pattern.compile("(sqrt)?(\\()([0-9\\*\\+\\-\\/\\.]*)(\\))");
+	private static final Pattern PARENTHESIS_PATTERN = Pattern.compile("(.*[^t])?(sqrt)?(\\()([0-9\\*\\+\\-\\/\\.]*)(\\))(.*)");
 	
 	public static double evaluate(final String expression)
 	{
-		final Matcher matcher = DOUBLE_PATTERN.matcher(expression);
-		if(matcher.find())
+		final Matcher matcher = PARENTHESIS_PATTERN.matcher(expression);
+		if(matcher.matches())
 		{
-			final boolean sqrt = matcher.group(1).equals("sqrt");
-			final String innerExpression = matcher.group(3);
-			double result = evaluate(innerExpression);
+			final boolean sqrt = nonNull(matcher.group(2)).equals("sqrt");
+			final String prefix = nonNull(matcher.group(1));
+			final String inner = nonNull(matcher.group(4));
+			final String apex = nonNull(matcher.group(6));
+			double result = evaluate(inner);
 			if(sqrt) {
 				result = Math.sqrt(result);
 			}
-			final String reducedExpression = expression.substring(0,matcher.start())
-											+ result
-											+ expression.substring(matcher.end());
+			final String reducedExpression = prefix	+ result + apex;
 			return evaluate(reducedExpression);
 		}
-		return evaluateInnerDouble(expression);
+		return evaluateSum(expression);
 	}
 
-	private static double evaluateInnerDouble(final String expression)
+	private static double evaluateSum(final String sum)
 	{
-		return Collections.singletonList(expression)
-    			.stream()
-    			.map(s -> s.replaceAll("(?<=[0-9])\\-", "+-")
-    					.replaceAll("(?<=[0-9\\(\\)])\\/", "*/")
-    					.replaceAll("\\-\\-", "")
-    					.split("\\+"))
-    			.flatMap(Arrays::stream)
-    			.map(s -> s.split("\\*"))
-    			.map(Arrays::stream)
-    			.map(s -> s.map( Calculator::parseDouble )
-    					.reduce(1., Calculator::multiply))
+		final String[] summands = sum.replaceAll("(?<=[0-9])\\-", "+-")
+				.replaceAll("(?<=[0-9\\(\\)])\\/", "*/")
+				.replaceAll("\\-\\-", "")
+				.split("\\+");
+		return Arrays.stream(summands)
+    			.map(Calculator::evaluateProduct)
     			.reduce(0., Calculator::add);
 	}
 	
-	private static double multiply(final double d1, final double d2)
+	private static double evaluateProduct(final String product)
 	{
-		return d1*d2;
+		final String[] factors = product.split("\\*");
+		return Arrays.stream(factors)
+				.map(Calculator::parseDouble)
+				.reduce(1., Calculator::multiply);
+	}
+	
+	private static double parseDouble(final String text)
+	{
+		if(text.charAt(0) == '/')
+			return 1. / Double.parseDouble(text.substring(1));
+		return Double.parseDouble(text);
 	}
 	
 	private static double add(final double d1, final double d2)
@@ -54,10 +58,12 @@ public class Calculator {
 		return d1+d2;
 	}
 	
-	private static double parseDouble(String text)
+	private static double multiply(final double d1, final double d2)
 	{
-		if(text.charAt(0) == '/')
-			return 1. / Double.parseDouble(text.substring(1));
-		return Double.parseDouble(text);
+		return d1*d2;
+	}
+	
+	private static String nonNull(final String nullable) {
+		return nullable == null ? "" : nullable;
 	}
 }

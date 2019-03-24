@@ -29,7 +29,7 @@ public class EuCLId {
 	}
 	
 	private static void print(final Board board) {
-		for(Curve c : board.curves()) {
+		for(final Curve c : board.curves()) {
 			System.out.println(c);
 			System.out.println("  " + board.points().stream().filter(c::contains).collect(Collectors.toList()));
 		}
@@ -39,6 +39,7 @@ public class EuCLId {
 		try {
 			return ProblemParser.parse(file);
 		} catch (ProblemParserException e) {
+			e.printStackTrace();
 			fail("error parsing file'%s': %s", file, e.getMessage());
 			return null;
 		}

@@ -30,55 +30,46 @@ public class ProblemParser {
 	
 	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_REQ_POINTS, KEY_REQ_CURVES, KEY_MAX_DEPTH);
 	
-	private static final Pattern POINT_DEF = Pattern.compile("(p\\()([\\w\\.\\-]+)(\\,)([\\w\\.\\-]+)(\\))");
-	private static final Pattern CURVE_DEF = Pattern.compile("([cl])(\\()([\\w\\.\\-\\,]+)(\\-)([\\w\\.\\-\\,]+)(\\))");
+	private static final Pattern POINT_PATTERN = Pattern.compile("(p\\()([\\w\\.\\+\\-\\*\\/]+)(\\,)([\\w\\.\\+\\-\\*\\/]+)(\\))");
+	private static final Pattern CURVE_PATTERN = Pattern.compile("([cl])(\\()([\\w\\.\\,]+)(\\-)([\\w\\.\\,]+)(\\))");
 
-	private final Map<String, Double> constants = new HashMap<>();
+	private final Map<String, Constructable> constants = new HashMap<>();
 	private final Map<String, Point> points = new HashMap<>();
 	private final Map<String, Curve> curves = new HashMap<>();
 	
 	private Problem parseProblem(final File file) {
 		try {
 			final List<String> lines = Files.readAllLines(file.toPath());
-			final Problem problem = parseProblem(keyValues(lines));
+			final Problem problem = parseProblem(lines);
 			return problem;
 		}
 		catch (IOException e) {
-			throw new ProblemParserException("error reading file '%': '%s'", file, e.getMessage());
+			throw new ProblemParserException(e, "error reading file '%': '%s'", file, e.getMessage());
 		}
+	}
+
+	private Problem parseProblem(final List<String> lines) {
+		return parseProblem(keyValues(lines));
 	}
 	
 	private Map<String, String> keyValues(final List<String> lines) {
 		final Map<String, String> keyValues = new LinkedHashMap<>();
 		for(final String l : lines) {
-			final String line = removeWhitespaces(l);
-			if(isComment(line)) {
-				continue;
+			final String line = l.replaceAll("\\s+|#.*", "");
+			if(line.contains("=")) {
+				final String[] split = line.split("\\=", 2);
+				final String key = split[0].toLowerCase();
+				final String value = split[1];
+				keyValues.put(key, value);
 			}
-			final String[] split = line.split("\\=", 2);
-			final String key = split[0].toLowerCase();
-			final String value = split[1];
-			keyValues.put(key, value);
-		}		
+		}
 		return keyValues;
-	}
-
-	private String removeWhitespaces(final String line) {
-		return line.replaceAll("\\s+", "");
-	}
-
-	private boolean isComment(final String line) {
-		return line.isEmpty() || line.startsWith("#") || !line.contains("=");
 	}
 	
 	private Problem parseProblem(final Map<String,String> keyValues) {
+		validateKeywords(keyValues);
 		parseVariables(keyValues);
-		final Set<String> missingKeys = new HashSet<>(KEYWORDS);
-		missingKeys.removeAll(keyValues.keySet());
-		if(!missingKeys.isEmpty()) {
-//			if(!keyValues.keySet().containsAll(KEYWORDS)) {
-			throw new ProblemParserException("mandatory keys are missing: %s", missingKeys);
-		}
+		
 		final PointSet initPoints = parsePoints(keyValues.get(KEY_INIT_POINTS));
 		final CurveSet initCurves = parseCurves(keyValues.get(KEY_INIT_CURVES));
 		final PointSet reqPoints = parsePoints(keyValues.get(KEY_REQ_POINTS));
@@ -89,6 +80,14 @@ public class ProblemParser {
 				Board.withPoints(reqPoints).andCurves(reqCurves), maxDepth);
 	}
 	
+	private void validateKeywords(final Map<String, String> keyValues) {
+		final Set<String> missingKeys = new HashSet<>(KEYWORDS);
+		missingKeys.removeAll(keyValues.keySet());
+		if(!missingKeys.isEmpty()) {
+			throw new ProblemParserException("mandatory keys are missing: %s", missingKeys);
+		}
+	}
+
 	private void parseVariables(final Map<String,String> keyValues) {
 		for(final String key : keyValues.keySet()) {
 			if(KEYWORDS.contains(key)) {
@@ -96,7 +95,7 @@ public class ProblemParser {
 			}
 			final String value = keyValues.get(key);
 			if(value.isEmpty())
-				throw new ProblemParserException("empty no value for variable '%s'", key);
+				throw new ProblemParserException("empty value for variable '%s'", key);
 			final char firstChar = value.toLowerCase().charAt(0);
 			if(firstChar == 'p') {
 				points.put(key, parsePoint(value));
@@ -126,19 +125,18 @@ public class ProblemParser {
 		if(curves.containsKey(value)) {
 			return curves.get(value);
 		}
-		final Matcher matcher = CURVE_DEF.matcher(value);
+		final Matcher matcher = CURVE_PATTERN.matcher(value);
 		if(matcher.matches()) {
-			final char firstChar = matcher.group(1).charAt(0);
+			final boolean isLine = matcher.group(1).charAt(0) == 'l';
 			final Point x = parsePoint(matcher.group(3));
 			final Point y = parsePoint(matcher.group(5));
-			if(firstChar == 'l') {
-				return l(x,y);
-			}
-			if(firstChar == 'c') {
-				return c(x,y);
-			}
+			final Curve curve = isLine ? l(x,y) :  c(x,y);
+			curves.put(value, curve);
+			return curve;
 		}
-		throw new ProblemParserException("invalid or unknown curve:'%s'", value);
+		else {
+			throw new ProblemParserException("invalid or unknown curve:'%s'", value);
+		}
 	}
 
 	private PointSet parsePoints(final String values) {
@@ -157,32 +155,43 @@ public class ProblemParser {
 		if(points.containsKey(value)) {
 			return points.get(value);
 		}
-		final Matcher matcher = POINT_DEF.matcher(value);
+		final Matcher matcher = POINT_PATTERN.matcher(value);
 		if(matcher.matches()) {
-			final double x = parseConstant(matcher.group(2));
-			final double y = parseConstant(matcher.group(4));
-			return p(x,y);
+			final Constructable x = parseConstant(matcher.group(2));
+			final Constructable y = parseConstant(matcher.group(4));
+			final Point point = p(x,y);
+			points.put(value, point);
+			return point;
 		}
-		throw new ProblemParserException("invalid or unknown point: '%s'", value);
+		else {
+			throw new ProblemParserException("invalid or unknown point: '%s'", value);
+		}
 	}
 
-	private double parseConstant(final String value) {
+	private Constructable parseConstant(final String value) {
 		if(constants.containsKey(value)) {
 			return constants.get(value);
 		}
 		try {
-			return Calculator.evaluate(value);
+			final double numValue = Calculator.evaluate(value);
+			final Constructable number = n(numValue);
+			constants.put(value, number);
+			return number;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			throw new ProblemParserException("error parsing numerical value '%s': %s", value, e.getMessage());
+			throw new ProblemParserException(e, "error parsing numerical value '%s': %s", value, e.getMessage());
 		}
 	}
 	
 	@SuppressWarnings("serial")
 	public static class ProblemParserException extends RuntimeException {
+		
 		public ProblemParserException(final String format, final Object... args) {
 			super(String.format(format, args));
+		}
+		
+		public ProblemParserException(final Throwable cause, final String format, final Object... args) {
+			super(String.format(format, args), cause);
 		}
 	}
 
