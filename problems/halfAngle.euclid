@@ -11,8 +11,8 @@ phalf=p( cos(randAngle/2), sin(randAngle/2) )
 p2=p( cos(randAngle), sin(randAngle) )
 
 l1=l(o;p1)
-lhalf=l(o;p2)
-l2=l(o;p3)
+lhalf=l(o;phalf)
+l2=l(o;p2)
 
 initialpoints = p1: o
 initialcurves = l2
@@ -20,4 +20,4 @@ requiredpoints =
 requiredcurves = lhalf
 maxdepth = 4
 findAll = false
-algorithm = curve_based
+algorithm = point_based

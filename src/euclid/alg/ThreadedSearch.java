@@ -13,13 +13,15 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 
 	private final Queue<B> solutions = new ConcurrentLinkedQueue<>();
 	
-	private final Collection<SearchThread> threads = new ConcurrentLinkedQueue<>();
+	private final AtomicInteger finishedCount = new AtomicInteger(0);
 	
-	private final AtomicInteger count = new AtomicInteger(0);
+	private final AtomicInteger dupeCount = new AtomicInteger(0);
 
-	private final int maxThreads = Runtime.getRuntime().availableProcessors();
+	private final int threadCount = Runtime.getRuntime().availableProcessors();
 	
-	private boolean firstSolution;
+	private final Collection<SearchThread> threads = new ArrayList<>(threadCount);
+	
+	private boolean findFirst;
 	
 	private boolean halt = false;
 	
@@ -31,24 +33,30 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 
 	@Override
 	public Collection<B> findAll() {
-		firstSolution = false;
+		findFirst = false;
 		execute();
 		return new ArrayList<>(solutions);
 	}
 
 	@Override
 	public Optional<B> findFirst() {
-		firstSolution = true;
+		findFirst = true;
 		execute();
 		return solutions.isEmpty() ? Optional.empty() : Optional.of(solutions.iterator().next());
 	}
 	
 	private void execute() {
 		enqueue(first());
-		log("executing search with %d threads", maxThreads);
+		for(int i = 0; i < threadCount; i++) {
+			final String threadName = String.format("search-%08X-%d", hashCode(), i);
+			final SearchThread thread = new SearchThread(threadName);
+			threads.add(thread);
+			thread.start();
+		}
+		log("executing search with %d threads", threadCount);
 		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
-			log("queued: %d, finished: %d", queue.size(), count.get());
+			log("queued: %d, finished: %d, dupes: %d", queue.size(), finishedCount.get(), dupeCount.get());
 		}
 		halt = true;
 	}
@@ -57,7 +65,7 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		final B candidate = digest(t);
 		if(solves(candidate)) {
 			solutions.add(candidate);
-			if(firstSolution) {
+			if(findFirst) {
 				halt = true;
 			}
 		}
@@ -65,17 +73,15 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 			final Collection<T> next = generateNext(candidate);
 			next.forEach(this::enqueue);
 		}
-		count.incrementAndGet();
+		finishedCount.incrementAndGet();
 	}
 
 	private void enqueue(final T t) {
 		if(!queue.contains(t)) {
 			queue.add(t);
 		}
-		if(!halt && (threads.size() < maxThreads)) {
-			final SearchThread thread = new SearchThread();
-			threads.add(thread);
-			thread.start();
+		else {
+			dupeCount.incrementAndGet();
 		}
 	}
 	
@@ -92,6 +98,10 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	private class SearchThread extends Thread {
 		private boolean idle = false;
 		
+		public SearchThread(final String name) {
+			super(name);
+		}
+
 		private boolean idle() {
 			return idle;
 		}
@@ -112,7 +122,6 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 			}
 			finally {
 				idle = true;
-				threads.remove(this);
 			}
 		}
 	}
