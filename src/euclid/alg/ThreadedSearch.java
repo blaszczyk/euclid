@@ -1,5 +1,6 @@
 package euclid.alg;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Queue;
@@ -15,61 +16,55 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	
 	private final int maxThreads = Runtime.getRuntime().availableProcessors();
 	
-	private boolean first;
+	private boolean firstSolution;
+	
+	private boolean halt = false;
+	
+	private final int maxDepth;
+	
+	ThreadedSearch(final int maxDepth) {
+		this.maxDepth = maxDepth;
+	}
 
 	@Override
 	public Collection<B> findAll() {
-		first = false;
-		return find();
+		firstSolution = false;
+		execute();
+		return new ArrayList<>(solutions);
 	}
 
 	@Override
 	public Optional<B> findFirst() {
-		first = true;
-		final Collection<B> sol = find();
-		return sol.isEmpty() ? Optional.empty() : Optional.of(sol.iterator().next());
+		firstSolution = true;
+		execute();
+		return solutions.isEmpty() ? Optional.empty() : Optional.of(solutions.iterator().next());
 	}
 	
-	private Collection<B> find() {
-		addToQueue(first());
-		while(threads.stream().anyMatch(SearchThread::running)) {
+	private void execute() {
+		enqueue(first());
+		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
 		}
-		return solutions;
+		halt = true;
 	}
 	
-	private void proceed() {
-		T t = null;
-		synchronized (queue) {
-			if(!queue.isEmpty()) {
-				t = queue.remove();
-			}
-		}
-		if(t == null) {
-			hibernate();
-		}
-		else {
-			proceed(t);
-		}
-	}
-	
-	private void proceed(final T next) {
-		final B candidate = digest(next);
+	private void process(final T t) {
+		final B candidate = digest(t);
 		if(solves(candidate)) {
 			solutions.add(candidate);
-			if(first) {
-				threads.forEach(SearchThread::halt);
+			if(firstSolution) {
+				halt = true;
 			}
 		}
-		else if(!exceedsDepth(candidate)) {
-			final Collection<T> ts = generateNext(candidate);
+		else if(depth(candidate) < maxDepth) {
+			final Collection<T> next = generateNext(candidate);
 			synchronized (queue) {
-				ts.forEach(this::addToQueue);
+				next.forEach(this::enqueue);
 			}
 		}
 	}
 
-	private void addToQueue(final T t) {
+	private void enqueue(final T t) {
 		if(!queue.contains(t))
 			queue.add(t);
 		if(threads.size() < maxThreads) {
@@ -85,30 +80,33 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	
 	abstract boolean solves(final B b);
 	
-	abstract boolean exceedsDepth(final B b);
+	abstract int depth(final B b);
 	
 	abstract Collection<T> generateNext(final B b);
 	
-	class SearchThread extends Thread{
-		private boolean running = true;
+	private class SearchThread extends Thread {
+		private boolean idle = false;
 		
-		private void halt() {
-			running = false;
-		}
-		
-		private boolean running() {
-			return running;
+		private boolean idle() {
+			return idle;
 		}
 		
 		@Override
 		public void run() {
 			try {
-				while(running) {
-					proceed();
+				while(!halt) {
+					final T t = queue.poll();
+					idle = (t == null);
+					if(idle) {
+						hibernate();
+					}
+					else {
+						process(t);
+					}
 				}
 			}
 			finally {
-				running = false;
+				idle = true;
 				threads.remove(this);
 			}
 		}

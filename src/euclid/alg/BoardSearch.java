@@ -6,17 +6,17 @@ abstract class BoardSearch<T> extends ThreadedSearch<T, Board> {
 	
 	final Board initial;
 	final Board required;
-	final int depth;
 	
-	public BoardSearch(final Board initial, final Board required, final int depth) {
+	BoardSearch(final Board initial, final Board required, final int maxDepth) {
+		super(maxDepth);
 		this.initial = initial;
 		this.required = required;
-		this.depth = depth;
 	}
 	
 	@Override
 	boolean solves(final Board board) {
-		return board.curves().containsAll(required.curves()) && board.points().containsAll(required.points());
+		return board.curves().containsAll(required.curves())
+				&& board.points().containsAll(required.points());
 	}
 
 }

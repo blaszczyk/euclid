@@ -1,10 +1,10 @@
 package euclid.model;
 
+import java.text.DecimalFormat;
+
 public class CFloat implements Constructable {
 	
 	private static final double TOLERANCE = 1E-10;
-	
-	private static final double PRECISION = 0x1_000_000;
 	
 	private final double value;
 	
@@ -86,7 +86,7 @@ public class CFloat implements Constructable {
 	
 	@Override
 	public String toString() {
-		return Double.toString(Math.round(value*PRECISION) / PRECISION);
+		return new DecimalFormat("#.#####").format(value);
 	}
 
 	@Override
