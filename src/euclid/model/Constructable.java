@@ -13,5 +13,7 @@ public interface Constructable extends Comparable<Constructable>
 	public Constructable root();
 	
 	public boolean isEqual(final Constructable other);
+	
+	public double doubleValue();
 
 }

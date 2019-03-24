@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,13 +113,10 @@ public class ProblemParser {
 				continue;
 			}
 			final String value = keyValues.get(key);
-			if(value.isEmpty())
-				throw new ProblemParserException("empty value for variable '%s'", key);
-			final char firstChar = value.toLowerCase().charAt(0);
-			if(firstChar == 'p') {
+			if(value.matches("p\\(.*")) {
 				points.put(key, parsePoint(value));
 			}
-			else if(firstChar == 'c' || firstChar == 'l') {
+			else if(value.matches("[cl]\\(.*")) {
 				curves.put(key, parseCurve(value));
 			}
 			else {
@@ -191,13 +189,24 @@ public class ProblemParser {
 			return constants.get(value);
 		}
 		try {
-			final double numValue = Calculator.evaluate(value);
+			final Calculator calculator = new Calculator(this::lookUpConstant);
+			final double numValue = calculator.evaluate(value);
 			final Constructable number = n(numValue);
 			constants.put(value, number);
 			return number;
 		}
 		catch (Exception e) {
 			throw new ProblemParserException(e, "error parsing numerical value '%s': %s", value, e.getMessage());
+		}
+	}
+	
+	private Optional<Double> lookUpConstant(final String key) {
+		final String keyLower = key.toLowerCase();
+		if(constants.containsKey(keyLower)) {
+			return Optional.of(constants.get(keyLower).doubleValue());
+		}
+		else {
+			return Optional.empty();
 		}
 	}
 	

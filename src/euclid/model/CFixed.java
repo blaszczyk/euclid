@@ -72,6 +72,11 @@ public class CFixed implements Constructable {
 	public boolean isEqual(Constructable other) {
 		return Math.abs(value - c(other).value) < BIAS_ROOT;
 	}
+	
+	@Override
+	public double doubleValue() {
+		return ((double)value) / BIAS;
+	}
 
 	@Override
 	public int hashCode() {

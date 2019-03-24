@@ -65,10 +65,14 @@ public class CFloat implements Constructable {
 	public boolean isEqual(Constructable other) {
 		return Math.abs(value - c(other).value) < TOLERANCE;
 	}
+	
+	@Override
+	public double doubleValue() {
+		return value;
+	}
 
 	@Override
 	public int hashCode() {
-//		return (int) (value / TOLERANCE);
 		throw new UnsupportedOperationException();
 	}
 

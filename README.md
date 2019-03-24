@@ -10,10 +10,11 @@ after successful build, execute `euCLId.(bat|sh)` with a problem file as argumen
 * keys are variables for numbers, points or curves
   * a number is an arithmetic expression build of
     * parsable floating point numbers
-    * constants `pi` and `e`
+    * constants `pi` and `e` or `rand`
     * basic operations `+`, `-`, `*` and `/`
     * parentheses `(...)`
-    * unary functions `sqrt()`, `sin()`, `exp()` and lots more
+    * unary functions like `sqrt()`, `sin()`, `exp()` and lots more
+    * previously defined numeric variables
   * the point with coordinates `x` and `y` is `p(x, y)`
   * the line through the points `x` and `y` is `l(x; y)`
   * the circle with center `c` through the point `x` is `c(c; x)`

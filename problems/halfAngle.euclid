@@ -1,0 +1,23 @@
+#
+# half of a random angle
+#
+randAngle = pi * rand
+randRadius = exp(2*rand-1)
+
+o=p(0,0) # origin
+
+p1=p(randRadius,0)
+phalf=p( cos(randAngle/2), sin(randAngle/2) )
+p2=p( cos(randAngle), sin(randAngle) )
+
+l1=l(o;p1)
+lhalf=l(o;p2)
+l2=l(o;p3)
+
+initialpoints = p1: o
+initialcurves = l2
+requiredpoints =
+requiredcurves = lhalf
+maxdepth = 4
+findAll = false
+algorithm = curve_based

@@ -2,15 +2,42 @@ package euclid.problem;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Calculator {
-		
-	private static final Pattern PARENTHESIS_PATTERN = Pattern.compile("(.*[^a-zA-Z])?([a-zA-Z]*)?(\\()([0-9a-zA-Z\\*\\+\\-\\/\\.]*)(\\))(.*)");
 	
-	public static double evaluate(String expression)
+	public static interface ValueLookUp {
+		public Optional<Double> lookUp(final String key);
+	}
+
+	private static final Pattern PARENTHESIS_PATTERN = Pattern.compile(
+			"(.*[^a-zA-Z])?" // prefix
+			+ "([a-zA-Z]*)?" // operator
+			+ "(\\()" // open
+			+ "([0-9a-zA-Z\\*\\+\\-\\/\\.]*)" // inner
+			+ "(\\))" // close
+			+ "(.*)"); // apex
+	
+	private final ValueLookUp external;
+	
+	private final Map<String, Double> cache = new HashMap<>();
+		
+	public Calculator(final ValueLookUp external) {
+		this.external = external;
+	}
+	
+	public Calculator() {
+		this(k -> Optional.empty());
+	}
+	
+	public double evaluate(final String expression)
 	{
 		final Matcher matcher = PARENTHESIS_PATTERN.matcher(expression);
 		if(matcher.matches())
@@ -21,7 +48,9 @@ public class Calculator {
 			final String apex = nonNull(matcher.group(6));
 			double result = evaluate(inner);
 			result = evaluateOperator(operator, result);
-			final String reducedExpression = prefix	+ result + apex;
+			final String key = "vln7rnl" + cache.size();
+			cache.put(key, result);
+			final String reducedExpression = prefix	+ key + apex;
 			return evaluate(reducedExpression);
 		}
 		return evaluateSum(expression);
@@ -37,36 +66,52 @@ public class Calculator {
 			return (double) method.invoke(null, operand);
 		}
 		catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException("unknown operator " + operator);
+			final List<String> allowedMethods = new ArrayList<>();
+			for(final Method method : Math.class.getMethods()) {
+				final Class<?>[] params = method.getParameterTypes();
+				if(params.length == 1 && params[0].equals(double.class)) {
+					allowedMethods.add(method.getName());
+				}
+			}
+			throw new RuntimeException("unknown operator '" + operator + "'\nallowed operators:\n" + allowedMethods);
 		}
 	}
 
-	private static double evaluateSum(final String sum)
+	private double evaluateSum(final String sum)
 	{
 		final String[] summands = sum.replaceAll("(?<=[0-9a-zA-Z])\\-", "+-")
 				.replaceAll("(?<=[0-9a-zA-Z\\(\\)])\\/", "*/")
 				.replaceAll("\\-\\-", "")
 				.split("\\+");
 		return Arrays.stream(summands)
-    			.map(Calculator::evaluateProduct)
+    			.map(this::evaluateProduct)
     			.reduce(0., Calculator::add);
 	}
 	
-	private static double evaluateProduct(final String product)
+	private double evaluateProduct(final String product)
 	{
 		final String[] factors = product.split("\\*");
 		return Arrays.stream(factors)
-				.map(Calculator::parseDouble)
+				.map(this::parseDouble)
 				.reduce(1., Calculator::multiply);
 	}
 	
-	private static double parseDouble(final String text)
+	private double parseDouble(final String text)
 	{
-		if(text.equalsIgnoreCase("pi")) {
-			return Math.PI;
+		if(cache.containsKey(text)) {
+			return cache.get(text);
 		}
-		if(text.equalsIgnoreCase("e")) {
+		final Optional<Double> value = external.lookUp(text);
+		if(value.isPresent()) {
+			return value.get();
+		}
+		switch (text.toLowerCase()) {
+		case "pi":
+			return Math.PI;
+		case "e":
 			return Math.E;
+		case "rand":
+			return Math.random();
 		}
 		if(text.charAt(0) == '/')
 			return 1. / Double.parseDouble(text.substring(1));

@@ -16,26 +16,33 @@ public class EuCLId {
 	public static void main(final String[] args) {
 		final File file = getFile(args);
 		final Problem problem = parse(file);
+		System.out.println("initial:");
+		print(problem.initial());
+		System.out.println("required:");
+		print(problem.required());
 		final Search<Board> search = getSearch(problem);
 		if(problem.findAll()) {
 			final Collection<Board> solutions = search.findAll();
+			System.out.println("solutions count=" + solutions.size());
 			solutions.forEach(EuCLId::print);
 		}
 		else {
 			final Optional<Board> solution = search.findFirst();
-			if(solution.isPresent())
+			if(solution.isPresent()) {
+				System.out.println("solution");
 				print(solution.get());
+			}
 			else
 				System.out.println("no solution");
 		}
 	}
 	
 	private static void print(final Board board) {
-		System.out.println();
 		for(final Curve c : board.curves()) {
 			System.out.println(c);
 			System.out.println("  " + board.points().stream().filter(c::contains).collect(Collectors.toList()));
 		}
+		System.out.println();
 	}
 	
 	private static Problem parse(final File file) {
