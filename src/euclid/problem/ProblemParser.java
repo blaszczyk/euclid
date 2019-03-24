@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import static euclid.model.Sugar.*;
 import euclid.model.*;
+import euclid.problem.Problem.Algorithm;
 
 public class ProblemParser {
 	
@@ -27,8 +28,10 @@ public class ProblemParser {
 	private static final String KEY_REQ_POINTS = "requiredpoints";
 	private static final String KEY_REQ_CURVES = "requiredcurves";
 	private static final String KEY_MAX_DEPTH = "maxdepth";
+	private static final String KEY_ALGORITHM = "algorithm";
+	private static final String KEY_FIND_ALL = "findall";
 	
-	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_REQ_POINTS, KEY_REQ_CURVES, KEY_MAX_DEPTH);
+	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_REQ_POINTS, KEY_REQ_CURVES, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
@@ -88,9 +91,11 @@ public class ProblemParser {
 		final PointSet reqPoints = parsePoints(keyValues.get(KEY_REQ_POINTS));
 		final CurveSet reqCurves = parseCurves(keyValues.get(KEY_REQ_CURVES));
 		final int maxDepth = Integer.valueOf(keyValues.get(KEY_MAX_DEPTH));
+		final Algorithm algorithm = Algorithm.valueOf(keyValues.get(KEY_ALGORITHM).toUpperCase());
+		final boolean findAll = Boolean.parseBoolean(keyValues.get(KEY_FIND_ALL));
 		
 		return new Problem(Board.withPoints(initPoints).andCurves(initCurves),
-				Board.withPoints(reqPoints).andCurves(reqCurves), maxDepth);
+				Board.withPoints(reqPoints).andCurves(reqCurves), maxDepth, findAll, algorithm);
 	}
 	
 	private void validateKeywords(final Map<String, String> keyValues) {

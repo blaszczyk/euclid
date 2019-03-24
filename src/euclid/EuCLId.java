@@ -1,6 +1,7 @@
 package euclid;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,8 @@ public class EuCLId {
 		final Problem problem = parse(file);
 		final Search<Board> search = getSearch(problem);
 		if(problem.findAll()) {
-			search.findAll().forEach(EuCLId::print);
+			final Collection<Board> solutions = search.findAll();
+			solutions.forEach(EuCLId::print);
 		}
 		else {
 			final Optional<Board> solution = search.findFirst();
@@ -29,6 +31,7 @@ public class EuCLId {
 	}
 	
 	private static void print(final Board board) {
+		System.out.println();
 		for(final Curve c : board.curves()) {
 			System.out.println(c);
 			System.out.println("  " + board.points().stream().filter(c::contains).collect(Collectors.toList()));

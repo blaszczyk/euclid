@@ -21,3 +21,5 @@ initialCurves =
 requiredPoints =
 requiredCurves = l12 : l23 : l31
 maxDepth = 5
+findAll = true
+algorithm = curve_based

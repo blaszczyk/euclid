@@ -5,7 +5,7 @@ import java.util.Collection;
 
 @SuppressWarnings("serial")
 public class CurveSet extends ArrayList<Curve> {
-
+	
 	private static final CurveSet EMPTY = new CurveSet(0);
 	
 	public static CurveSet create() {
@@ -61,6 +61,21 @@ public class CurveSet extends ArrayList<Curve> {
 		if(contains(e))
 			return false;
 		return super.add(e);
+	}
+
+	@Override
+	public int hashCode() {
+		return stream().mapToInt(Object::hashCode).sum();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		CurveSet other = (CurveSet) obj;
+		return (size() == other.size()) && containsAll(other);
 	}
 
 }

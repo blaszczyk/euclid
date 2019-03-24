@@ -12,14 +12,18 @@ public class Problem {
 	private final Board initial;
 	private final Board required;
 	private final int maxDepth;
-	private final boolean findAll = false;
-	private final Algorithm algorithm = Algorithm.CURVE_BASED;
+	private final boolean findAll;
+	private final Algorithm algorithm;
 	
-	public Problem(final Board initial, final Board required, final int maxDepth) {
+	public Problem(final Board initial, final Board required, final int maxDepth, final boolean findAll, final Algorithm algorithm) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
+		this.findAll = findAll;
+		this.algorithm = algorithm;
 	}
+	
+	
 
 	public final Board initial() {
 		return initial;
