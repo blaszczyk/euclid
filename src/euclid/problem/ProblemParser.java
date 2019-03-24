@@ -30,8 +30,21 @@ public class ProblemParser {
 	
 	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_REQ_POINTS, KEY_REQ_CURVES, KEY_MAX_DEPTH);
 	
-	private static final Pattern POINT_PATTERN = Pattern.compile("(p\\()([\\w\\.\\+\\-\\*\\/]+)(\\,)([\\w\\.\\+\\-\\*\\/]+)(\\))");
-	private static final Pattern CURVE_PATTERN = Pattern.compile("([cl])(\\()([\\w\\.\\,]+)(\\-)([\\w\\.\\,]+)(\\))");
+	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)]+)";
+	private static final Pattern POINT_PATTERN = Pattern.compile(
+			"(p\\()" // declaration
+			+ NUM_PTRN // number
+			+ "(\\,)" // separator
+			+ NUM_PTRN // number
+			+ "(\\))"); // close
+
+	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\,]+)";
+	private static final Pattern CURVE_PATTERN = Pattern.compile(
+			"([cl]\\()" // declaration
+			+ PT_PTRN // point
+			+ "(\\;)" // separator
+			+ PT_PTRN // point
+			+ "(\\))"); // close
 
 	private final Map<String, Constructable> constants = new HashMap<>();
 	private final Map<String, Point> points = new HashMap<>();
@@ -113,7 +126,7 @@ public class ProblemParser {
 		if(values == null || values.isEmpty()) {
 			return CurveSet.empty();
 		}
-		final String[] split = values.split("\\;");
+		final String[] split = values.split("\\:");
 		final CurveSet curves = CurveSet.create();
 		for(final String value : split) {
 			curves.add(parseCurve(value));
@@ -128,8 +141,8 @@ public class ProblemParser {
 		final Matcher matcher = CURVE_PATTERN.matcher(value);
 		if(matcher.matches()) {
 			final boolean isLine = matcher.group(1).charAt(0) == 'l';
-			final Point x = parsePoint(matcher.group(3));
-			final Point y = parsePoint(matcher.group(5));
+			final Point x = parsePoint(matcher.group(2));
+			final Point y = parsePoint(matcher.group(4));
 			final Curve curve = isLine ? l(x,y) :  c(x,y);
 			curves.put(value, curve);
 			return curve;
@@ -143,7 +156,7 @@ public class ProblemParser {
 		if(values == null || values.isEmpty()) {
 			return PointSet.empty();
 		}
-		final String[] split = values.split("\\;");
+		final String[] split = values.split("\\:");
 		final PointSet points = PointSet.create();
 		for(final String value : split) {
 			points.add(parsePoint(value));
