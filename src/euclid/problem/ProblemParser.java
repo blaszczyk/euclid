@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static euclid.model.ElementLifeTimeManager.*;
 import euclid.model.*;
-import euclid.problem.Problem.Algorithm;
+import euclid.problem.Problem.AlgorithmType;
 
 public class ProblemParser {
 	
@@ -93,7 +93,7 @@ public class ProblemParser {
 		final PointSet reqPoints = parsePoints(keyValues.get(KEY_REQ_POINTS));
 		final CurveSet reqCurves = parseCurves(keyValues.get(KEY_REQ_CURVES));
 		final int maxDepth = Integer.valueOf(keyValues.get(KEY_MAX_DEPTH));
-		final Algorithm algorithm = Algorithm.valueOf(keyValues.get(KEY_ALGORITHM).toUpperCase());
+		final AlgorithmType algorithm = AlgorithmType.valueOf(keyValues.get(KEY_ALGORITHM).toUpperCase());
 		final boolean findAll = Boolean.parseBoolean(keyValues.get(KEY_FIND_ALL));
 		
 		return new Problem(Board.withPoints(initPoints).andCurves(initCurves),

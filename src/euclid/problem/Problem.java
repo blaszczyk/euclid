@@ -5,7 +5,7 @@ import euclid.model.Board;
 
 public class Problem {
 	
-	public enum Algorithm {
+	public enum AlgorithmType {
 		CURVE_BASED,
 		POINT_BASED;
 	}
@@ -14,14 +14,14 @@ public class Problem {
 	private final Board required;
 	private final int maxDepth;
 	private final boolean findAll;
-	private final Algorithm algorithm;
+	private final AlgorithmType algorithmType;
 	
-	public Problem(final Board initial, final Board required, final int maxDepth, final boolean findAll, final Algorithm algorithm) {
+	public Problem(final Board initial, final Board required, final int maxDepth, final boolean findAll, final AlgorithmType algorithmType) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
 		this.findAll = findAll;
-		this.algorithm = algorithm;
+		this.algorithmType = algorithmType;
 	}
 	
 	
@@ -42,16 +42,16 @@ public class Problem {
 		return findAll;
 	}
 
-	public final Algorithm algorithm() {
-		return algorithm;
+	public final AlgorithmType algorithmType() {
+		return algorithmType;
 	}
 
-	public Search<Board> createSearch() {
-		switch (algorithm) {
+	public Algorithm<?, Board> createAlgorithm() {
+		switch (algorithmType) {
 		case CURVE_BASED:
-			return new CurveBasedSearch(initial, required, maxDepth);
+			return new CurveBasedSearch(initial, required);
 		case POINT_BASED:
-			return new PointBasedSearch(initial, required, maxDepth);
+			return new PointBasedSearch(initial, required);
 		}
 		return null;
 	}

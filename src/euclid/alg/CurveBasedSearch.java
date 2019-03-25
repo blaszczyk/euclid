@@ -8,29 +8,29 @@ import euclid.model.*;
 
 public class CurveBasedSearch extends BoardSearch<CurveSet>{
 	
-	public CurveBasedSearch(final Board initial, final Board required, final int maxDepth) {
-		super(initial, required, maxDepth);
+	public CurveBasedSearch(final Board initial, final Board required) {
+		super(initial, required);
 	}
 
 	@Override
-	CurveSet first() {
+	public CurveSet first() {
 		return initial.curves();
 	}
 
 	@Override
-	Board digest(final CurveSet curves) {
+	public Board digest(final CurveSet curves) {
 		final Set<Point> points = curves.intersections();
 		initial.points().forEach(points::add);
 		return Board.withPoints(points).andCurves(curves);
 	}
 
 	@Override
-	int depth(final Board board) {
+	public int depth(final Board board) {
 		return board.curves().size() - initial.curves().size();
 	}
 
 	@Override
-	Collection<CurveSet> generateNext(final Board board) {
+	public Collection<CurveSet> generateNext(final Board board) {
 		final CurveSet curves = board.curves();
 		final Set<Curve> successors = board.points().curves();
 		return successors.stream()

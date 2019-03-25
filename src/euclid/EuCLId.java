@@ -8,7 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import euclid.alg.*;
+import euclid.alg.engine.SearchEngine;
+import euclid.alg.engine.ThreadedSearchEngine;
 import euclid.kpi.KpiMonitor;
 import euclid.model.*;
 import euclid.problem.*;
@@ -17,32 +18,33 @@ public class EuCLId {
 
 	public static void main(final String[] args) {
 		final File file = getFile(args);
-		final EuCLId euCLId = new EuCLId(file);
+		final Problem problem = ProblemParser.parse(file);
+		final EuCLId euCLId = new EuCLId(problem);
 		euCLId.process();
 	}
 
 	private final Problem problem;
 	
-	private final Search<Board> search;
+	private final SearchEngine<Board> engine;
 	
 	private final KpiMonitor monitor;
 	
-	private EuCLId(final File problemFile) {
-		problem = ProblemParser.parse(problemFile);
-		search = problem.createSearch();
+	private EuCLId(final Problem problem) {
+		this.problem = problem;
+		engine = new ThreadedSearchEngine<>(problem.createAlgorithm(), problem.maxDepth());
 		monitor = new KpiMonitor(1000);
-		monitor.addReporter(search);
+		monitor.addReporter(engine);
 		monitor.addReporter(ElementLifeTimeManager::kpiReport);
 	}
 	
 	private void process() {
 		monitor.start();
 		if(problem.findAll()) {
-			final Collection<Board> solutions = search.findAll();
+			final Collection<Board> solutions = engine.findAll();
 			printAll(solutions);
 		}
 		else {
-			final Optional<Board> solution = search.findFirst();
+			final Optional<Board> solution = engine.findFirst();
 			printFirst(solution);
 		}
 		monitor.halt();
@@ -97,18 +99,15 @@ public class EuCLId {
 
 	private static File getFile(final String[] args) {
 		if(args.length == 0) {
-			fail("no file name specified");
+			System.err.println("no file name specified");
+			System.exit(-1);
 		}
 		final File file = new File(args[0]);
 		if(!file.exists()) {
-			fail("file '%s' does not exist", args[0]);
+			System.err.printf("file '%s' does not exist%n", args[0]);
+			System.exit(-1);
 		}
 		return file;
-	}
-	
-	private static void fail(final String format, final Object... args) {
-		System.err.printf(format, args);
-		System.exit(-1);
 	}
 
 }

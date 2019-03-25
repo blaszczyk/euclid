@@ -1,4 +1,4 @@
-package euclid.alg;
+package euclid.alg.engine;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-abstract class ThreadedSearch<T, B> implements Search<B> {
+import euclid.alg.Algorithm;
+
+public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
 
 	private final Queue<T> queue = new ConcurrentLinkedQueue<>();
 
@@ -28,13 +30,16 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	
 	private final Collection<SearchThread> threads = new ArrayList<>(threadCount);
 	
+	private final Algorithm<T, B> algorithm;
+
+	private final int maxDepth;
+	
 	private boolean findFirst;
 	
 	private boolean halt = false;
 	
-	private final int maxDepth;
-	
-	ThreadedSearch(final int maxDepth) {
+	public ThreadedSearchEngine(final Algorithm<T, B> algorithm, final int maxDepth) {
+		this.algorithm = algorithm;
 		this.maxDepth = maxDepth;
 	}
 
@@ -60,11 +65,14 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		report.put("total", collector.size());
 		report.put("dupes", dupeCount.get());
 		report.put("depth", currentDepth.get());
+		if(!findFirst) {
+			report.put("solutions", solutions.size());
+		}
 		return report;
 	}
 	
 	private void execute() {
-		enqueue(first());
+		enqueue(algorithm.first());
 		for(int i = 0; i < threadCount; i++) {
 			final String threadName = String.format("search-%08X-%d", hashCode(), i);
 			final SearchThread thread = new SearchThread(threadName);
@@ -75,21 +83,21 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 			hibernate();
 		}
 		halt = true;
-		threads.forEach(ThreadedSearch::join);
+		threads.forEach(ThreadedSearchEngine::join);
 	}
 	
 	private void process(final T t) {
-		final B candidate = digest(t);
-		final int depth = depth(candidate);
+		final B candidate = algorithm.digest(t);
+		final int depth = algorithm.depth(candidate);
 		checkDepth(depth);
-		if(solves(candidate)) {
+		if(algorithm.solves(candidate)) {
 			solutions.add(candidate);
 			if(findFirst) {
 				halt = true;
 			}
 		}
 		else if(depth < maxDepth) {
-			final Collection<T> next = generateNext(candidate);
+			final Collection<T> next = algorithm.generateNext(candidate);
 			next.forEach(this::enqueue);
 		}
 		finishedCount.incrementAndGet();
@@ -111,24 +119,6 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		}
 	}
 	
-	private static void join(final Thread thread) {
-		try {
-			thread.join();
-		}
-		catch(InterruptedException e) {
-		}
-	}
-	
-	abstract T first();
-	
-	abstract B digest(final T t);
-	
-	abstract boolean solves(final B b);
-	
-	abstract int depth(final B b);
-	
-	abstract Collection<T> generateNext(final B b);
-	
 	private class SearchThread extends Thread {
 		private boolean idle = false;
 		
@@ -139,7 +129,7 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		private boolean idle() {
 			return idle;
 		}
-		
+
 		@Override
 		public void run() {
 			try {
@@ -159,10 +149,18 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 			}
 		}
 	}
-	
+
 	private static void hibernate() {
 		try {
 			Thread.sleep(1000);
+		}
+		catch(InterruptedException e) {
+		}
+	}
+	
+	private static void join(final Thread thread) {
+		try {
+			thread.join();
 		}
 		catch(InterruptedException e) {
 		}
