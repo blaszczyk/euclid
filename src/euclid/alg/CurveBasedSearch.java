@@ -8,7 +8,7 @@ import euclid.model.*;
 
 public class CurveBasedSearch extends BoardSearch<CurveSet>{
 	
-	public CurveBasedSearch(final Board initial, final Board required) {
+	public CurveBasedSearch(final Board initial, final Collection<Board> required) {
 		super(initial, required);
 	}
 

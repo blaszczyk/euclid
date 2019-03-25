@@ -72,7 +72,7 @@ public class EuCLId {
 		System.out.println("initial:");
 		print(problem.initial());
 		System.out.println("required:");
-		print(problem.required());
+		problem.required().forEach(EuCLId::print);
 	}
 	
 	private void printSolution(final Board solution) {

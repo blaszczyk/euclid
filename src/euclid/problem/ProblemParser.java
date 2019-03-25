@@ -3,7 +3,9 @@ package euclid.problem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -33,7 +35,7 @@ public class ProblemParser {
 	private static final String KEY_ALGORITHM = "algorithm";
 	private static final String KEY_FIND_ALL = "findall";
 	
-	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_REQ_POINTS, KEY_REQ_CURVES, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
+	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
@@ -55,6 +57,8 @@ public class ProblemParser {
 	private final Map<String, Point> points = new HashMap<>();
 	private final Map<String, Curve> curves = new HashMap<>();
 	
+	private Map<String, String> keyValues = null;
+	
 	private Problem parseProblem(final File file) {
 		try {
 			final List<String> lines = Files.readAllLines(file.toPath());
@@ -67,10 +71,11 @@ public class ProblemParser {
 	}
 
 	private Problem parseProblem(final List<String> lines) {
-		return parseProblem(keyValues(lines));
+		keyValues = keyValues(lines);
+		return parseProblem();
 	}
 	
-	private Map<String, String> keyValues(final List<String> lines) {
+	private static Map<String, String> keyValues(final List<String> lines) {
 		final Map<String, String> keyValues = new LinkedHashMap<>();
 		for(final String l : lines) {
 			final String line = l.replaceAll("\\s+|#.*", "");
@@ -78,42 +83,45 @@ public class ProblemParser {
 				final String[] split = line.split("\\=", 2);
 				final String key = split[0].toLowerCase();
 				final String value = split[1];
+				if(keyValues.containsKey(key)) {
+					throw new ProblemParserException("duplicate key: '%s'", key);
+				}
 				keyValues.put(key, value);
 			}
 		}
 		return keyValues;
 	}
 	
-	private Problem parseProblem(final Map<String,String> keyValues) {
-		validateKeywords(keyValues);
-		parseVariables(keyValues);
-		
-		final PointSet initPoints = parsePoints(keyValues.get(KEY_INIT_POINTS));
-		final CurveSet initCurves = parseCurves(keyValues.get(KEY_INIT_CURVES));
-		final PointSet reqPoints = parsePoints(keyValues.get(KEY_REQ_POINTS));
-		final CurveSet reqCurves = parseCurves(keyValues.get(KEY_REQ_CURVES));
-		final int maxDepth = Integer.valueOf(keyValues.get(KEY_MAX_DEPTH));
-		final AlgorithmType algorithm = AlgorithmType.valueOf(keyValues.get(KEY_ALGORITHM).toUpperCase());
-		final boolean findAll = Boolean.parseBoolean(keyValues.get(KEY_FIND_ALL));
-		
-		return new Problem(Board.withPoints(initPoints).andCurves(initCurves),
-				Board.withPoints(reqPoints).andCurves(reqCurves), maxDepth, findAll, algorithm);
+	private Problem parseProblem() {
+		validateKeywords();
+		parseVariables();
+
+		final PointSet initPoints = parsePoints(getValue(KEY_INIT_POINTS));
+		final CurveSet initCurves = parseCurves(getValue(KEY_INIT_CURVES));
+		final Board initial = Board.withPoints(initPoints).andCurves(initCurves);
+		final Collection<Board> required = parseRequired();
+
+		final int maxDepth = Integer.parseInt(getValue(KEY_MAX_DEPTH));
+		final AlgorithmType algorithm = AlgorithmType.valueOf(getValue(KEY_ALGORITHM).toUpperCase());
+		final boolean findAll = Boolean.parseBoolean(getValue(KEY_FIND_ALL));
+
+		return new Problem(initial, required, maxDepth, findAll, algorithm);
 	}
-	
-	private void validateKeywords(final Map<String, String> keyValues) {
+
+	private void validateKeywords() {
 		final Set<String> missingKeys = new HashSet<>(KEYWORDS);
-		missingKeys.removeAll(keyValues.keySet());
+		missingKeys.removeAll(keys());
 		if(!missingKeys.isEmpty()) {
 			throw new ProblemParserException("mandatory keys are missing: %s", missingKeys);
 		}
 	}
 
-	private void parseVariables(final Map<String,String> keyValues) {
-		for(final String key : keyValues.keySet()) {
-			if(KEYWORDS.contains(key)) {
+	private void parseVariables() {
+		for(final String key : keys()) {
+			if(isKeyword(key)) {
 				continue;
 			}
-			final String value = keyValues.get(key);
+			final String value = getValue(key);
 			if(value.matches("p\\(.*")) {
 				points.put(key, parsePoint(value));
 			}
@@ -124,6 +132,38 @@ public class ProblemParser {
 				constants.put(key, parseConstant(value));
 			}
 		}
+	}
+	
+	private static boolean isKeyword(final String key) {
+		return KEYWORDS.contains(key) || key.startsWith(KEY_REQ_POINTS) || key.startsWith(KEY_REQ_CURVES);
+	}
+	
+	private Collection<Board> parseRequired() {
+		final Map<String, PointSet> points = new LinkedHashMap<>();
+		final Map<String, CurveSet> curves = new LinkedHashMap<>();
+		for(final String key : keys()) {
+			if(key.startsWith(KEY_REQ_POINTS)) {
+				final String id = key.substring(KEY_REQ_POINTS.length());
+				points.put(id, parsePoints(getValue(key)));
+			}
+			else if(key.startsWith(KEY_REQ_CURVES)) {
+				final String id = key.substring(KEY_REQ_CURVES.length());
+				curves.put(id, parseCurves(getValue(key)));
+			}
+		}
+		
+		if(!points.keySet().equals(curves.keySet())) {
+			throw new ProblemParserException("ids for required points and curves do not match: %s vs. %s",
+					points.keySet(), curves.keySet());
+		}
+		
+		final List<Board> required = new ArrayList<>(points.size());
+		for(final String id : points.keySet()) {
+			final PointSet ps = points.get(id);
+			final CurveSet cs = curves.get(id);
+			required.add(Board.withPoints(ps).andCurves(cs));
+		}
+		return required;
 	}
 
 	private CurveSet parseCurves(final String values) {
@@ -214,6 +254,14 @@ public class ProblemParser {
 			cache.put(value, element);
 		}
 		
+	}
+	
+	private String getValue(final String key) {
+		return keyValues.get(key);
+	}
+	
+	private Collection<String> keys() {
+		return keyValues.keySet();
 	}
 
 }

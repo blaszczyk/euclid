@@ -8,7 +8,7 @@ import euclid.model.*;
 
 public class PointBasedSearch extends BoardSearch<PointSet> {
 	
-	public PointBasedSearch(final Board initial, final Board required) {
+	public PointBasedSearch(final Board initial, final Collection<Board> required) {
 		super(initial, required);
 	}
 
