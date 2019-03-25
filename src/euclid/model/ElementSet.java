@@ -1,7 +1,9 @@
 package euclid.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
@@ -13,13 +15,36 @@ abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
 	void computeHash() {
 		hash = set().stream().mapToInt(Object::hashCode).sum();
 	}
+
+	public boolean contains(final E e) {
+		return set().contains(e);
+	}
+
+	public boolean contains(final ElementSet<? extends E> other) {
+		return set().containsAll(other.set());
+	}
+	
+	public int size() {
+		return set().size();
+	}
+
+	public Stream<E> stream() {
+		return set().stream();
+	}
+	
+	public List<E> asList() {
+		return new ArrayList<>(set());
+	}
+	
+	@Override
+	public String toString() {
+		return set().toString();
+	}
 	
 	@Override
 	public int hashCode() {
 		return hash;
 	}
-	
-	
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -38,21 +63,5 @@ abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
 	@Override
 	public Iterator<E> iterator() {
 		return set().iterator();
-	}
-
-	public boolean contains(final E e) {
-		return set().contains(e);
-	}
-
-	public boolean contains(final ElementSet<? extends E> other) {
-		return set().containsAll(other.set());
-	}
-	
-	public int size() {
-		return set().size();
-	}
-
-	public Stream<E> stream() {
-		return set().stream();
 	}
 }
