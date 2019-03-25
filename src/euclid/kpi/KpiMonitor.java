@@ -1,14 +1,13 @@
 package euclid.kpi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class KpiMonitor extends Thread {
-	
-	@FunctionalInterface
-	public interface KpiReporter {
-		public String report();
-	}
+public class KpiMonitor extends Thread implements KpiReporter {
 	
 	private final List<KpiReporter> reporters = new ArrayList<>();
 	
@@ -20,6 +19,7 @@ public class KpiMonitor extends Thread {
 	
 	public KpiMonitor(final long interval) {
 		this.interval = interval;
+		reporters.add(this);
 	}
 	
 	public void addReporter(final KpiReporter reporter) {
@@ -40,19 +40,29 @@ public class KpiMonitor extends Thread {
 			catch(InterruptedException e) {
 			}
 			if(!halt) {
-				report();
+				fetchReport();
 			}
 		}
 	}
 	
-	private void report() {
-		final long runtime =  System.currentTimeMillis() - startTime;
-		log("runtime: " + runtime);
-		reporters.stream().map(KpiReporter::report).forEach(KpiMonitor::log);
+	private void fetchReport() {
+		final String report = reporters.stream()
+			.map(KpiReporter::report)
+			.map(Map::entrySet)
+			.flatMap(Set::stream)
+			.map(KpiMonitor::toString)
+			.collect(Collectors.joining(", "));
+		System.out.println(report);
 	}
 	
-	private static void log(final String message) {
-		System.out.println(message);
+	private static String toString(final Map.Entry<String, Number> e) {
+		return String.format("%s: %,d", e.getKey(), e.getValue().longValue());
+	}
+
+	@Override
+	public Map<String, Number> report() {
+		final long runtime =  System.currentTimeMillis() - startTime;
+		return Collections.singletonMap("runtime", runtime);
 	}
 
 }

@@ -2,6 +2,8 @@ package euclid.alg;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,9 +53,14 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	}
 
 	@Override
-	public String report() {
-		return String.format("queued: %d, finished: %d, total: %d, dupes: %d, depth: %d", 
-				queue.size(), finishedCount.get(), collector.size(), dupeCount.get(), currentDepth.get());
+	public Map<String, Number> report() {
+		final Map<String, Number> report = new LinkedHashMap<>();
+		report.put("finished", finishedCount.get());
+		report.put("queued", queue.size());
+		report.put("total", collector.size());
+		report.put("dupes", dupeCount.get());
+		report.put("depth", currentDepth.get());
+		return report;
 	}
 	
 	private void execute() {
@@ -67,6 +74,7 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
 		}
+		threads.forEach(ThreadedSearch::join);
 		halt = true;
 	}
 	
@@ -100,6 +108,14 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		}
 		else {
 			dupeCount.incrementAndGet();
+		}
+	}
+	
+	private static void join(final Thread thread) {
+		try {
+			thread.join();
+		}
+		catch(InterruptedException e) {
 		}
 	}
 	

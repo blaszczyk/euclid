@@ -31,8 +31,8 @@ public class EuCLId {
 		problem = ProblemParser.parse(problemFile);
 		search = problem.createSearch();
 		monitor = new KpiMonitor(1000);
-		monitor.addReporter(ElementLifeTimeManager::kpiReport);
 		monitor.addReporter(search);
+		monitor.addReporter(ElementLifeTimeManager::kpiReport);
 	}
 	
 	private void process() {

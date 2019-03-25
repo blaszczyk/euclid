@@ -1,6 +1,8 @@
 package euclid.model;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,19 +30,14 @@ public class ElementLifeTimeManager {
 	}
 
 	public static Line l(final Point x, final Point y) {
-		return getOrCreate(new Line(x, y), lines, dupeLines);
+		return cached(new Line(x, y), lines, dupeLines);
 	}
 	
 	public static Circle c(final Point c, final Point y) {
-		return getOrCreate(new Circle(c, y), circles, dupeCircles);
-	}
-	
-	public static String kpiReport() {
-		return String.format("lines: %d, dupe-lines: %d, circles: %d, dupe-circles: %d",
-						lines.size(), dupeLines.get(), circles.size(), dupeCircles.get());
+		return cached(new Circle(c, y), circles, dupeCircles);
 	}
 
-	private static <E extends Element<? super E>> E getOrCreate(final E newE, final Collection<E> es, final AtomicInteger dupeCounter) {
+	private static <E extends Element<? super E>> E cached(final E newE, final Collection<E> es, final AtomicInteger dupeCounter) {
 		for(final E e : es) {
 			if(e.isEqual(newE)) {
 				dupeCounter.incrementAndGet();
@@ -49,6 +46,15 @@ public class ElementLifeTimeManager {
 		}
 		es.add(newE);
 		return newE;
+	}
+	
+	public static Map<String,Number> kpiReport() {
+		final Map<String, Number> report = new LinkedHashMap<>();
+		report.put("cached-lines", lines.size());
+		report.put("dupe-lines", dupeLines.get());
+		report.put("cached-circles", circles.size());
+		report.put("dupe-circles", dupeCircles.get());
+		return report;
 	}
 
 	private static final Constructable M_TWO = n(-2);
