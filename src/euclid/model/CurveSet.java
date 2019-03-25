@@ -2,7 +2,7 @@ package euclid.model;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -24,14 +24,14 @@ public class CurveSet extends ElementSet<Curve> {
 		return EMPTY;
 	}
 	
-	private final HashSet<Curve> set;
+	private final LinkedHashSet<Curve> set;
 	
 	private CurveSet(final int capacity) {
-		set = new HashSet<>(capacity);
+		set = new LinkedHashSet<>(capacity);
 	}
 	
 	private CurveSet(final Collection<Curve> init) {
-		set = new HashSet<>(init);
+		set = new LinkedHashSet<>(init);
 	}
 
 	public Set<Point> intersections() {
