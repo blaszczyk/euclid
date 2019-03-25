@@ -147,7 +147,7 @@ public class ProblemParser {
 			final Point x = parsePoint(matcher.group(2));
 			final Point y = parsePoint(matcher.group(4));
 			final Curve curve = isLine ? l(x,y) :  c(x,y);
-			curves.put(value, curve);
+			cacheByValue(curve, value, curves);
 			return curve;
 		}
 		else {
@@ -176,7 +176,7 @@ public class ProblemParser {
 			final Constructable x = parseConstant(matcher.group(2));
 			final Constructable y = parseConstant(matcher.group(4));
 			final Point point = p(x,y);
-			points.put(value, point);
+			cacheByValue(point, value, points);
 			return point;
 		}
 		else {
@@ -192,7 +192,7 @@ public class ProblemParser {
 			final Calculator calculator = new Calculator(this::lookUpConstant);
 			final double numValue = calculator.evaluate(value);
 			final Constructable number = n(numValue);
-			constants.put(value, number);
+			cacheByValue(number, value, constants);
 			return number;
 		}
 		catch (Exception e) {
@@ -208,6 +208,13 @@ public class ProblemParser {
 		else {
 			return Optional.empty();
 		}
+	}
+	
+	private static <E extends Element<? super E>> void cacheByValue(final E element, final String value, final Map<String,E> cache) {
+		if(!value.contains("rand")) {
+			cache.put(value, element);
+		}
+		
 	}
 
 }
