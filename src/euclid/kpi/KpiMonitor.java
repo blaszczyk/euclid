@@ -39,9 +39,7 @@ public class KpiMonitor extends Thread implements KpiReporter {
 			}
 			catch(InterruptedException e) {
 			}
-			if(!halt) {
-				fetchReport();
-			}
+			fetchReport();
 		}
 	}
 	

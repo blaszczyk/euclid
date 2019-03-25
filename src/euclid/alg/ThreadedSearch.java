@@ -74,8 +74,8 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
 		}
-		threads.forEach(ThreadedSearch::join);
 		halt = true;
+		threads.forEach(ThreadedSearch::join);
 	}
 	
 	private void process(final T t) {
