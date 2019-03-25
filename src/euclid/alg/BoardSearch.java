@@ -15,8 +15,8 @@ abstract class BoardSearch<T> extends ThreadedSearch<T, Board> {
 	
 	@Override
 	boolean solves(final Board board) {
-		return board.curves().containsAll(required.curves())
-				&& board.points().containsAll(required.points());
+		return board.curves().contains(required.curves())
+				&& board.points().contains(required.points());
 	}
 
 }

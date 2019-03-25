@@ -1,8 +1,14 @@
 package euclid.model;
 
+import java.util.Collection;
+
 public class Board {
 
 	public static BoardBuilder withPoints(final Point... points) {
+		return withPoints(PointSet.of(points));
+	}
+
+	public static BoardBuilder withPoints(final Collection<Point> points) {
 		return withPoints(PointSet.of(points));
 	}
 	
@@ -16,12 +22,17 @@ public class Board {
 		private BoardBuilder(final PointSet points) {
 			this.points = points;
 		}
+		
+		public Board andCurves(final Curve... curves) {
+			return andCurves(CurveSet.of(curves));
+		}
+
+		public Board andCurves(final Collection<Curve> curves) {
+			return andCurves(CurveSet.of(curves));
+		}
 
 		public Board andCurves(final CurveSet curves) {
 			return new Board(curves,points);
-		}
-		public Board andCurves(final Curve... curves) {
-			return andCurves(CurveSet.of(curves));
 		}
 	}
 	

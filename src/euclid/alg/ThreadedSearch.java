@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 abstract class ThreadedSearch<T, B> implements Search<B> {
 
 	private final Queue<T> queue = new ConcurrentLinkedQueue<>();
+
+	private final Collection<T> collector = ConcurrentHashMap.newKeySet();
 
 	private final Queue<B> solutions = new ConcurrentLinkedQueue<>();
 	
@@ -49,7 +52,8 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 
 	@Override
 	public String report() {
-		return String.format("queued: %d, finished: %d, dupes: %d, depth: %d", queue.size(), finishedCount.get(), dupeCount.get(), currentDepth.get());
+		return String.format("queued: %d, finished: %d, total: %d, dupes: %d, depth: %d", 
+				queue.size(), finishedCount.get(), collector.size(), dupeCount.get(), currentDepth.get());
 	}
 	
 	private void execute() {
@@ -90,7 +94,8 @@ abstract class ThreadedSearch<T, B> implements Search<B> {
 	}
 
 	private void enqueue(final T t) {
-		if(!queue.contains(t)) {
+		if(!collector.contains(t)) {
+			collector.add(t);
 			queue.add(t);
 		}
 		else {

@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static euclid.model.ElementLifeTimeManager.*;
 import euclid.model.*;
@@ -130,11 +131,10 @@ public class ProblemParser {
 			return CurveSet.empty();
 		}
 		final String[] split = values.split("\\:");
-		final CurveSet curves = CurveSet.create();
-		for(final String value : split) {
-			curves.add(parseCurve(value));
-		}
-		return curves;
+		final List<Curve> curves = Arrays.stream(split)
+				.map(this::parseCurve)
+				.collect(Collectors.toList());
+		return CurveSet.of(curves);
 	}
 
 	private Curve parseCurve(final String value) {
@@ -160,11 +160,10 @@ public class ProblemParser {
 			return PointSet.empty();
 		}
 		final String[] split = values.split("\\:");
-		final PointSet points = PointSet.create();
-		for(final String value : split) {
-			points.add(parsePoint(value));
-		}
-		return points;
+		final List<Point> points = Arrays.stream(split)
+				.map(this::parsePoint)
+				.collect(Collectors.toList());
+		return PointSet.of(points);
 	}
 
 	private Point parsePoint(final String value) {

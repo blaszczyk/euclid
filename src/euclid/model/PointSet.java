@@ -2,21 +2,23 @@ package euclid.model;
 
 import static euclid.model.ElementLifeTimeManager.*;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
-@SuppressWarnings("serial")
-public class PointSet extends TreeSet<Point> {
+public class PointSet extends ElementSet<Point> {
 	
 	private static final PointSet EMPTY = new PointSet();
-
-	public static PointSet create() {
-		return new PointSet();
-	}
 	
 	public static PointSet of(final Point... points) {
-		final PointSet result = create();
-		for(Point p : points)
-			result.add(p);
+		return of(Arrays.asList(points));
+	}
+
+	public static PointSet of(final Collection<Point> points) {
+		final PointSet result = new PointSet(points);
+		result.computeHash();
 		return result;
 	}
 
@@ -24,13 +26,20 @@ public class PointSet extends TreeSet<Point> {
 		return EMPTY;
 	}
 	
+	private final TreeSet<Point> set;
+	
 	private PointSet() {
+		set = new TreeSet<>();
 	}
 	
-	public CurveSet curves() {
-		final CurveSet curves = CurveSet.create();
-		for(Point p1 : this)
-			for(Point p2 : this)
+	private PointSet(final Collection<Point> points) {
+		set = new TreeSet<>(points);
+	}
+
+	public Set<Curve> curves() {
+		final Set<Curve> curves = new HashSet<>(size() * size());
+		for(final Point p1 : set)
+			for(final Point p2 : set)
 				if(p1.compareTo(p2) < 0)
 				{
 					curves.add(l(p1,p2));
@@ -41,17 +50,22 @@ public class PointSet extends TreeSet<Point> {
 	}
 
 	public PointSet adjoin(final Point p) {
-		final PointSet result = create();
-		result.addAll(this);
-		result.add(p);
+		final PointSet result = new PointSet(set);
+		result.set.add(p);
+		result.computeHash();
 		return result;
 	}
 
-	public PointSet adjoin(PointSet other) {
-		final PointSet result = create();
-		result.addAll(this);
-		result.addAll(other);
+	public PointSet adjoin(final PointSet other) {
+		final PointSet result = new PointSet(set);
+		result.set.addAll(other.set);
+		result.computeHash();
 		return result;
+	}
+
+	@Override
+	Collection<Point> set() {
+		return set;
 	}
 
 }

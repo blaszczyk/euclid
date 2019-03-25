@@ -1,6 +1,7 @@
 package euclid.alg;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import euclid.model.*;
@@ -18,7 +19,8 @@ public class CurveBasedSearch extends BoardSearch<CurveSet>{
 
 	@Override
 	Board digest(final CurveSet curves) {
-		final PointSet points = curves.intersections().adjoin(initial.points());
+		final Set<Point> points = curves.intersections();
+		initial.points().forEach(points::add);
 		return Board.withPoints(points).andCurves(curves);
 	}
 
@@ -30,8 +32,10 @@ public class CurveBasedSearch extends BoardSearch<CurveSet>{
 	@Override
 	Collection<CurveSet> generateNext(final Board board) {
 		final CurveSet curves = board.curves();
-		final CurveSet successors = board.points().curves();
-		successors.removeAll(curves);
-		return successors.stream().map(curves::adjoin).collect(Collectors.toList());
+		final Set<Curve> successors = board.points().curves();
+		return successors.stream()
+				.filter(c -> !curves.contains(c))
+				.map(curves::adjoin)
+				.collect(Collectors.toList());
 	}
 }
