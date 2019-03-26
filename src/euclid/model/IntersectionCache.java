@@ -9,8 +9,9 @@ abstract class IntersectionCache implements Curve {
 	
 	@Override
 	public PointSet intersect(final Curve other) {
-		if(cache.containsKey(other)) {
-			return cache.get(other);
+		final PointSet cached = cache.get(other);
+		if(cached != null) {
+			return cached;
 		}
 		final PointSet intersection = doIntersect(other);
 		cache.put(other, intersection);

@@ -10,7 +10,7 @@ import euclid.model.*;
 public class CurveBasedSearch extends BoardSearch{
 	
 	public CurveBasedSearch(final Board initial, final Collection<Board> required) {
-		super(initial, required);
+		super(initial.identifyByCurves(), required);
 	}
 
 	@Override
@@ -29,12 +29,13 @@ public class CurveBasedSearch extends BoardSearch{
 	public Collection<Board> nextGeneration(final Board board) {
 		final CurveSet curves = board.curves();
 		final Set<Curve> successors = board.points().curves();
-		final List<Board> next = new ArrayList<>(successors.size());
+		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
 			if(curves.containsNot(successor)) {
-				next.add(Board.withPoints(board.points()).andCurves(curves.adjoin(successor)));
+				final Board next = Board.withPoints(board.points()).andCurves(curves.adjoin(successor)).identifyByCurves();
+				nextGeneration.add(next);
 			}
 		}
-		return next;
+		return nextGeneration;
 	}
 }

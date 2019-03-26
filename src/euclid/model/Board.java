@@ -32,24 +32,65 @@ public class Board {
 		}
 
 		public Board andCurves(final CurveSet curves) {
-			return new Board(curves,points);
+			return new Board(points, curves);
 		}
 	}
-	
-	private final CurveSet curves;
+
 	private final PointSet points;
+	private final CurveSet curves;
 	
-	private Board(final CurveSet curves, final PointSet points) {
-		this.curves = curves;
+	private Board(final PointSet points, final CurveSet curves) {
 		this.points = points;
+		this.curves = curves;
+	}
+
+	public final PointSet points() {
+		return points;
 	}
 
 	public final CurveSet curves() {
 		return curves;
 	}
+	
+	public Board identifyByPoints() {
+		return new Board(points, curves) {
+			@Override
+			public int hashCode() {
+				return points.hashCode();
+			}
 
-	public final PointSet points() {
-		return points;
+			@Override
+			public boolean equals(final Object obj) {
+				final Board other = (Board) obj;
+				return points.equals(other.points);
+			}
+		};
+	}
+	
+	public Board identifyByCurves() {
+		return new Board(points, curves) {
+			@Override
+			public int hashCode() {
+				return curves.hashCode();
+			}
+
+			@Override
+			public boolean equals(final Object obj) {
+				final Board other = (Board) obj;
+				return curves.equals(other.curves);
+			}
+		};
+	}
+	
+	@Override
+	public int hashCode() {
+		return points.hashCode() + curves.hashCode();
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		final Board other = (Board) obj;
+		return points.equals(other.points) && curves.equals(other.curves);
 	}
 	
 }
