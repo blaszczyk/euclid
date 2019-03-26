@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import euclid.alg.engine.SearchEngine;
 import euclid.alg.engine.ThreadedSearchEngine;
 import euclid.kpi.KpiMonitor;
 import euclid.model.*;
@@ -25,15 +24,16 @@ public class EuCLId {
 
 	private final Problem problem;
 	
-	private final SearchEngine<Board> engine;
+	private final ThreadedSearchEngine<Board> engine;
 	
 	private final KpiMonitor monitor;
 	
 	private EuCLId(final Problem problem) {
 		this.problem = problem;
-		engine = new ThreadedSearchEngine<>(problem.createAlgorithm(), problem.maxDepth());
+		engine = new ThreadedSearchEngine<>(problem.createAlgorithm(), problem.maxDepth(), problem.findAll());
 		monitor = new KpiMonitor(1000);
-		monitor.addReporter(engine);
+		monitor.addReporter(engine.kpiReporter());
+		monitor.addReporter(engine.queueKpiReporter());
 		monitor.addReporter(ElementLifeTimeManager::kpiReport);
 	}
 	
