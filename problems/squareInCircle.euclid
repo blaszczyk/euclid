@@ -1,7 +1,8 @@
 #
 # construct a square in a circle
 #
-c=p(0,0)
+
+o=p(0,0)
 p1=p(1,0)
 p2=p(0,1)
 p3=p(-1,0)
@@ -12,10 +13,10 @@ l23 = l(p2;p3)
 l34 = l(p3;p4)
 l41 = l(p4;p1)
 
-initialpoints = c : p1
-initialcurves = c(c; p1)
-requiredpoints =
-requiredcurves = l12 : l23 : l34 : l41
+initialPoints = o : p1
+initialCurves = c(o; p1)
+requiredPoints = 
+requiredCurves = l12 : l23 : l34 : l41
 maxdepth = 7
 findAll = false
 algorithm = curve_based

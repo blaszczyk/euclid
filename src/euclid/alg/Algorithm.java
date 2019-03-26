@@ -2,16 +2,18 @@ package euclid.alg;
 
 import java.util.Collection;
 
-public interface Algorithm<T,B> {
+public interface Algorithm<B> {
 	
-	public T first();
+	public B first();
 	
-	public  B digest(final T t);
+	public B digest(final B t);
 	
-	public boolean solves(final B b);
+	public int misses(final B b);
 	
-	public  int depth(final B b);
+	public int maxMisses();
 	
-	public Collection<T> generateNext(final B b);
+	public int depth(final B b);
+	
+	public Collection<B> nextGeneration(final B b);
 
 }

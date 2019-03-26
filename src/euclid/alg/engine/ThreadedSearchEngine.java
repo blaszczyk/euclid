@@ -3,6 +3,7 @@ package euclid.alg.engine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
@@ -12,11 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import euclid.alg.Algorithm;
 
-public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
+public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 
-	private final Queue<T> queue = new ConcurrentLinkedQueue<>();
+	private final List<Queue<B>> queues;
 
-	private final Collection<T> collector = ConcurrentHashMap.newKeySet();
+	private final List<AtomicInteger> queueTotal;
+
+	private final List<AtomicInteger> queueFinished;
+
+	private final Collection<B> collector = ConcurrentHashMap.newKeySet();
 
 	private final Queue<B> solutions = new ConcurrentLinkedQueue<>();
 	
@@ -30,7 +35,7 @@ public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
 	
 	private final Collection<SearchThread> threads = new ArrayList<>(threadCount);
 	
-	private final Algorithm<T, B> algorithm;
+	private final Algorithm<B> algorithm;
 
 	private final int maxDepth;
 	
@@ -38,9 +43,18 @@ public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
 	
 	private boolean halt = false;
 	
-	public ThreadedSearchEngine(final Algorithm<T, B> algorithm, final int maxDepth) {
+	public ThreadedSearchEngine(final Algorithm<B> algorithm, final int maxDepth) {
 		this.algorithm = algorithm;
 		this.maxDepth = maxDepth;
+		final int maxMisses = algorithm.maxMisses();
+		queues = new ArrayList<>(maxMisses);
+		queueTotal = new ArrayList<>(maxMisses);
+		queueFinished = new ArrayList<>(maxMisses);
+		for(int i = 0; i < maxMisses; i++) {
+			queues.add(new ConcurrentLinkedQueue<>());
+			queueTotal.add(new AtomicInteger());
+			queueFinished.add(new AtomicInteger());
+		}
 	}
 
 	@Override
@@ -61,8 +75,12 @@ public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
 	public Map<String, Number> report() {
 		final Map<String, Number> report = new LinkedHashMap<>();
 		report.put("finished", finishedCount.get());
-		report.put("queued", queue.size());
 		report.put("total", collector.size());
+		for(int i = 0; i < queues.size(); i++) {
+			report.put("finished-" + i, queueFinished.get(i).get());
+			report.put("queued-" + i, queues.get(i).size());
+			report.put("total-" + i, queueTotal.get(i).get());
+		}
 		report.put("dupes", dupeCount.get());
 		report.put("depth", currentDepth.get());
 		if(!findFirst) {
@@ -86,33 +104,56 @@ public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
 		threads.forEach(ThreadedSearchEngine::join);
 	}
 	
-	private void process(final T t) {
-		final B candidate = algorithm.digest(t);
-		final int depth = algorithm.depth(candidate);
-		checkDepth(depth);
-		if(algorithm.solves(candidate)) {
+	private B poll() {
+		for(int i = 0; i < queues.size(); i++) {
+			final Queue<B> queue = queues.get(i);
+			final B b = queue.poll();
+			if(b != null) {
+				queueFinished.get(i).incrementAndGet();
+				return b;
+			}
+		}
+		return null;
+	}
+	
+	private void process(final B b) {
+		final B candidate = algorithm.digest(b);
+		test(candidate);
+		if(depth(candidate) < maxDepth) {
+			final Collection<B> next = algorithm.nextGeneration(candidate);
+			next.forEach(this::enqueue);
+		}
+		finishedCount.incrementAndGet();
+	}
+	
+	private int test(final B candidate) {
+		final int misses = algorithm.misses(candidate);
+		if(misses == 0) {
 			solutions.add(candidate);
 			if(findFirst) {
 				halt = true;
 			}
 		}
-		else if(depth < maxDepth) {
-			final Collection<T> next = algorithm.generateNext(candidate);
-			next.forEach(this::enqueue);
-		}
-		finishedCount.incrementAndGet();
+		return misses;
 	}
 
-	private void checkDepth(final int depth) {
+	private int depth(final B candidate) {
+		final int depth = algorithm.depth(candidate);
 		if(depth > currentDepth.get()) {
 			currentDepth.set(depth);
 		}
+		return depth;
 	}
 
-	private void enqueue(final T t) {
-		if(!collector.contains(t)) {
-			collector.add(t);
-			queue.add(t);
+	private void enqueue(final B candidate) {
+		if(!collector.contains(candidate)) {
+			collector.add(candidate);
+			final int misses = test(candidate);
+			if(misses > 0) {
+				final int queueIndex = misses - 1;
+				queues.get(queueIndex).add(candidate);
+				queueTotal.get(queueIndex).incrementAndGet();
+			}
 		}
 		else {
 			dupeCount.incrementAndGet();
@@ -134,13 +175,13 @@ public class ThreadedSearchEngine<T, B> implements SearchEngine<B> {
 		public void run() {
 			try {
 				while(!halt) {
-					final T t = queue.poll();
-					idle = (t == null);
+					final B b = poll();
+					idle = (b == null);
 					if(idle) {
 						hibernate();
 					}
 					else {
-						process(t);
+						process(b);
 					}
 				}
 			}

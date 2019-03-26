@@ -48,7 +48,7 @@ public class Problem {
 		return algorithmType;
 	}
 
-	public Algorithm<?, Board> createAlgorithm() {
+	public Algorithm<Board> createAlgorithm() {
 		switch (algorithmType) {
 		case CURVE_BASED:
 			return new CurveBasedSearch(initial, required);

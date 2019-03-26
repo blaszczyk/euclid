@@ -1,27 +1,23 @@
 package euclid.alg;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import euclid.model.*;
 
-public class CurveBasedSearch extends BoardSearch<CurveSet>{
+public class CurveBasedSearch extends BoardSearch{
 	
 	public CurveBasedSearch(final Board initial, final Collection<Board> required) {
 		super(initial, required);
 	}
 
 	@Override
-	public CurveSet first() {
-		return initial.curves();
-	}
-
-	@Override
-	public Board digest(final CurveSet curves) {
-		final Set<Point> points = curves.intersections();
-		initial.points().forEach(points::add);
-		return Board.withPoints(points).andCurves(curves);
+	public Board digest(final Board board) {
+		final Set<Point> points = board.curves().intersections();
+		board.points().forEach(points::add);
+		return Board.withPoints(points).andCurves(board.curves());
 	}
 
 	@Override
@@ -30,12 +26,15 @@ public class CurveBasedSearch extends BoardSearch<CurveSet>{
 	}
 
 	@Override
-	public Collection<CurveSet> generateNext(final Board board) {
+	public Collection<Board> nextGeneration(final Board board) {
 		final CurveSet curves = board.curves();
 		final Set<Curve> successors = board.points().curves();
-		return successors.stream()
-				.filter(c -> !curves.contains(c))
-				.map(curves::adjoin)
-				.collect(Collectors.toList());
+		final List<Board> next = new ArrayList<>(successors.size());
+		for(final Curve successor : successors) {
+			if(curves.containsNot(successor)) {
+				next.add(Board.withPoints(board.points()).andCurves(curves.adjoin(successor)));
+			}
+		}
+		return next;
 	}
 }

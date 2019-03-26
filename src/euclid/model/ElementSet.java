@@ -16,8 +16,8 @@ abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
 		hash = set().stream().mapToInt(Object::hashCode).sum();
 	}
 
-	public boolean contains(final E e) {
-		return set().contains(e);
+	public boolean containsNot(final E e) {
+		return !set().contains(e);
 	}
 
 	public boolean contains(final ElementSet<? extends E> other) {
