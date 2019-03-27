@@ -1,6 +1,7 @@
 package euclid.alg.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Queue;
@@ -40,12 +41,8 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 		kpiProvider = findFirst ? new EngineKpiProvider(collector::size) : new EngineKpiProvider(collector::size, solutions::size);
 	}
 	
-	public KpiReporter kpiReporter() {
-		return kpiProvider;
-	}
-	
-	public KpiReporter queueKpiReporter() {
-		return queues;
+	public Collection<KpiReporter> kpiReporters() {
+		return Arrays.asList(kpiProvider, queues);
 	}
 
 	@Override

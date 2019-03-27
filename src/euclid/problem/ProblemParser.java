@@ -55,25 +55,17 @@ public class ProblemParser {
 	
 	private final Algebra algebra;
 	
-	private Map<String, String> keyValues = null;
+	private final Map<String, String> keyValues;
 	
-	public ProblemParser(final Algebra algebra) {
+	public ProblemParser(final Algebra algebra, final File file) {
 		this.algebra = algebra;
-	}
-
-	public Problem parse(final File file) {
 		try {
 			final List<String> lines = Files.readAllLines(file.toPath());
-			return parse(lines);
+			keyValues = keyValues(lines);
 		}
 		catch (IOException e) {
 			throw new ProblemParserException(e, "error reading file '%': '%s'", file, e.getMessage());
 		}
-	}
-
-	public Problem parse(final List<String> lines) {
-		keyValues = keyValues(lines);
-		return parseProblem();
 	}
 	
 	private static Map<String, String> keyValues(final List<String> lines) {
@@ -93,7 +85,7 @@ public class ProblemParser {
 		return keyValues;
 	}
 	
-	private Problem parseProblem() {
+	public Problem parse() {
 		validateKeywords();
 		parseVariables();
 

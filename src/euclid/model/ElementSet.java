@@ -51,13 +51,7 @@ abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+	public boolean equals(final Object obj) {
 		ElementSet<?> other = (ElementSet<?>) obj;
 		if (hash != other.hash)
 			return false;

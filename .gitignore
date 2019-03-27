@@ -14,7 +14,7 @@ usefulStuff/
 #
 # Log Files
 #
-
+log/
 *.log*
 
 #
