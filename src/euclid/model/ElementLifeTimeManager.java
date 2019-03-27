@@ -1,10 +1,10 @@
 package euclid.model;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import euclid.kpi.KpiCollector;
 
 public class ElementLifeTimeManager {
 
@@ -48,13 +48,11 @@ public class ElementLifeTimeManager {
 		return newE;
 	}
 	
-	public static Map<String,Number> kpiReport() {
-		final Map<String, Number> report = new LinkedHashMap<>();
-		report.put("cached-lines", lines.size());
-		report.put("dupe-lines", dupeLines.get());
-		report.put("cached-circles", circles.size());
-		report.put("dupe-circles", dupeCircles.get());
-		return report;
+	public static void kpiReport(final KpiCollector collector) {
+		collector.add("cached-lines", lines.size());
+		collector.add("dupe-lines", dupeLines.get());
+		collector.add("cached-circles", circles.size());
+		collector.add("dupe-circles", dupeCircles.get());
 	}
 
 	private static final Constructable M_TWO = n(-2);

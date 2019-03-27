@@ -1,66 +1,64 @@
 package euclid.kpi;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public class KpiMonitor extends Thread implements KpiReporter {
+public class KpiMonitor {
 	
 	private final List<KpiReporter> reporters = new ArrayList<>();
+	
+	private final List<KpiConsumer> consumers = new ArrayList<>();
+	
+	private final Thread thread;
 	
 	private final long interval;
 	
 	private boolean halt = false;
 	
 	private long startTime;
-	
+
 	public KpiMonitor(final long interval) {
 		this.interval = interval;
-		reporters.add(this);
+		reporters.add(c -> c.add("runtime", System.currentTimeMillis() - startTime));
+		thread = new Thread(this::run, "kpi-monitor");
 	}
 	
 	public void addReporter(final KpiReporter reporter) {
 		reporters.add(reporter);
 	}
+	
+	public void addConsumer(final KpiConsumer consumer) {
+		consumers.add(consumer);
+	}
+	
+	public void start() {
+		startTime = System.currentTimeMillis();
+		thread.start();
+	}
 
 	public void halt() {
 		halt = true;
 	}
-	
-	@Override
-	public void run() {
-		startTime = System.currentTimeMillis();
+
+	private void run() {
 		while(!halt) {
 			try {
 				Thread.sleep(interval);
+				fetchAndProcessReport();
 			}
 			catch(InterruptedException e) {
 			}
-			fetchReport();
 		}
 	}
 	
-	private void fetchReport() {
-		final String report = reporters.stream()
-			.map(KpiReporter::report)
-			.map(Map::entrySet)
-			.flatMap(Set::stream)
-			.map(KpiMonitor::toString)
-			.collect(Collectors.joining(", "));
-		System.out.println(report);
-	}
-	
-	private static String toString(final Map.Entry<String, Number> e) {
-		return String.format("%s: %,d", e.getKey(), e.getValue().longValue());
-	}
-
-	@Override
-	public Map<String, Number> report() {
-		final long runtime =  System.currentTimeMillis() - startTime;
-		return Collections.singletonMap("runtime", runtime);
+	private void fetchAndProcessReport() {
+		final KpiReport report = new KpiReport();
+		for(final KpiReporter reporter : reporters) {
+			reporter.fetchReport(report::add);
+		}
+		for(final KpiConsumer consumer : consumers) {
+			consumer.consume(report);
+		}
 	}
 
 }

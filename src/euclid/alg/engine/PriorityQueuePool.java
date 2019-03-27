@@ -1,10 +1,9 @@
 package euclid.alg.engine;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
+import euclid.kpi.KpiCollector;
 import euclid.kpi.KpiReporter;
 
 public class PriorityQueuePool<B> implements KpiReporter{
@@ -37,17 +36,15 @@ public class PriorityQueuePool<B> implements KpiReporter{
 	}
 
 	@Override
-	public Map<String, Number> report() {
-		final Map<String, Number> report = new LinkedHashMap<>();
+	public void fetchReport(final KpiCollector collector) {
 		for(int i = 0; i < queues.size(); i++) {
 			final MonitoredQueue<?> queue = queues.get(i);
 			final int queuedCount = queue.queuedCount();
 			final int totalCount = queue.totalCount();
-			report.put("dequeued-" + i, totalCount - queuedCount);
-			report.put("queued-" + i, queuedCount);
-			report.put("total-" + i, totalCount);
+			collector.add("dequeued-" + i, totalCount - queuedCount);
+			collector.add("queued-" + i, queuedCount);
+			collector.add("total-" + i, totalCount);
 		}
-		return report;
 	}
 
 }

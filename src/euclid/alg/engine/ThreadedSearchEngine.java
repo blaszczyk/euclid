@@ -79,12 +79,11 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 		final B candidate = algorithm.digest(b);
 		final int misses = test(candidate);
 		final int depth = algorithm.depth(candidate);
-		kpiProvider.reportDepth(depth);
+		kpiProvider.incrementProcessedAndAddDepth(depth);
 		if(misses > 0 && depth < maxDepth) {
 			final Collection<B> next = algorithm.nextGeneration(candidate);
 			next.forEach(this::testAndEnqueue);
 		}
-		kpiProvider.incrementFinished();
 	}
 
 	private void testAndEnqueue(final B candidate) {
@@ -126,8 +125,7 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 			try {
 				while(!halt) {
 					final B b = queues.poll();
-					idle = (b == null);
-					if(idle) {
+					if(idle = (b == null)) {
 						hibernate();
 					}
 					else {

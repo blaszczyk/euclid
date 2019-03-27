@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import euclid.alg.engine.ThreadedSearchEngine;
 import euclid.kpi.KpiMonitor;
+import euclid.kpi.KpiStdoutLogger;
 import euclid.model.*;
 import euclid.problem.*;
 
@@ -38,6 +39,7 @@ public class EuCLId {
 		monitor.addReporter(engine.kpiReporter());
 		monitor.addReporter(engine.queueKpiReporter());
 		monitor.addReporter(ElementLifeTimeManager::kpiReport);
+		monitor.addConsumer(new KpiStdoutLogger());
 	}
 	
 	private void process() {

@@ -1,15 +1,14 @@
 package euclid.alg.engine;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
 
+import euclid.kpi.KpiCollector;
 import euclid.kpi.KpiReporter;
 
 public class EngineKpiProvider implements KpiReporter {
 
-	private final AtomicInteger finishedCount = new AtomicInteger();
+	private final AtomicInteger processedCount = new AtomicInteger();
 
 	private final AtomicInteger dupeCount = new AtomicInteger();
 
@@ -29,31 +28,26 @@ public class EngineKpiProvider implements KpiReporter {
 	}
 
 	@Override
-	public Map<String, Number> report() {
-		final Map<String, Number> report = new LinkedHashMap<>();
-		final int total = totalCount.getAsInt();
-		final int depth = (int)(cumulatedDepth.get() / (double) total);
-		report.put("finished", finishedCount.get());
-		report.put("total", total);
-		report.put("dupes", dupeCount.get());
-		report.put("depth", depth);
+	public void fetchReport(final KpiCollector collector) {
+		final int processed = processedCount.get();
+		final int depth = Math.round(1000f * cumulatedDepth.get() / processed);
+		collector.add("processed", processed);
+		collector.add("total", totalCount.getAsInt());
+		collector.add("dupes", dupeCount.get());
+		collector.add("depth", depth);
 		final int solutions = solutionsCount.getAsInt();
 		if(solutions >= 0) {
-			report.put("solutions", solutions);
+			collector.add("solutions", solutions);
 		}
-		return report;
 	}
 	
-	public void incrementFinished() {
-		finishedCount.incrementAndGet();
+	public void incrementProcessedAndAddDepth(final int depth) {
+		processedCount.incrementAndGet();
+		cumulatedDepth.addAndGet(depth);
 	}
 
 	public void incrementDupes() {
 		dupeCount.incrementAndGet();
-	}
-	
-	public void reportDepth(final int depth) {
-		cumulatedDepth.addAndGet(depth);
 	}
 
 }
