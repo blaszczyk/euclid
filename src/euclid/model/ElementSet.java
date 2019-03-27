@@ -10,35 +10,39 @@ abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
 	
 	private int hash = 0;
 	
-	abstract Collection<E> set();
-	
+	final Collection<E> set;
+
+	public ElementSet(final Collection<E> set) {
+		this.set = set;
+	}
+
 	void computeHash() {
-		hash = set().stream().mapToInt(Object::hashCode).sum();
+		hash = stream().mapToInt(Object::hashCode).sum();
 	}
 
 	public boolean containsNot(final E e) {
-		return !set().contains(e);
+		return !set.contains(e);
 	}
 
 	public boolean contains(final ElementSet<? extends E> other) {
-		return set().containsAll(other.set());
+		return set.containsAll(other.set);
 	}
 	
 	public int size() {
-		return set().size();
+		return set.size();
 	}
 
 	public Stream<E> stream() {
-		return set().stream();
+		return set.stream();
 	}
 	
 	public List<E> asList() {
-		return new ArrayList<>(set());
+		return new ArrayList<>(set);
 	}
 	
 	@Override
 	public String toString() {
-		return set().toString();
+		return set.toString();
 	}
 	
 	@Override
@@ -57,11 +61,11 @@ abstract class ElementSet<E extends Element<? super E>> implements Iterable<E>{
 		ElementSet<?> other = (ElementSet<?>) obj;
 		if (hash != other.hash)
 			return false;
-		return set().equals(other.set());
+		return set.equals(other.set);
 	}
 
 	@Override
 	public Iterator<E> iterator() {
-		return set().iterator();
+		return set.iterator();
 	}
 }

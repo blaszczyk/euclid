@@ -1,6 +1,6 @@
 package euclid.model;
 
-import static euclid.model.ElementLifeTimeManager.*;
+import static euclid.model.Sugar.*;
 
 public class Point implements Comparable<Point>, Element<Point> {
 	

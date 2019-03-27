@@ -17,15 +17,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static euclid.model.ElementLifeTimeManager.*;
+import static euclid.model.Sugar.*;
 import euclid.model.*;
 import euclid.problem.Problem.AlgorithmType;
 
 public class ProblemParser {
-	
-	public static Problem parse(final File file) {
-		return new ProblemParser().parseProblem(file);
-	}
 
 	private static final String KEY_INIT_POINTS = "initialpoints";
 	private static final String KEY_INIT_CURVES = "initialcurves";
@@ -57,20 +53,25 @@ public class ProblemParser {
 	private final Map<String, Point> points = new HashMap<>();
 	private final Map<String, Curve> curves = new HashMap<>();
 	
+	private final Algebra algebra;
+	
 	private Map<String, String> keyValues = null;
 	
-	private Problem parseProblem(final File file) {
+	public ProblemParser(final Algebra algebra) {
+		this.algebra = algebra;
+	}
+
+	public Problem parse(final File file) {
 		try {
 			final List<String> lines = Files.readAllLines(file.toPath());
-			final Problem problem = parseProblem(lines);
-			return problem;
+			return parse(lines);
 		}
 		catch (IOException e) {
 			throw new ProblemParserException(e, "error reading file '%': '%s'", file, e.getMessage());
 		}
 	}
 
-	private Problem parseProblem(final List<String> lines) {
+	public Problem parse(final List<String> lines) {
 		keyValues = keyValues(lines);
 		return parseProblem();
 	}
@@ -186,7 +187,7 @@ public class ProblemParser {
 			final boolean isLine = matcher.group(1).charAt(0) == 'l';
 			final Point x = parsePoint(matcher.group(2));
 			final Point y = parsePoint(matcher.group(4));
-			final Curve curve = isLine ? l(x,y) :  c(x,y);
+			final Curve curve = isLine ? algebra.line(x,y) :  algebra.circle(x,y);
 			cacheByValue(curve, value, curves);
 			return curve;
 		}

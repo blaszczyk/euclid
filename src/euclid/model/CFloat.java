@@ -1,7 +1,7 @@
 package euclid.model;
 
 import java.text.DecimalFormat;
-import static euclid.model.ElementLifeTimeManager.*;
+import static euclid.model.Sugar.*;
 
 public class CFloat implements Constructable {
 	

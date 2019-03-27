@@ -3,8 +3,6 @@ package euclid.model;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class CurveSet extends ElementSet<Curve> {
 	
@@ -24,22 +22,12 @@ public class CurveSet extends ElementSet<Curve> {
 		return EMPTY;
 	}
 	
-	private final LinkedHashSet<Curve> set;
-	
 	private CurveSet(final int capacity) {
-		set = new LinkedHashSet<>(capacity);
+		super(new LinkedHashSet<>(capacity));
 	}
 	
 	private CurveSet(final Collection<Curve> init) {
-		set = new LinkedHashSet<>(init);
-	}
-
-	public Set<Point> intersections() {
-		final Set<Point> points = new TreeSet<>();
-		for(final Curve c1 : set)
-			for(final Curve c2 : set)
-				points.addAll(c1.intersect(c2).set());
-		return points;
+		super(new LinkedHashSet<>(init));
 	}
 
 	public CurveSet adjoin(final Curve c) {
@@ -54,11 +42,6 @@ public class CurveSet extends ElementSet<Curve> {
 		result.set.addAll(curves.set);
 		result.computeHash();
 		return result;
-	}
-
-	@Override
-	Collection<Curve> set() {
-		return set;
 	}
 
 }

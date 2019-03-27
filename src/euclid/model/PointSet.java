@@ -1,11 +1,7 @@
 package euclid.model;
 
-import static euclid.model.ElementLifeTimeManager.*;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class PointSet extends ElementSet<Point> {
@@ -26,27 +22,12 @@ public class PointSet extends ElementSet<Point> {
 		return EMPTY;
 	}
 	
-	private final TreeSet<Point> set;
-	
 	private PointSet() {
-		set = new TreeSet<>();
+		super(new TreeSet<>());
 	}
 	
 	private PointSet(final Collection<Point> points) {
-		set = new TreeSet<>(points);
-	}
-
-	public Set<Curve> curves() {
-		final Set<Curve> curves = new HashSet<>(size() * size());
-		for(final Point p1 : set)
-			for(final Point p2 : set)
-				if(p1.compareTo(p2) < 0)
-				{
-					curves.add(l(p1,p2));
-					curves.add(c(p1,p2));
-					curves.add(c(p2,p1));
-				}
-		return curves;
+		super(new TreeSet<>(points));
 	}
 
 	public PointSet adjoin(final Point p) {
@@ -61,11 +42,6 @@ public class PointSet extends ElementSet<Point> {
 		result.set.addAll(other.set);
 		result.computeHash();
 		return result;
-	}
-
-	@Override
-	Collection<Point> set() {
-		return set;
 	}
 
 }

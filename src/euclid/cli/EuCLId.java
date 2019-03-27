@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+import euclid.alg.Algorithm;
+import euclid.alg.CurveBasedSearch;
+import euclid.alg.PointBasedSearch;
 import euclid.alg.engine.ThreadedSearchEngine;
 import euclid.kpi.KpiMonitor;
 import euclid.kpi.KpiStdoutLogger;
@@ -25,6 +28,10 @@ public class EuCLId {
 			System.err.println(parameters.errorMessage());
 		}
 	}
+	
+	private final CurveLifeCycle lifeCycle;
+	
+	private final Algebra algebra;
 
 	private final Problem problem;
 	
@@ -33,13 +40,27 @@ public class EuCLId {
 	private final KpiMonitor monitor;
 	
 	private EuCLId(final CliParameters parameters) {
-		this.problem = ProblemParser.parse(parameters.problemFile());
-		engine = new ThreadedSearchEngine<>(problem.createAlgorithm(), problem.maxDepth(), problem.findAll());
+		lifeCycle = new CachedCurveLifeCycle();
+		algebra = new CachedIntersectionAlgebra(lifeCycle);
+
+		problem = new ProblemParser(algebra).parse(parameters.problemFile());
+		engine = new ThreadedSearchEngine<>(createAlgorithm(), problem.maxDepth(), problem.findAll());
+
 		monitor = new KpiMonitor(parameters.kpiInterval());
 		monitor.addReporter(engine.kpiReporter());
 		monitor.addReporter(engine.queueKpiReporter());
-		monitor.addReporter(ElementLifeTimeManager::kpiReport);
+		monitor.addReporter(lifeCycle);
 		monitor.addConsumer(new KpiStdoutLogger());
+	}
+
+	private Algorithm<Board> createAlgorithm() {
+		switch (problem.algorithmType()) {
+		case CURVE_BASED:
+			return new CurveBasedSearch(problem.initial(), problem.required(), algebra);
+		case POINT_BASED:
+			return new PointBasedSearch(problem.initial(), problem.required(), algebra);
+		}
+		return null;
 	}
 	
 	private void process() {
@@ -83,15 +104,15 @@ public class EuCLId {
 	private void printSolution(final Board solution) {
 		final List<Curve> curves = new ArrayList<>(solution.curves().size());
 		problem.initial().curves().forEach(curves::add);
-		for(final Curve c : solution.curves()) {
+		for(final Curve curve : solution.curves()) {
 			final Set<Point> newPoints = new TreeSet<>();
 			curves.stream()
-				.map(c::intersect)
+				.map(c -> algebra.intersect(c, curve))
 				.map(PointSet::asList)
 				.forEach(newPoints::addAll);
-			System.out.println(c);
+			System.out.println(curve);
 			System.out.println("  " + newPoints);
-			curves.add(c);
+			curves.add(curve);
 		}
 		System.out.println();
 	}

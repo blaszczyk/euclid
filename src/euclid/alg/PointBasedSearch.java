@@ -9,13 +9,13 @@ import euclid.model.*;
 
 public class PointBasedSearch extends BoardSearch {
 	
-	public PointBasedSearch(final Board initial, final Collection<Board> required) {
-		super(initial.identifyByPoints(), required);
+	public PointBasedSearch(final Board initial, final Collection<Board> required, final Algebra algebra) {
+		super(initial.identifyByPoints(), required, algebra);
 	}
 
 	@Override
 	public Board digest(final Board board) {
-		final Set<Curve> curves = board.points().curves();
+		final Set<Curve> curves = createAllCurves(board.points());
 		board.curves().forEach(curves::add);
 		return Board.withPoints(board.points()).andCurves(curves);
 	}
@@ -28,7 +28,7 @@ public class PointBasedSearch extends BoardSearch {
 	@Override
 	public Collection<Board> nextGeneration(final Board board) {
 		final PointSet points = board.points();
-		final Set<Point> successors = board.curves().intersections();
+		final Set<Point> successors = createAllIntersections(board.curves());
 		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Point successor : successors) {
 			if(points.containsNot(successor)) {

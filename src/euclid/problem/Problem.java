@@ -2,7 +2,6 @@ package euclid.problem;
 
 import java.util.Collection;
 
-import euclid.alg.*;
 import euclid.model.Board;
 
 public class Problem {
@@ -46,16 +45,6 @@ public class Problem {
 
 	public final AlgorithmType algorithmType() {
 		return algorithmType;
-	}
-
-	public Algorithm<Board> createAlgorithm() {
-		switch (algorithmType) {
-		case CURVE_BASED:
-			return new CurveBasedSearch(initial, required);
-		case POINT_BASED:
-			return new PointBasedSearch(initial, required);
-		}
-		return null;
 	}
 	
 }
