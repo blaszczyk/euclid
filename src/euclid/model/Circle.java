@@ -12,11 +12,21 @@ public class Circle implements Curve {
 	
 	@Override
 	public boolean isEqual(final Curve other) {
-		if(other instanceof Circle) {
-			final Circle circle = (Circle) other;
+		if(other.isCircle()) {
+			final Circle circle = other.asCircle();
 			return circle.center.isEqual(center) && circle.radiusSquare.isEqual(radiusSquare);
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean isLine() {
+		return false;
+	}
+	
+	@Override
+	public Circle asCircle() {
+		return this;
 	}
 
 	@Override

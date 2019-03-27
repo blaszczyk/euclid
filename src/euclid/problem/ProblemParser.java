@@ -215,7 +215,7 @@ public class ProblemParser {
 		if(matcher.matches()) {
 			final Constructable x = parseConstant(matcher.group(2));
 			final Constructable y = parseConstant(matcher.group(4));
-			final Point point = p(x,y);
+			final Point point = point(x,y);
 			cacheByValue(point, value, points);
 			return point;
 		}
@@ -231,7 +231,7 @@ public class ProblemParser {
 		try {
 			final Calculator calculator = new Calculator(this::lookUpConstant);
 			final double numValue = calculator.evaluate(value);
-			final Constructable number = n(numValue);
+			final Constructable number = number(numValue);
 			cacheByValue(number, value, constants);
 			return number;
 		}
@@ -254,7 +254,6 @@ public class ProblemParser {
 		if(!value.contains("rand")) {
 			cache.put(value, element);
 		}
-		
 	}
 	
 	private String getValue(final String key) {

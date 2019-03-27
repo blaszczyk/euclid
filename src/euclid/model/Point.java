@@ -21,19 +21,19 @@ public class Point implements Comparable<Point>, Element<Point> {
 	}
 	
 	public Point add(final Point other) {
-		return p(x.add(other.x), y.add(other.y));
+		return point(x.add(other.x), y.add(other.y));
 	}
 	
 	public Point sub(final Point other) {
-		return p(x.sub(other.x), y.sub(other.y));
+		return point(x.sub(other.x), y.sub(other.y));
 	}
 	
 	public Point mul(final Constructable factor) {
-		return p(x.mul(factor), y.mul(factor));
+		return point(x.mul(factor), y.mul(factor));
 	}
 
 	public Point div(final Constructable factor) {
-		return p(x.div(factor), y.div(factor));
+		return point(x.div(factor), y.div(factor));
 	}
 	
 	public Constructable mul(final Point other) {
@@ -49,7 +49,7 @@ public class Point implements Comparable<Point>, Element<Point> {
 	}
 
 	public Point orth() {
-		return p(y, x.negate());
+		return point(y, x.negate());
 	}
 	
 	public boolean colinear(final Point other) {

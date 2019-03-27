@@ -14,52 +14,52 @@ public class CFloat implements Constructable {
 	}
 	
 	// sugar
-	private static CFloat c(Constructable c) {
+	private static CFloat c(final Constructable c) {
 		return (CFloat) c;
 	}
 
 	@Override
-	public Constructable add(Constructable other) {
-		return n(value + c(other).value);
+	public Constructable add(final Constructable other) {
+		return number(value + c(other).value);
 	}
 
 	@Override
-	public Constructable sub(Constructable other) {
-		return n(value - c(other).value);
+	public Constructable sub(final Constructable other) {
+		return number(value - c(other).value);
 	}
 
 	@Override
-	public Constructable mul(Constructable other) {
-		return n(value * c(other).value);
+	public Constructable mul(final Constructable other) {
+		return number(value * c(other).value);
 	}
 
 	@Override
-	public Constructable div(Constructable other) {
-		return n(value / c(other).value);
+	public Constructable div(final Constructable other) {
+		return number(value / c(other).value);
 	}
 
 	@Override
 	public Constructable negate() {
-		return n(0 - value);
+		return number(0 - value);
 	}
 
 	@Override
 	public Constructable inverse() {
-		return n(1 / value);
+		return number(1 / value);
 	}
 
 	@Override
 	public Constructable square() {
-		return n(value * value);
+		return number(value * value);
 	}
 
 	@Override
 	public Constructable root() {
-		return n(Math.sqrt(value));
+		return number(Math.sqrt(value));
 	}
 	
 	@Override
-	public boolean isEqual(Constructable other) {
+	public boolean isEqual(final Constructable other) {
 		return Math.abs(value - c(other).value) < TOLERANCE;
 	}
 	

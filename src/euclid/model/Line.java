@@ -13,11 +13,21 @@ public class Line implements Curve {
 
 	@Override
 	public boolean isEqual(final Curve other) {
-		if(other instanceof Line) {
-			final Line line = (Line)other;
-			return offset.equals(line.offset) && normal.equals(line.normal);
+		if(other.isLine()) {
+			final Line line = other.asLine();
+			return offset.isEqual(line.offset) && normal.isEqual(line.normal);
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean isLine() {
+		return true;
+	}
+	
+	@Override
+	public Line asLine() {
+		return this;
 	}
 
 	@Override

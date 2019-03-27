@@ -11,21 +11,12 @@ public class Algebra {
 	}
 
 	public boolean contains(final Point point, final Curve curve) {
-		if(curve instanceof Line) {
-			return doesContain(point, (Line) curve);
+		if(curve.isLine()) {
+			return doesContain(point, curve.asLine());
 		}
-		else if(curve instanceof Circle) {
-			return doesContain(point, (Circle) curve);
+		else {
+			return doesContain(point, curve.asCircle());
 		}
-		return false;
-	}
-	
-	private boolean doesContain(final Point point, final Line line) {
-		return point.mul(line.normal).isEqual(line.offset);
-	}
-	
-	private boolean doesContain(final Point point, final Circle circle) {
-		return point.sub(circle.center).square().isEqual(circle.radiusSquare);
 	}
 	
 	public Curve line(final Point p1, final Point p2) {
@@ -41,23 +32,30 @@ public class Algebra {
 	}
 	
 	public PointSet intersect(final Curve curve1, final Curve curve2) {
-		if(curve1 instanceof Line) {
-			if(curve2 instanceof Line) {
-				return doIntersect((Line) curve1, (Line) curve2);
+		if(curve1.isLine()) {
+			if(curve2.isLine()) {
+				return doIntersect(curve1.asLine(), curve2.asLine());
 			}
-			else if(curve2 instanceof Circle) {
-				return doIntersect((Line) curve1, (Circle) curve2);
-			}
-		}
-		else if(curve1 instanceof Circle) {
-			if(curve2 instanceof Line) {
-				return doIntersect((Line) curve2, (Circle) curve1);
-			}
-			else if(curve2 instanceof Circle) {
-				return doIntersect((Circle) curve1, (Circle) curve2);
+			else {
+				return doIntersect(curve1.asLine(), curve2.asCircle());
 			}
 		}
-		return PointSet.empty();
+		else {
+			if(curve2.isLine()) {
+				return doIntersect(curve2.asLine(), curve1.asCircle());
+			}
+			else {
+				return doIntersect(curve1.asCircle(), curve2.asCircle());
+			}
+		}
+	}
+	
+	private boolean doesContain(final Point point, final Line line) {
+		return point.mul(line.normal).isEqual(line.offset);
+	}
+	
+	private boolean doesContain(final Point point, final Circle circle) {
+		return point.sub(circle.center).square().isEqual(circle.radiusSquare);
 	}
 
 	private PointSet doIntersect(final Line l1, final Line l2) {
@@ -67,7 +65,7 @@ public class Algebra {
 		}
 		final Constructable x = l1.offset.mul(l2.normal.y).sub(l2.offset.mul(l1.normal.y)).div(det);
 		final Constructable y = l2.offset.mul(l1.normal.x).sub(l1.offset.mul(l2.normal.x)).div(det);
-		return PointSet.of(p(x, y));
+		return PointSet.of(point(x, y));
 	}
 	
 	private PointSet doIntersect(final Line line, final Circle circle) {
