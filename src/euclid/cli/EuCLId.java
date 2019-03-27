@@ -1,6 +1,5 @@
-package euclid;
+package euclid.cli;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,10 +15,14 @@ import euclid.problem.*;
 public class EuCLId {
 
 	public static void main(final String[] args) {
-		final File file = getFile(args);
-		final Problem problem = ProblemParser.parse(file);
-		final EuCLId euCLId = new EuCLId(problem);
-		euCLId.process();
+		final CliParameters parameters = CliParameters.parseAndValidate(args);
+		if(parameters.isValid()) {
+			final EuCLId euCLId = new EuCLId(parameters);
+			euCLId.process();
+		}
+		else {
+			System.err.println(parameters.errorMessage());
+		}
 	}
 
 	private final Problem problem;
@@ -28,10 +31,10 @@ public class EuCLId {
 	
 	private final KpiMonitor monitor;
 	
-	private EuCLId(final Problem problem) {
-		this.problem = problem;
+	private EuCLId(final CliParameters parameters) {
+		this.problem = ProblemParser.parse(parameters.problemFile());
 		engine = new ThreadedSearchEngine<>(problem.createAlgorithm(), problem.maxDepth(), problem.findAll());
-		monitor = new KpiMonitor(1000);
+		monitor = new KpiMonitor(parameters.kpiInterval());
 		monitor.addReporter(engine.kpiReporter());
 		monitor.addReporter(engine.queueKpiReporter());
 		monitor.addReporter(ElementLifeTimeManager::kpiReport);
@@ -95,19 +98,6 @@ public class EuCLId {
 		board.curves().forEach(System.out::println);
 		System.out.println(board.points());
 		System.out.println();
-	}
-
-	private static File getFile(final String[] args) {
-		if(args.length == 0) {
-			System.err.println("no file name specified");
-			System.exit(-1);
-		}
-		final File file = new File(args[0]);
-		if(!file.exists()) {
-			System.err.printf("file '%s' does not exist%n", args[0]);
-			System.exit(-1);
-		}
-		return file;
 	}
 
 }
