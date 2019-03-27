@@ -31,6 +31,10 @@ public class Point implements Comparable<Point>, Element<Point> {
 	public Point mul(final Constructable factor) {
 		return p(x.mul(factor), y.mul(factor));
 	}
+
+	public Point div(final Constructable factor) {
+		return p(x.div(factor), y.div(factor));
+	}
 	
 	public Constructable mul(final Point other) {
 		return x.mul(other.x).add(y.mul(other.y));

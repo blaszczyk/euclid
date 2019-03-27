@@ -1,27 +1,21 @@
 package euclid.model;
 
-import static euclid.model.Sugar.*;
-
 public class Line implements Curve {
 	
 	final Point normal;
 	final Constructable offset;
-	final Constructable normalSquare;
 
 	Line(final Point normal, final Constructable offset) {
-		this.normal = normal;
-		this.offset = offset;
-		normalSquare = normal.square();
+		final Constructable normalization = normal.square().root();
+		this.normal = normal.div(normalization);
+		this.offset = offset.div(normalization);
 	}
 
 	@Override
 	public boolean isEqual(final Curve other) {
 		if(other instanceof Line) {
 			final Line line = (Line)other;
-			if(offset.isEqual(zero()) && line.offset.isEqual(zero())) {
-				return normal.colinear(line.normal);
-			}
-			return line.normal.mul(offset).isEqual(normal.mul(line.offset));
+			return offset.equals(line.offset) && normal.equals(line.normal);
 		}
 		return false;
 	}

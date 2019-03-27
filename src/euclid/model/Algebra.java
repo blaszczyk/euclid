@@ -61,10 +61,10 @@ public class Algebra {
 	}
 
 	private PointSet doIntersect(final Line l1, final Line l2) {
-		if(l1.normal.colinear(l2.normal)) {
+		final Constructable det = l1.normal.cross(l2.normal);
+		if(det.isEqual(zero())) {
 			return PointSet.empty();
 		}
-		final Constructable det = l1.normal.cross(l2.normal);
 		final Constructable x = l1.offset.mul(l2.normal.y).sub(l2.offset.mul(l1.normal.y)).div(det);
 		final Constructable y = l2.offset.mul(l1.normal.x).sub(l1.offset.mul(l2.normal.x)).div(det);
 		return PointSet.of(p(x, y));
@@ -72,13 +72,12 @@ public class Algebra {
 	
 	private PointSet doIntersect(final Line line, final Circle circle) {
 		final Point normal = line.normal;
-		final Constructable normalSquare = line.normalSquare;
-		final Point distance = normal.mul(line.offset.sub(normal.mul(circle.center)).div(normalSquare));
+		final Point distance = normal.mul(line.offset.sub(normal.mul(circle.center)));
 		final Constructable discriminant = circle.radiusSquare.sub(distance.square());
 		final int comp = discriminant.compareTo(zero());
 		if(comp > 0) {
 			final Point midpoint = circle.center.add(distance);
-			final Point separation = normal.orth().mul(discriminant.div(normalSquare).root());
+			final Point separation = normal.orth().mul(discriminant.root());
 			return PointSet.of(midpoint.add(separation), midpoint.sub(separation));
 		}
 		else if(comp == 0) {
