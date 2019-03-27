@@ -20,9 +20,9 @@ public class Calculator {
 
 	private static final Pattern PARENTHESIS_PATTERN = Pattern.compile(
 			"(.*[^a-zA-Z])?" // prefix
-			+ "([a-zA-Z]*)?" // operator
+			+ "([a-zA-Z]*)" // operator
 			+ "(\\()" // open
-			+ "([0-9a-zA-Z\\*\\+\\-\\/\\.]*)" // inner
+			+ "([0-9a-zA-Z\\+\\-\\*\\/\\.\\$]+)" // inner
 			+ "(\\))" // close
 			+ "(.*)"); // apex
 	
@@ -43,13 +43,13 @@ public class Calculator {
 		final Matcher matcher = PARENTHESIS_PATTERN.matcher(expression);
 		if(matcher.matches())
 		{
-			final String operator = nonNull(matcher.group(2)).toLowerCase();
 			final String prefix = nonNull(matcher.group(1));
+			final String operator = nonNull(matcher.group(2)).toLowerCase();
 			final String inner = nonNull(matcher.group(4));
 			final String apex = nonNull(matcher.group(6));
-			double result = evaluate(inner);
+			double result = evaluateSum(inner);
 			result = evaluateOperator(operator, result);
-			final String key = "vln7rnl" + cache.size();
+			final String key = "$" + cache.size() + "$";
 			cache.put(key, result);
 			final String reducedExpression = prefix	+ key + apex;
 			return evaluate(reducedExpression);
@@ -59,7 +59,7 @@ public class Calculator {
 
 	private static double evaluateOperator(final String operator, final double operand)
 	{
-		if(operator.equals("")) {
+		if(operator.isEmpty()) {
 			return operand;
 		}
 		try {
@@ -80,18 +80,15 @@ public class Calculator {
 
 	private double evaluateSum(final String sum)
 	{
-		final String[] summands = sum.replaceAll("(?<=[0-9a-zA-Z])\\-", "+-")
-				.replaceAll("(?<=[0-9a-zA-Z\\(\\)])\\/", "*/")
-				.replaceAll("\\-\\-", "")
-				.split("\\+");
+		final String[] summands = sum.replaceAll("(?<=[0-9a-zA-Z\\$])\\-", "+-").split("\\+");
 		return Arrays.stream(summands)
     			.map(this::evaluateProduct)
     			.reduce(0., Calculator::add);
 	}
-	
+
 	private double evaluateProduct(final String product)
 	{
-		final String[] factors = product.split("\\*");
+		final String[] factors = product.replaceAll("(?<=[0-9a-zA-Z\\$])\\/", "*/").split("\\*");
 		return Arrays.stream(factors)
 				.map(this::parseDouble)
 				.reduce(1., Calculator::multiply);
@@ -99,6 +96,10 @@ public class Calculator {
 	
 	private double parseDouble(final String text)
 	{
+		if(text.startsWith("/"))
+			return 1. / parseDouble(text.substring(1));
+		if(text.startsWith("-"))
+			return 0. - parseDouble(text.substring(1));
 		if(cache.containsKey(text)) {
 			return cache.get(text);
 		}
@@ -114,8 +115,6 @@ public class Calculator {
 		case "rand":
 			return Math.random();
 		}
-		if(text.charAt(0) == '/')
-			return 1. / Double.parseDouble(text.substring(1));
 		return Double.parseDouble(text);
 	}
 	
