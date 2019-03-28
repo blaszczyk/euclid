@@ -19,10 +19,10 @@ public class Calculator {
 	}
 
 	private static final Pattern PARENTHESIS_PATTERN = Pattern.compile(
-			"(.*[^a-zA-Z])?" // prefix
-			+ "([a-zA-Z]*)" // operator
+			"(.*\\W)?" // prefix
+			+ "(\\w*)" // operator
 			+ "(\\()" // open
-			+ "([0-9a-zA-Z\\+\\-\\*\\/\\.\\$]+)" // inner
+			+ "([^\\(\\)]+)" // inner
 			+ "(\\))" // close
 			+ "(.*)"); // apex
 	
@@ -80,7 +80,7 @@ public class Calculator {
 
 	private double evaluateSum(final String sum)
 	{
-		final String[] summands = sum.replaceAll("(?<=[0-9a-zA-Z\\$])\\-", "+-").split("\\+");
+		final String[] summands = sum.replaceAll("(?<=[\\w\\$])\\-", "+-").split("\\+");
 		return Arrays.stream(summands)
     			.map(this::evaluateProduct)
     			.reduce(0., Calculator::add);
@@ -88,26 +88,26 @@ public class Calculator {
 
 	private double evaluateProduct(final String product)
 	{
-		final String[] factors = product.replaceAll("(?<=[0-9a-zA-Z\\$])\\/", "*/").split("\\*");
+		final String[] factors = product.replaceAll("(?<=[\\w\\$])\\/", "*/").split("\\*");
 		return Arrays.stream(factors)
-				.map(this::parseDouble)
+				.map(this::evaluateNumber)
 				.reduce(1., Calculator::multiply);
 	}
 	
-	private double parseDouble(final String text)
+	private double evaluateNumber(final String number)
 	{
-		if(text.startsWith("/"))
-			return 1. / parseDouble(text.substring(1));
-		if(text.startsWith("-"))
-			return 0. - parseDouble(text.substring(1));
-		if(cache.containsKey(text)) {
-			return cache.get(text);
+		if(number.startsWith("-"))
+			return 0. - evaluateNumber(number.substring(1));
+		if(number.startsWith("/"))
+			return 1. / evaluateNumber(number.substring(1));
+		if(cache.containsKey(number)) {
+			return cache.get(number);
 		}
-		final Optional<Double> value = external.lookUp(text);
-		if(value.isPresent()) {
-			return value.get();
+		final Optional<Double> externalValue = external.lookUp(number);
+		if(externalValue.isPresent()) {
+			return externalValue.get();
 		}
-		switch (text.toLowerCase()) {
+		switch (number.toLowerCase()) {
 		case "pi":
 			return Math.PI;
 		case "e":
@@ -115,7 +115,7 @@ public class Calculator {
 		case "rand":
 			return Math.random();
 		}
-		return Double.parseDouble(text);
+		return Double.parseDouble(number);
 	}
 	
 	private static double add(final double d1, final double d2)

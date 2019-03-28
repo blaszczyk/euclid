@@ -33,7 +33,7 @@ public class ProblemParser {
 	
 	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
 	
-	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)]+)";
+	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
 			"(p\\()" // declaration
 			+ NUM_PTRN // number
@@ -41,7 +41,7 @@ public class ProblemParser {
 			+ NUM_PTRN // number
 			+ "(\\))"); // close
 
-	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\,]+)";
+	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\,]+)";
 	private static final Pattern CURVE_PATTERN = Pattern.compile(
 			"([cl]\\()" // declaration
 			+ PT_PTRN // point
