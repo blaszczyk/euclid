@@ -1,2 +1,2 @@
 @echo off
-java -Xmx2048m -classpath target/classes euclid.cli.EuCLId %*
+java -Xmx2048m -classpath bin;target/classes euclid.cli.EuCLId %*

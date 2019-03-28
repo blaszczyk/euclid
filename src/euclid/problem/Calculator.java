@@ -44,7 +44,7 @@ public class Calculator {
 		if(matcher.matches())
 		{
 			final String prefix = nonNull(matcher.group(1));
-			final String operator = nonNull(matcher.group(2)).toLowerCase();
+			final String operator = nonNull(matcher.group(2));
 			final String inner = nonNull(matcher.group(4));
 			final String apex = nonNull(matcher.group(6));
 			double result = evaluateSum(inner);
