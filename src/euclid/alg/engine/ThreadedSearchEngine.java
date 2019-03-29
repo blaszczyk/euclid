@@ -29,20 +29,20 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 
 	private final int maxDepth;
 
-	private final boolean findFirst;
+	private final boolean findAll;
 
 	private boolean halt = false;
 	
-	public ThreadedSearchEngine(final Algorithm<B> algorithm, final int maxDepth, final boolean findFirst, final int threadCount) {
+	public ThreadedSearchEngine(final Algorithm<B> algorithm, final int maxDepth, final boolean findAll, final int threadCount) {
 		this.algorithm = algorithm;
 		this.maxDepth = maxDepth;
-		this.findFirst = findFirst;
+		this.findAll = findAll;
 		threads = IntStream.range(0, threadCount)
 				.mapToObj(this::threadName)
 				.map(SearchThread::new)
 				.collect(Collectors.toList());
 		queues = new PriorityQueuePool<>(algorithm.maxMisses());
-		kpiProvider = findFirst ? new EngineKpiProvider(collector::size) : new EngineKpiProvider(collector::size, solutions::size);
+		kpiProvider = findAll ? new EngineKpiProvider(collector::size, solutions::size) : new EngineKpiProvider(collector::size);
 	}
 
 	private String threadName(final int count) {
@@ -102,7 +102,7 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 		final int misses = algorithm.misses(candidate);
 		if(misses == 0) {
 			solutions.add(candidate);
-			if(findFirst) {
+			if(!findAll) {
 				halt = true;
 			}
 		}

@@ -32,6 +32,9 @@ public class KpiMonitor {
 	}
 	
 	public void start() {
+		if(consumers.isEmpty()) {
+			return;
+		}
 		startTime = System.currentTimeMillis();
 		thread.start();
 	}

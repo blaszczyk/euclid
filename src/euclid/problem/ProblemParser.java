@@ -242,7 +242,7 @@ public class ProblemParser {
 		}
 	}
 	
-	private static <E extends Element<? super E>> void cacheByValue(final E element, final String value, final Map<String,E> cache) {
+	private static <E> void cacheByValue(final E element, final String value, final Map<String,E> cache) {
 		if(!value.contains("rand")) {
 			cache.put(value, element);
 		}

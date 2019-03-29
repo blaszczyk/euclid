@@ -100,6 +100,10 @@ public class Calculator {
 			return 0. - evaluateNumber(number.substring(1));
 		if(number.startsWith("/"))
 			return 1. / evaluateNumber(number.substring(1));
+		if(number.contains("^")) {
+			final String[] split = number.split("\\^",2);
+			return Math.pow(evaluateNumber(split[0]), evaluateNumber(split[1]));
+		}
 		if(cache.containsKey(number)) {
 			return cache.get(number);
 		}
