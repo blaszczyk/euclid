@@ -19,10 +19,8 @@ n  = p( xm + y1 - y2, ym - x1 + x2 )
 bisection = l(m;n)
 
 #problem parameters
-initialPoints = p1 : p2
-initialCurves = 
-requiredPoints = 
-requiredCurves = bisection
+initial = p1 : p2
+required = bisection
 maxDepth = 3
 findAll = false
 algorithm = curve_based

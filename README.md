@@ -19,10 +19,8 @@ after successful build, execute `euCLId.(bat|sh)` with a problem file as argumen
   * the line through the points `x` and `y` is `l(x; y)`
   * the circle with center `c` through the point `x` is `c(c; x)`
 * the following mandatory keys define the problem, with list separator `:`
-  * `initialPoints` list of points to start with
-  * `initialCurves` list of curves to start with
-  * `requiredPoints{id}` list of points to be constructed for solution `{id}`
-  * `requiredCurves{id}` list of curves to be constructed for solution `{id}`
+  * `initial` list of points and curves to start with
+  * `required{id}` list of points and curves to be constructed for possible solution
   * `algorithm` choice of search algorithm (`curve_based` vs `point_based`)
   * `maxDepth` maximal depth of the search algorithm
   * `findAll` search for all solutions within depth range

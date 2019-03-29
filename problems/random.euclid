@@ -1,10 +1,8 @@
 #
 # impossible random bullshit
 #
-initialpoints = 
-initialcurves = l(p(rand,rand);p(rand,rand)) : l(p(rand,rand);p(rand,rand)) : c(p(rand+1,rand);p(rand,rand)) : c(p(rand+1,rand);p(rand,rand))
-requiredpoints = 
-requiredcurves = l(p(rand+2,rand);p(rand,rand))
+initial = l(p(rand,rand);p(rand,rand)) : l(p(rand,rand);p(rand,rand)) : c(p(rand+1,rand);p(rand,rand)) : c(p(rand+1,rand);p(rand,rand))
+required = l(p(rand+2,rand);p(rand,rand))
 maxdepth = 3
 findAll = true
 algorithm = curve_based

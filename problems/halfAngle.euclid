@@ -14,10 +14,8 @@ l1=l(o;p1)
 lhalf=l(o;phalf)
 l2=l(o;p2)
 
-initialpoints = p1
-initialcurves = l2 : l1
-requiredpoints =
-requiredcurves = lhalf
+initial = p1 : l2 : l1
+required = lhalf
 maxdepth = 4
 findAll = false
 algorithm = point_based

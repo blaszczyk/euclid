@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static euclid.model.Sugar.*;
 import euclid.model.*;
@@ -23,15 +22,13 @@ import euclid.problem.Problem.AlgorithmType;
 
 public class ProblemParser {
 
-	private static final String KEY_INIT_POINTS = "initialpoints";
-	private static final String KEY_INIT_CURVES = "initialcurves";
-	private static final String KEY_REQ_POINTS = "requiredpoints";
-	private static final String KEY_REQ_CURVES = "requiredcurves";
+	private static final String KEY_INITIAL = "initial";
+	private static final String KEY_REQUIRED = "required";
 	private static final String KEY_MAX_DEPTH = "maxdepth";
 	private static final String KEY_ALGORITHM = "algorithm";
 	private static final String KEY_FIND_ALL = "findall";
 	
-	private static final List<String> KEYWORDS = Arrays.asList(KEY_INIT_POINTS, KEY_INIT_CURVES, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
+	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
@@ -89,9 +86,7 @@ public class ProblemParser {
 		validateKeywords();
 		parseVariables();
 
-		final PointSet initPoints = parsePoints(getValue(KEY_INIT_POINTS));
-		final CurveSet initCurves = parseCurves(getValue(KEY_INIT_CURVES));
-		final Board initial = Board.withPoints(initPoints).andCurves(initCurves);
+		final Board initial = parseBoard(getValue(KEY_INITIAL));
 		final Collection<Board> required = parseRequired();
 
 		final int maxDepth = Integer.parseInt(getValue(KEY_MAX_DEPTH));
@@ -128,46 +123,39 @@ public class ProblemParser {
 	}
 	
 	private static boolean isKeyword(final String key) {
-		return KEYWORDS.contains(key) || key.startsWith(KEY_REQ_POINTS) || key.startsWith(KEY_REQ_CURVES);
+		return KEYWORDS.contains(key) || key.startsWith(KEY_REQUIRED);
 	}
 	
 	private Collection<Board> parseRequired() {
-		final Map<String, PointSet> points = new LinkedHashMap<>();
-		final Map<String, CurveSet> curves = new LinkedHashMap<>();
+		final List<Board> required = new ArrayList<>();
 		for(final String key : keys()) {
-			if(key.startsWith(KEY_REQ_POINTS)) {
-				final String id = key.substring(KEY_REQ_POINTS.length());
-				points.put(id, parsePoints(getValue(key)));
+			if(key.startsWith(KEY_REQUIRED)) {
+				required.add(parseBoard(getValue(key)));
 			}
-			else if(key.startsWith(KEY_REQ_CURVES)) {
-				final String id = key.substring(KEY_REQ_CURVES.length());
-				curves.put(id, parseCurves(getValue(key)));
-			}
-		}
-		
-		if(!points.keySet().equals(curves.keySet())) {
-			throw new ProblemParserException("ids for required points and curves do not match: %s vs. %s",
-					points.keySet(), curves.keySet());
-		}
-		
-		final List<Board> required = new ArrayList<>(points.size());
-		for(final String id : points.keySet()) {
-			final PointSet ps = points.get(id);
-			final CurveSet cs = curves.get(id);
-			required.add(Board.withPoints(ps).andCurves(cs));
 		}
 		return required;
 	}
-
-	private CurveSet parseCurves(final String values) {
+	
+	private Board parseBoard(final String values) {
 		if(values == null || values.isEmpty()) {
-			return CurveSet.empty();
+			return Board.withPoints().andCurves();
 		}
 		final String[] split = values.split("\\:");
-		final List<Curve> curves = Arrays.stream(split)
-				.map(this::parseCurve)
-				.collect(Collectors.toList());
-		return CurveSet.of(curves);
+		final List<Curve> cs = new ArrayList<>();
+		final List<Point> ps = new ArrayList<>();
+		for(final String value : split) {
+			if(isPoint(value)) {
+				ps.add(parsePoint(value));
+			}
+			else {
+				cs.add(parseCurve(value));
+			}
+		}
+		return Board.withPoints(ps).andCurves(cs);
+	}
+
+	private boolean isPoint(final String value) {
+		return value.toLowerCase().startsWith("p(") || points.containsKey(value);
 	}
 
 	private Curve parseCurve(final String value) {
@@ -186,17 +174,6 @@ public class ProblemParser {
 		else {
 			throw new ProblemParserException("invalid or unknown curve:'%s'", value);
 		}
-	}
-
-	private PointSet parsePoints(final String values) {
-		if(values == null || values.isEmpty()) {
-			return PointSet.empty();
-		}
-		final String[] split = values.split("\\:");
-		final List<Point> points = Arrays.stream(split)
-				.map(this::parsePoint)
-				.collect(Collectors.toList());
-		return PointSet.of(points);
 	}
 
 	private Point parsePoint(final String value) {

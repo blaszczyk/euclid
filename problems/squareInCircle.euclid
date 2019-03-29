@@ -13,10 +13,8 @@ l23 = l(p2;p3)
 l34 = l(p3;p4)
 l41 = l(p4;p1)
 
-initialPoints = o : p1
-initialCurves = c(o; p1)
-requiredPoints = 
-requiredCurves = l12 : l23 : l34 : l41
+initial = o : p1 : c(o; p1)
+required = l12 : l23 : l34 : l41
 maxdepth = 7
 findAll = false
 algorithm = curve_based
