@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import euclid.alg.Algorithm;
 import euclid.kpi.KpiReporter;
@@ -20,10 +22,8 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 	private final Collection<B> collector = ConcurrentHashMap.newKeySet();
 
 	private final Queue<B> solutions = new ConcurrentLinkedQueue<>();
-
-	private final int threadCount = Runtime.getRuntime().availableProcessors();
 	
-	private final Collection<SearchThread> threads = new ArrayList<>(threadCount);
+	private final Collection<SearchThread> threads;
 	
 	private final Algorithm<B> algorithm;
 
@@ -33,12 +33,20 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 
 	private boolean halt = false;
 	
-	public ThreadedSearchEngine(final Algorithm<B> algorithm, final int maxDepth, final boolean findFirst) {
+	public ThreadedSearchEngine(final Algorithm<B> algorithm, final int maxDepth, final boolean findFirst, final int threadCount) {
 		this.algorithm = algorithm;
 		this.maxDepth = maxDepth;
 		this.findFirst = findFirst;
+		threads = IntStream.range(0, threadCount)
+				.mapToObj(this::threadName)
+				.map(SearchThread::new)
+				.collect(Collectors.toList());
 		queues = new PriorityQueuePool<>(algorithm.maxMisses());
 		kpiProvider = findFirst ? new EngineKpiProvider(collector::size) : new EngineKpiProvider(collector::size, solutions::size);
+	}
+
+	private String threadName(final int count) {
+		return String.format("search-%08X-%d", hashCode(), count);
 	}
 	
 	public Collection<KpiReporter> kpiReporters() {
@@ -59,12 +67,7 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 
 	private void execute() {
 		testAndEnqueue(algorithm.first());
-		for(int i = 0; i < threadCount; i++) {
-			final String threadName = String.format("search-%08X-%d", hashCode(), i);
-			final SearchThread thread = new SearchThread(threadName);
-			threads.add(thread);
-			thread.start();
-		}
+		threads.forEach(SearchThread::start);
 		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
 			hibernate();
 		}

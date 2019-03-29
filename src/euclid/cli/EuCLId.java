@@ -37,7 +37,7 @@ public class EuCLId {
 		algebra = params.cacheIntersections() ? new CachedIntersectionAlgebra(lifeCycle) : new Algebra(lifeCycle);
 
 		problem = new ProblemParser(algebra, params.problemFile()).parse();
-		engine = new ThreadedSearchEngine<>(createAlgorithm(), problem.maxDepth(), problem.findAll());
+		engine = new ThreadedSearchEngine<>(createAlgorithm(), problem.maxDepth(), problem.findAll(), params.threadCount());
 
 		monitor = new KpiMonitor(params.kpiInterval());				
 		wireKpiMonitor(params);
