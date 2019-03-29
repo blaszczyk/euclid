@@ -5,8 +5,8 @@ import static euclid.model.Sugar.*;
 
 public class CFloat implements Constructable {
 	
-	private static final double TOLERANCE = 1E-10;
-	
+	private static final double PRECISION = 0.000_001;
+	private static final double INV_PRECISION = 1_000_000.;
 	private final double value;
 	
 	CFloat(double value) {
@@ -14,7 +14,7 @@ public class CFloat implements Constructable {
 	}
 	
 	// sugar
-	private static CFloat c(final Constructable c) {
+	private static CFloat c(final Object c) {
 		return (CFloat) c;
 	}
 
@@ -59,8 +59,11 @@ public class CFloat implements Constructable {
 	}
 	
 	@Override
-	public boolean isEqual(final Constructable other) {
-		return Math.abs(value - c(other).value) < TOLERANCE;
+	public int sign() {
+		if(Math.abs(value) < PRECISION) {
+			return 0;
+		}
+		return value > 0 ? 1 : -1;
 	}
 	
 	@Override
@@ -69,13 +72,39 @@ public class CFloat implements Constructable {
 	}
 	
 	@Override
+	public boolean near(final Constructable other) {
+		return Math.abs(value - c(other).value) < PRECISION;
+	}
+	
+	@Override
 	public String toString() {
-		return new DecimalFormat("#.#####").format(value);
+		return new DecimalFormat("#.######").format(value);
+	}
+	
+	@Override
+	public int hashCode() {
+		final long rounded = rounded();
+		final int bits = (int)(rounded >> 32 ^ rounded);
+		return bits ^ bits >> 16;
 	}
 
 	@Override
-	public int compareTo(Constructable other) {
-		if(isEqual(other))
+	public boolean equals(final Object obj) {
+		final CFloat other = c(obj);
+		if(this == obj) {
+			return true;
+		}
+		return rounded() == other.rounded();
+	}
+	
+	private long rounded() {
+		return Math.round(INV_PRECISION * value);
+	}
+	
+
+	@Override
+	public int compareTo(final Constructable other) {
+		if(near(other))
 			return 0;
 		return Double.compare(value, c(other).value);
 	}

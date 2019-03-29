@@ -6,12 +6,12 @@
 sqrt3 = sqrt(3)
 one = ( -9 +5 * 2) / log( sqrt( exp((1 + 1) / 2))) - sin( pi/2 ) # test the calculator unit
 
-# points
+# vertices
 p1 = p( -one,     0)
 p2 = p(  one,     0)
 p3 = p(  0, sqrt3)
 
-#curves
+# edges
 l12 = l(p1 ; p2)
 l23 = l(p2 ; p3)
 l31 = l(p3 ; p1)
@@ -22,5 +22,5 @@ initialCurves =
 requiredPoints =
 requiredCurves = l12 : l23 : l31
 maxDepth = 5
-findAll = true
+findAll = false
 algorithm = curve_based

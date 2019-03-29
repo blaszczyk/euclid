@@ -53,12 +53,26 @@ public class Point implements Comparable<Point>, Element<Point> {
 	}
 	
 	public boolean colinear(final Point other) {
-		return x.mul(other.y).isEqual(y.mul(other.x));
+		return x.mul(other.y).equals(y.mul(other.x));
+	}
+	
+	@Override
+	public boolean near(final Point other) {
+		return x.near(other.x) && y.near(other.y);
+	}
+	
+	@Override
+	public int hashCode() {
+		return 59 * x.hashCode() + 31 * y.hashCode();
 	}
 
 	@Override
-	public boolean isEqual(final Point other) {
-		return x.isEqual(other.x) && y.isEqual(other.y);
+	public boolean equals(final Object obj) {
+		if(this == obj) {
+			return true;
+		}
+		final Point other = (Point) obj;
+		return x.equals(other.x) && y.equals(other.y);
 	}
 
 	@Override

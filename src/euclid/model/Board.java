@@ -93,4 +93,8 @@ public class Board {
 		return points.equals(other.points) && curves.equals(other.curves);
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("points: %s, curves: %s", points, curves);
+	}
 }

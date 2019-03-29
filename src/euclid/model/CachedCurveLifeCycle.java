@@ -19,23 +19,46 @@ public class CachedCurveLifeCycle implements CurveLifeCycle {
 
 	@Override
 	public Line line(final Point normal, final Constructable offset) {
-		return cached(new Line(normal, offset), lines, dupeLines);
+		final Line line = new Line(normal, offset) {
+			@Override
+			public int hashCode() {
+				return System.identityHashCode(this);
+			}
+			
+			@Override
+			public boolean equals(final Object obj) {
+				return this == obj;
+			}
+		};
+		return cached(line, lines, dupeLines);
 	}
 
 	@Override
 	public Circle curve(final Point center, final Constructable radiusSquare) {
-		return cached(new Circle(center, radiusSquare), circles, dupeCircles);
+		final Circle circle = new Circle(center, radiusSquare) {
+			@Override
+			public int hashCode() {
+				return System.identityHashCode(this);
+			}
+			
+			@Override
+			public boolean equals(final Object obj) {
+				return this == obj;
+			}
+		};
+		return cached(circle, circles, dupeCircles);
 	}
 
-	private static <E extends Curve> E cached(final E newE, final Collection<E> es, final AtomicInteger dupeCounter) {
-		for(final E e : es) {
-			if(e.isEqual(newE)) {
+	private static <C extends Curve> C cached(final C newCurve, final Collection<C> cache, final AtomicInteger dupeCounter) {
+		
+		for(final C curve : cache) {
+			if(curve.near(newCurve)) {
 				dupeCounter.incrementAndGet();
-				return e;
+				return curve;
 			}
 		}
-		es.add(newE);
-		return newE;
+		cache.add(newCurve);
+		return newCurve;
 	}
 
 	@Override

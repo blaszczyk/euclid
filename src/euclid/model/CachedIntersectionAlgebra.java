@@ -40,7 +40,7 @@ public class CachedIntersectionAlgebra extends Algebra implements KpiReporter {
 		private final Curve c1;
 		private final Curve c2;
 		
-		public Pair(Curve c1, Curve c2) {
+		public Pair(final Curve c1, final Curve c2) {
 			this.c1 = c1;
 			this.c2 = c2;
 		}

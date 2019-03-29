@@ -20,7 +20,7 @@ public class CFixed implements Constructable {
 		return new CFixed(value);
 	}
 	
-	private static CFixed c(Constructable c) {
+	private static CFixed c(Object c) {
 		return (CFixed) c;
 	}
 
@@ -69,8 +69,8 @@ public class CFixed implements Constructable {
 	}
 	
 	@Override
-	public boolean isEqual(Constructable other) {
-		return Math.abs(value - c(other).value) < BIAS_ROOT;
+	public int sign() {
+		return (int) value;
 	}
 	
 	@Override
@@ -85,14 +85,7 @@ public class CFixed implements Constructable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CFixed other = (CFixed) obj;
-		return isEqual(other);
+		return Math.abs(value - c(obj).value) < BIAS_ROOT;
 	}
 	
 	@Override
@@ -102,9 +95,14 @@ public class CFixed implements Constructable {
 
 	@Override
 	public int compareTo(Constructable other) {
-		if(isEqual(other))
+		if(near(other))
 			return 0;
-		return Double.compare(value, c(other).value);
+		return Long.compare(value, c(other).value);
+	}
+
+	@Override
+	public boolean near(Constructable other) {
+		return equals(c(other));
 	}
 	
 

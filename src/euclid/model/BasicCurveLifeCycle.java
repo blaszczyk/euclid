@@ -15,13 +15,9 @@ public class BasicCurveLifeCycle implements CurveLifeCycle {
 		lineCount.incrementAndGet();
 		return new Line(normal, offset) {
 			@Override
-			public int hashCode() {
-				return 13 * normal.hashCode() + 37 * offset.hashCode();
-			}
-			@Override
 			public boolean equals(final Object obj) {
 				final Curve other = (Curve) obj;
-				return isEqual(other);
+				return near(other);
 			}
 		};
 	}
@@ -31,13 +27,9 @@ public class BasicCurveLifeCycle implements CurveLifeCycle {
 		circleCount.incrementAndGet();
 		return new Circle(center, radiusSquare) {
 			@Override
-			public int hashCode() {
-				return 196 * center.hashCode() + 883 * radiusSquare.hashCode();
-			}
-			@Override
 			public boolean equals(final Object obj) {
 				final Curve other = (Curve) obj;
-				return isEqual(other);
+				return near(other);
 			}
 		};
 	}

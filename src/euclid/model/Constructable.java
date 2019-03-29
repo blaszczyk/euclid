@@ -12,6 +12,7 @@ public interface Constructable extends Comparable<Constructable>, Element<Constr
 	public Constructable square();
 	public Constructable root();
 	
+	public int sign();
 	public double doubleValue();
 
 }

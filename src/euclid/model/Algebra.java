@@ -51,16 +51,16 @@ public class Algebra {
 	}
 	
 	private boolean doesContain(final Point point, final Line line) {
-		return point.mul(line.normal).isEqual(line.offset);
+		return point.mul(line.normal).near(line.offset);
 	}
 	
 	private boolean doesContain(final Point point, final Circle circle) {
-		return point.sub(circle.center).square().isEqual(circle.radiusSquare);
+		return point.sub(circle.center).square().near(circle.radiusSquare);
 	}
 
 	private PointSet doIntersect(final Line l1, final Line l2) {
 		final Constructable det = l1.normal.cross(l2.normal);
-		if(det.isEqual(zero())) {
+		if(det.sign() == 0) {
 			return PointSet.empty();
 		}
 		final Constructable x = l1.offset.mul(l2.normal.y).sub(l2.offset.mul(l1.normal.y)).div(det);
@@ -72,13 +72,13 @@ public class Algebra {
 		final Point normal = line.normal;
 		final Point distance = normal.mul(line.offset.sub(normal.mul(circle.center)));
 		final Constructable discriminant = circle.radiusSquare.sub(distance.square());
-		final int comp = discriminant.compareTo(zero());
-		if(comp > 0) {
+		final int sign = discriminant.sign();
+		if(sign > 0) {
 			final Point midpoint = circle.center.add(distance);
 			final Point separation = normal.orth().mul(discriminant.root());
 			return PointSet.of(midpoint.add(separation), midpoint.sub(separation));
 		}
-		else if(comp == 0) {
+		else if(sign == 0) {
 			return PointSet.of(circle.center.add(distance));
 		}
 		else {
@@ -87,7 +87,7 @@ public class Algebra {
 	}
 	
 	private PointSet doIntersect(final Circle c1, final Circle c2) {
-		if(c1.center.isEqual(c2.center))
+		if(c1.center.near(c2.center))
 		{
 			return PointSet.empty();
 		}
