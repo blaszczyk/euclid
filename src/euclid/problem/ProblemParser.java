@@ -65,6 +65,11 @@ public class ProblemParser {
 		}
 	}
 	
+	public ProblemParser(final Algebra algebra, final List<String> lines) {
+		this.algebra = algebra;
+		keyValues = keyValues(lines);
+	}
+	
 	private static Map<String, String> keyValues(final List<String> lines) {
 		final Map<String, String> keyValues = new LinkedHashMap<>();
 		for(final String l : lines) {

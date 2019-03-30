@@ -10,6 +10,14 @@ public class Circle implements Curve {
 		this.radiusSquare = radiusSquare;
 	}
 	
+	public Point center() {
+		return center;
+	}
+	
+	public Constructable radiusSquare() {
+		return radiusSquare;
+	}
+	
 	@Override
 	public boolean isLine() {
 		return false;

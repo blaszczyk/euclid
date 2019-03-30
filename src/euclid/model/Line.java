@@ -11,6 +11,14 @@ public class Line implements Curve {
 		this.offset = offset.div(norm);
 	}
 	
+	public Point normal() {
+		return normal;
+	}
+	
+	public Constructable offset() {
+		return offset;
+	}
+	
 	private static Constructable norm(final Point normal, final Constructable offset) {
 		final Constructable norm = normal.square().root();
 		final boolean negate;
