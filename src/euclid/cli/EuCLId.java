@@ -66,15 +66,16 @@ public class EuCLId {
 			monitor.addConsumer(new KpiStdoutLogger());
 		}
 	}
-	
+
 	private void process() {
 		monitor.start();
+		engine.start(false);
 		if(problem.findAll()) {
-			final Collection<Board> solutions = engine.findAll();
+			final Collection<Board> solutions = engine.allSolutions();
 			new ResultPrinter(problem, algebra).printAll(solutions);
 		}
 		else {
-			final Optional<Board> solution = engine.findFirst();
+			final Optional<Board> solution = engine.firstSolution();
 			new ResultPrinter(problem, algebra).printFirst(solution);
 		}
 		monitor.halt();

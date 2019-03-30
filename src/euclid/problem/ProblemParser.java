@@ -143,7 +143,7 @@ public class ProblemParser {
 	
 	private Board parseBoard(final String values) {
 		if(values == null || values.isEmpty()) {
-			return Board.withPoints().andCurves();
+			return Board.EMPTY;
 		}
 		final String[] split = values.split("\\:");
 		final List<Curve> cs = new ArrayList<>();

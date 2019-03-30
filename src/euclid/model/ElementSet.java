@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S>> implements Iterable<E>{
+abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S>> implements Iterable<E> {
 
 	final Collection<E> set;
 	

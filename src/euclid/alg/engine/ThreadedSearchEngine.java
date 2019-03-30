@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -13,7 +12,7 @@ import java.util.stream.IntStream;
 import euclid.alg.Algorithm;
 import euclid.kpi.KpiReporter;
 
-public class ThreadedSearchEngine<B> implements SearchEngine<B> {
+public class ThreadedSearchEngine<B> {
 
 	private final PriorityQueuePool<B> queues;
 	
@@ -21,7 +20,7 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 
 	private final Collection<B> collector = ConcurrentHashMap.newKeySet();
 
-	private final Queue<B> solutions = new ConcurrentLinkedQueue<>();
+	private final Collection<B> solutions = new ConcurrentLinkedQueue<>();
 	
 	private final Collection<SearchThread> threads;
 	
@@ -52,27 +51,37 @@ public class ThreadedSearchEngine<B> implements SearchEngine<B> {
 	public Collection<KpiReporter> kpiReporters() {
 		return Arrays.asList(kpiProvider, queues);
 	}
+	
+	public boolean hasSolution() {
+		return ! solutions.isEmpty();
+	}
 
-	@Override
-	public Collection<B> findAll() {
-		execute();
+	public Collection<B> allSolutions() {
 		return new ArrayList<>(solutions);
 	}
 
-	@Override
-	public Optional<B> findFirst() {
-		execute();
+	public Optional<B> firstSolution() {
 		return solutions.isEmpty() ? Optional.empty() : Optional.of(solutions.iterator().next());
 	}
 
-	private void execute() {
+	public void start(final boolean async) {
 		testAndEnqueue(algorithm.first());
 		threads.forEach(SearchThread::start);
-		while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
-			hibernate();
+		final Thread watcher = new Thread(() -> {
+			while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
+				hibernate();
+			}
+			halt();
+		},"engine-watcher");
+		watcher.start();
+		if(!async) {
+			join(watcher);
+			threads.forEach(ThreadedSearchEngine::join);
 		}
-		halt = true;
-		threads.forEach(ThreadedSearchEngine::join);
+	}
+
+	public void halt() {
+		halt=true;
 	}
 	
 	private void process(final B b) {

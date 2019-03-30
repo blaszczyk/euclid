@@ -3,6 +3,8 @@ package euclid.model;
 import java.util.Collection;
 
 public class Board {
+	
+	public static final Board EMPTY = Board.withPoints().andCurves();
 
 	public static BoardBuilder withPoints(final Point... points) {
 		return withPoints(PointSet.of(points));
