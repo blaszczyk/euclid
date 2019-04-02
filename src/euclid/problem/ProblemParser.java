@@ -22,11 +22,11 @@ import euclid.problem.Problem.AlgorithmType;
 
 public class ProblemParser {
 
-	private static final String KEY_INITIAL = "initial";
-	private static final String KEY_REQUIRED = "required";
-	private static final String KEY_MAX_DEPTH = "maxdepth";
-	private static final String KEY_ALGORITHM = "algorithm";
-	private static final String KEY_FIND_ALL = "findall";
+	public static final String KEY_INITIAL = "initial";
+	public static final String KEY_REQUIRED = "required";
+	public static final String KEY_MAX_DEPTH = "maxdepth";
+	public static final String KEY_ALGORITHM = "algorithm";
+	public static final String KEY_FIND_ALL = "findall";
 	
 	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
 	

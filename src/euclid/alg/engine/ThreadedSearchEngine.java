@@ -84,6 +84,10 @@ public class ThreadedSearchEngine<B> {
 		halt=true;
 	}
 	
+	public boolean finished() {
+		return halt;
+	}
+	
 	private void process(final B b) {
 		final B candidate = algorithm.digest(b);
 		final int misses = test(candidate);
