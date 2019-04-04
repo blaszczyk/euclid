@@ -60,4 +60,14 @@ public class Circle implements Curve {
 		return "circle ( p - " + center + " )^2 = " + radiusSquare;
 	}
 
+	@Override
+	public int compareTo(final Curve other) {
+		if(other.isLine()) {
+			return 1;
+		};
+		final Circle circle = other.asCircle();
+		final int compCenter = center.compareTo(circle.center);
+		return compCenter != 0 ? compCenter : radiusSquare.compareTo(circle.radiusSquare);
+	}
+
 }

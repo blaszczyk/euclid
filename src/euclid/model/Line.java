@@ -80,4 +80,14 @@ public class Line implements Curve {
 		return "line " + normal + " * p = " + offset;
 	}
 
+	@Override
+	public int compareTo(final Curve other) {
+		if(other.isCircle()) {
+			return -1;
+		};
+		final Line line = other.asLine();
+		final int compNormal = normal.compareTo(line.normal);
+		return compNormal != 0 ? compNormal : offset.compareTo(line.offset);
+	}
+
 }

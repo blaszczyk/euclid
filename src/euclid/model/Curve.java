@@ -1,6 +1,6 @@
 package euclid.model;
 
-public interface Curve extends Element<Curve> {
+public interface Curve extends Element<Curve>, Comparable<Curve> {
 	
 	public boolean isLine();
 	
