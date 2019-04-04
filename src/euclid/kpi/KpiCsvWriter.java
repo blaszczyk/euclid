@@ -16,10 +16,10 @@ public class KpiCsvWriter implements KpiConsumer {
 	
 	private final File csvFile;
 	
-	public KpiCsvWriter() {
-		final String fileName = String.format("log/kpi-%s.csv", 
+	public KpiCsvWriter(final File logDir) {
+		final String fileName = String.format("kpi-%s.csv", 
 				new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()));
-		csvFile = new File(fileName);
+		csvFile = new File(logDir, fileName);
 	}
 
 	@Override

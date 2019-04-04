@@ -1,5 +1,6 @@
 package euclid.cli;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -60,7 +61,7 @@ public class EuCLId {
 			monitor.addReporter((KpiReporter) algebra);
 		}
 		if(params.kpiCsv()) {
-			monitor.addConsumer(new KpiCsvWriter());
+			monitor.addConsumer(new KpiCsvWriter(new File("log")));
 		}
 		if(params.kpiOut()) {
 			monitor.addConsumer(new KpiStdoutLogger());
