@@ -93,7 +93,7 @@ public class ThreadedSearchEngine<B> {
 		final int misses = test(candidate);
 		final int depth = algorithm.depth(candidate);
 		kpiProvider.incrementProcessedAndAddDepth(depth);
-		if(misses > 0 && depth < maxDepth) {
+		if(misses > 0 && depth <= maxDepth - misses) {
 			final Collection<B> next = algorithm.nextGeneration(candidate);
 			next.forEach(this::testAndEnqueue);
 		}
