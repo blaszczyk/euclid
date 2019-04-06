@@ -1,4 +1,4 @@
-package euclid.alg.engine;
+package euclid.engine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,43 +9,30 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import euclid.alg.Algorithm;
+import euclid.algorithm.Algorithm;
 import euclid.kpi.KpiReporter;
 
-public class ThreadedSearchEngine<B> {
-
-	private final PriorityQueuePool<B> queues;
-	
-	private final EngineKpiProvider kpiProvider;
+public class SearchEngine<B> {
 
 	private final Collection<B> collector = ConcurrentHashMap.newKeySet();
 
 	private final Collection<B> solutions = new ConcurrentLinkedQueue<>();
+
+	private final PriorityQueuePool<B> queues;
 	
-	private final Collection<SearchThread> threads;
+	private final EngineKpiProvider kpiProvider;
 	
 	private final Algorithm<B> algorithm;
 
-	private final int maxDepth;
-
-	private final boolean findAll;
+	private final EngineParameters parameters;
 
 	private boolean halt = false;
 	
-	public ThreadedSearchEngine(final Algorithm<B> algorithm, final int maxDepth, final boolean findAll, final int threadCount) {
+	public SearchEngine(final Algorithm<B> algorithm,  final EngineParameters parameters) {
 		this.algorithm = algorithm;
-		this.maxDepth = maxDepth;
-		this.findAll = findAll;
-		threads = IntStream.range(0, threadCount)
-				.mapToObj(this::threadName)
-				.map(SearchThread::new)
-				.collect(Collectors.toList());
+		this.parameters = parameters;
 		queues = new PriorityQueuePool<>(algorithm.maxMisses());
-		kpiProvider = findAll ? new EngineKpiProvider(collector::size, solutions::size) : new EngineKpiProvider(collector::size);
-	}
-
-	private String threadName(final int count) {
-		return String.format("search-%08X-%d", hashCode(), count);
+		kpiProvider = parameters.findAll() ? new EngineKpiProvider(collector::size, solutions::size) : new EngineKpiProvider(collector::size);
 	}
 	
 	public Collection<KpiReporter> kpiReporters() {
@@ -65,6 +52,10 @@ public class ThreadedSearchEngine<B> {
 	}
 
 	public void start(final boolean async) {
+		final Collection<SearchThread> threads = IntStream.range(0, parameters.threadCount())
+				.mapToObj(this::threadName)
+				.map(SearchThread::new)
+				.collect(Collectors.toList());
 		testAndEnqueue(algorithm.first());
 		threads.forEach(SearchThread::start);
 		final Thread watcher = new Thread(() -> {
@@ -72,12 +63,16 @@ public class ThreadedSearchEngine<B> {
 				hibernate();
 			}
 			halt();
-		},"engine-watcher");
+		}, String.format("engine-watcher-%s", parameters.id()));
 		watcher.start();
 		if(!async) {
 			join(watcher);
-			threads.forEach(ThreadedSearchEngine::join);
+			threads.forEach(SearchEngine::join);
 		}
+	}
+
+	private String threadName(final int count) {
+		return String.format("search-%s-%d", parameters.id(), count);
 	}
 
 	public void halt() {
@@ -93,7 +88,7 @@ public class ThreadedSearchEngine<B> {
 		final int misses = test(candidate);
 		final int depth = algorithm.depth(candidate);
 		kpiProvider.incrementProcessedAndAddDepth(depth);
-		if(misses > 0 && depth <= maxDepth - misses) {
+		if(misses > 0 && depth < algorithm.maxDepth()) {
 			final Collection<B> next = algorithm.nextGeneration(candidate);
 			next.forEach(this::testAndEnqueue);
 		}
@@ -115,7 +110,7 @@ public class ThreadedSearchEngine<B> {
 		final int misses = algorithm.misses(candidate);
 		if(misses == 0) {
 			solutions.add(candidate);
-			if(!findAll) {
+			if(!parameters.findAll()) {
 				halt = true;
 			}
 		}

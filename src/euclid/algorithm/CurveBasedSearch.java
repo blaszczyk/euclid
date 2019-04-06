@@ -1,4 +1,4 @@
-package euclid.alg;
+package euclid.algorithm;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 import euclid.model.*;
+import euclid.problem.Problem;
 
 public class CurveBasedSearch extends BoardSearch{
 	
-	public CurveBasedSearch(final Board initial, final Collection<Board> required, final Algebra algebra) {
-		super(initial.identifyByCurves(), required, algebra);
+	public CurveBasedSearch(final Problem problem, final Algebra algebra) {
+		super(problem, algebra);
 	}
 
 	@Override
@@ -22,7 +23,7 @@ public class CurveBasedSearch extends BoardSearch{
 
 	@Override
 	public int depth(final Board board) {
-		return board.curves().size() - initial.curves().size();
+		return board.curves().size() - problem.initial().curves().size();
 	}
 
 	@Override

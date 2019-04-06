@@ -4,10 +4,11 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
 
-import euclid.alg.Algorithm;
-import euclid.alg.CurveBasedSearch;
-import euclid.alg.PointBasedSearch;
-import euclid.alg.engine.ThreadedSearchEngine;
+import euclid.algorithm.Algorithm;
+import euclid.algorithm.CurveBasedSearch;
+import euclid.algorithm.PointBasedSearch;
+import euclid.engine.EngineParameters;
+import euclid.engine.SearchEngine;
 import euclid.kpi.KpiCsvWriter;
 import euclid.kpi.KpiMonitor;
 import euclid.kpi.KpiReporter;
@@ -29,16 +30,17 @@ public class EuCLId {
 
 	private final Problem problem;
 	
-	private final ThreadedSearchEngine<Board> engine;
+	private final SearchEngine<Board> engine;
 	
 	private final KpiMonitor monitor;
 	
 	private EuCLId(final CliParameter params) {
 		lifeCycle = params.cacheCurves() ? new CachedCurveLifeCycle() : new BasicCurveLifeCycle();
 		algebra = params.cacheIntersections() ? new CachedIntersectionAlgebra(lifeCycle) : new Algebra(lifeCycle);
-
 		problem = new ProblemParser(algebra, params.problemFile()).parse();
-		engine = new ThreadedSearchEngine<>(createAlgorithm(), problem.maxDepth(), problem.findAll(), params.threadCount());
+		
+		final EngineParameters parameters = new EngineParameters("euCLId", problem.findAll(), params.threadCount());
+		engine = new SearchEngine<>(createAlgorithm(), parameters);
 
 		monitor = new KpiMonitor(params.kpiInterval());				
 		wireKpiMonitor(params);
@@ -47,9 +49,9 @@ public class EuCLId {
 	private Algorithm<Board> createAlgorithm() {
 		switch (problem.algorithmType()) {
 		case CURVE_BASED:
-			return new CurveBasedSearch(problem.initial(), problem.required(), algebra);
+			return new CurveBasedSearch(problem, algebra);
 		case POINT_BASED:
-			return new PointBasedSearch(problem.initial(), problem.required(), algebra);
+			return new PointBasedSearch(problem, algebra);
 		}
 		return null;
 	}

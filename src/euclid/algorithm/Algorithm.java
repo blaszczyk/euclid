@@ -1,4 +1,4 @@
-package euclid.alg;
+package euclid.algorithm;
 
 import java.util.Collection;
 
@@ -13,6 +13,8 @@ public interface Algorithm<B> {
 	public int maxMisses();
 	
 	public int depth(final B b);
+	
+	public int maxDepth();
 	
 	public Collection<B> nextGeneration(final B b);
 

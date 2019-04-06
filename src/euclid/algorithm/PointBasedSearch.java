@@ -1,4 +1,4 @@
-package euclid.alg;
+package euclid.algorithm;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 import euclid.model.*;
+import euclid.problem.Problem;
 
 public class PointBasedSearch extends BoardSearch {
 	
-	public PointBasedSearch(final Board initial, final Collection<Board> required, final Algebra algebra) {
-		super(initial.identifyByPoints(), required, algebra);
+	public PointBasedSearch(final Problem problem, final Algebra algebra) {
+		super(problem, algebra);
 	}
 
 	@Override
@@ -22,7 +23,7 @@ public class PointBasedSearch extends BoardSearch {
 
 	@Override
 	public int depth(final Board board) {
-		return board.points().size() - initial.points().size();
+		return board.points().size() - problem.initial().points().size();
 	}
 
 	@Override

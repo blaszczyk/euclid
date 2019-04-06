@@ -1,4 +1,4 @@
-package euclid.alg.engine;
+package euclid.engine;
 
 import java.util.ArrayList;
 import java.util.List;

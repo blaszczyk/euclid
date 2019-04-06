@@ -1,24 +1,22 @@
-package euclid.alg;
+package euclid.algorithm;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 import euclid.model.*;
+import euclid.problem.Problem;
 
 abstract class BoardSearch implements Algorithm <Board> {
 	
-	final Board initial;
-	final Collection<Board> required;
+	final Problem problem;
 	final Algebra algebra;
 	private final int maxMisses;
 	
-	BoardSearch(final Board initial, final Collection<Board> required, final Algebra algebra) {
-		this.initial = initial;
-		this.required = required;
+	BoardSearch(final Problem problem, final Algebra algebra) {
+		this.problem = problem;
 		this.algebra = algebra;
-		maxMisses = required.stream()
+		maxMisses = problem.required().stream()
 				.mapToInt(b -> b.points().size() + b.curves().size())
 				.min()
 				.orElse(0);
@@ -26,13 +24,13 @@ abstract class BoardSearch implements Algorithm <Board> {
 
 	@Override
 	public Board first() {
-		return initial;
+		return problem.initial();
 	}
 	
 	@Override
 	public int misses(final Board candidate) {
 		int misses = maxMisses;
-		for(final Board possibility : required) {
+		for(final Board possibility : problem.required()) {
 			final long pointMisses = possibility.points().stream()
 					.filter(candidate.points()::containsNot)
 					.count();
@@ -47,6 +45,11 @@ abstract class BoardSearch implements Algorithm <Board> {
 	@Override
 	public int maxMisses() {
 		return maxMisses;
+	}
+	
+	@Override
+	public int maxDepth() {
+		return problem.maxDepth();
 	}
 	
 	Set<Curve> createAllCurves(final PointSet set) {

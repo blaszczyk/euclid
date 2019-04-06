@@ -1,4 +1,4 @@
-package euclid.alg.engine;
+package euclid.engine;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
