@@ -40,6 +40,7 @@ public class Board {
 
 	private final PointSet points;
 	private final CurveSet curves;
+	private Board parent;
 	
 	private Board(final PointSet points, final CurveSet curves) {
 		this.points = points;
@@ -52,6 +53,15 @@ public class Board {
 
 	public final CurveSet curves() {
 		return curves;
+	}
+	
+	public Board parent() {
+		return parent;
+	}
+	
+	public Board parent(final Board parent) {
+		this.parent = parent;
+		return this;
 	}
 	
 	public Board identifyByPoints() {

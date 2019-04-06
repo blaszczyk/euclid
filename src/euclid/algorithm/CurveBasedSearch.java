@@ -18,7 +18,7 @@ public class CurveBasedSearch extends BoardSearch{
 	public Board digest(final Board board) {
 		final Set<Point> points = createAllIntersections(board.curves());
 		board.points().forEach(points::add);
-		return Board.withPoints(points).andCurves(board.curves());
+		return Board.withPoints(points).andCurves(board.curves()).parent(board);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class CurveBasedSearch extends BoardSearch{
 		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
 			if(curves.containsNot(successor)) {
-				final Board next = Board.withPoints(board.points()).andCurves(curves.adjoin(successor)).identifyByCurves();
+				final Board next = Board.withPoints(board.points()).andCurves(curves.adjoin(successor)).identifyByCurves().parent(board);
 				nextGeneration.add(next);
 			}
 		}
