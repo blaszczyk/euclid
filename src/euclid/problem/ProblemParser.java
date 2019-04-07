@@ -28,7 +28,7 @@ public class ProblemParser {
 	public static final String KEY_ALGORITHM = "algorithm";
 	public static final String KEY_FIND_ALL = "findall";
 	
-	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
+	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
@@ -92,7 +92,7 @@ public class ProblemParser {
 		parseVariables();
 
 		final Board initial = parseBoard(getValue(KEY_INITIAL));
-		final Collection<Board> required = parseRequired();
+		final Board required = parseBoard(getValue(KEY_REQUIRED));
 
 		final int maxDepth = Integer.parseInt(getValue(KEY_MAX_DEPTH));
 		final AlgorithmType algorithm = AlgorithmType.valueOf(getValue(KEY_ALGORITHM).toUpperCase());
@@ -111,7 +111,7 @@ public class ProblemParser {
 
 	private void parseVariables() {
 		for(final String key : keys()) {
-			if(isKeyword(key)) {
+			if(KEYWORDS.contains(key)) {
 				continue;
 			}
 			final String value = getValue(key);
@@ -125,20 +125,6 @@ public class ProblemParser {
 				constants.put(key, parseConstant(value));
 			}
 		}
-	}
-	
-	private static boolean isKeyword(final String key) {
-		return KEYWORDS.contains(key) || key.startsWith(KEY_REQUIRED);
-	}
-	
-	private Collection<Board> parseRequired() {
-		final List<Board> required = new ArrayList<>();
-		for(final String key : keys()) {
-			if(key.startsWith(KEY_REQUIRED)) {
-				required.add(parseBoard(getValue(key)));
-			}
-		}
-		return required;
 	}
 	
 	private Board parseBoard(final String values) {

@@ -16,10 +16,7 @@ abstract class BoardSearch implements Algorithm <Board> {
 	BoardSearch(final Problem problem, final Algebra algebra) {
 		this.problem = problem;
 		this.algebra = algebra;
-		maxMisses = problem.required().stream()
-				.mapToInt(b -> b.points().size() + b.curves().size())
-				.min()
-				.orElse(0);
+		maxMisses = problem.required().points().size() + problem.required().curves().size();
 	}
 
 	@Override
@@ -29,17 +26,13 @@ abstract class BoardSearch implements Algorithm <Board> {
 	
 	@Override
 	public int misses(final Board candidate) {
-		int misses = maxMisses;
-		for(final Board possibility : problem.required()) {
-			final long pointMisses = possibility.points().stream()
-					.filter(candidate.points()::containsNot)
-					.count();
-			final long curveMisses = possibility.curves().stream()
-					.filter(candidate.curves()::containsNot)
-					.count();
-			misses = Math.min(misses, (int)(pointMisses + curveMisses));
-		}
-		return misses;
+		final long pointMisses = problem.required().points().stream()
+				.filter(candidate.points()::containsNot)
+				.count();
+		final long curveMisses = problem.required().curves().stream()
+				.filter(candidate.curves()::containsNot)
+				.count();
+		return (int)(pointMisses + curveMisses);
 	}
 	
 	@Override

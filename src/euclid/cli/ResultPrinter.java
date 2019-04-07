@@ -46,7 +46,7 @@ public class ResultPrinter {
 		out.println("initial:");
 		print(problem.initial());
 		out.println("required:");
-		problem.required().forEach(ResultPrinter::print);
+		print(problem.required());
 	}
 	
 	private void printSolution(final Board solution) {

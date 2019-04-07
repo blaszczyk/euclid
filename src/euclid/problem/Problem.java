@@ -1,7 +1,5 @@
 package euclid.problem;
 
-import java.util.Collection;
-
 import euclid.model.Board;
 
 public class Problem {
@@ -12,12 +10,12 @@ public class Problem {
 	}
 	
 	private final Board initial;
-	private final Collection<Board> required;
+	private final Board required;
 	private final int maxDepth;
 	private final boolean findAll;
 	private final AlgorithmType algorithmType;
 	
-	public Problem(final Board initial, final Collection<Board> required, final int maxDepth, final boolean findAll, final AlgorithmType algorithmType) {
+	public Problem(final Board initial, final Board required, final int maxDepth, final boolean findAll, final AlgorithmType algorithmType) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
@@ -31,7 +29,7 @@ public class Problem {
 		return initial;
 	}
 
-	public final Collection<Board> required() {
+	public final Board required() {
 		return required;
 	}
 
