@@ -8,4 +8,6 @@ public interface CurveLifeCycle extends KpiReporter {
 	
 	Circle curve(final Point center, final Constructable radiusSquare);
 
+	Curve segment(final Point normal, final Constructable offset, final Constructable end1, final Constructable end2);
+
 }

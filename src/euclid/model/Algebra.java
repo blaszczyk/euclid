@@ -24,7 +24,14 @@ public class Algebra {
 		final Constructable	offset = normal.mul(p1);
 		return lifeCycle.line(normal, offset);
 	}
-
+	
+	public Curve segment(final Point p1, final Point p2) {
+		final Point	normal = p1.sub(p2).orth();
+		final Constructable	offset = normal.mul(p1);
+		final Constructable end1 = normal.cross(p1);
+		final Constructable end2 = normal.cross(p2);
+		return lifeCycle.segment(normal, offset, end1, end2);
+	}
 	
 	public Curve circle(final Point center, final Point p) {
 		final Constructable radiusSquare = p.sub(center).square();
@@ -51,7 +58,15 @@ public class Algebra {
 	}
 	
 	private boolean doesContain(final Point point, final Line line) {
-		return point.mul(line.normal).near(line.offset);
+		if(point.mul(line.normal).near(line.offset)) {
+			if(line.isSegment()) {
+				final Segment segment = line.asSegment();
+				final Constructable position = line.normal.cross(point);
+				return position.compareTo(segment.from) >= 0 && position.compareTo(segment.to) <= 0;
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	private boolean doesContain(final Point point, final Circle circle) {
@@ -65,6 +80,11 @@ public class Algebra {
 		}
 		final Constructable x = l1.offset.mul(l2.normal.y).sub(l2.offset.mul(l1.normal.y)).div(det);
 		final Constructable y = l2.offset.mul(l1.normal.x).sub(l1.offset.mul(l2.normal.x)).div(det);
+		final Point point = point(x, y);
+		if((l1.isSegment() && !doesContain(point, l1))
+			|| (l2.isSegment() && !doesContain(point, l2))) {
+			return PointSet.empty();
+		}
 		return PointSet.of(point(x, y));
 	}
 	
@@ -76,14 +96,25 @@ public class Algebra {
 		if(sign > 0) {
 			final Point midpoint = circle.center.add(distance);
 			final Point separation = normal.orth().mul(discriminant.root());
-			return PointSet.of(midpoint.add(separation), midpoint.sub(separation));
+			final Point p1 = midpoint.add(separation);
+			final Point p2 = midpoint.sub(separation);
+			if(line.isSegment()) {
+				final boolean hasP1 = doesContain(p1, line);
+				final boolean hasP2 = doesContain(p2, line);
+				return hasP1 ? ( hasP2 ? PointSet.of(p1,p2) : PointSet.of(p1))
+						:  ( hasP2 ? PointSet.of(p2) : PointSet.empty());
+			}
+			else {
+				return PointSet.of(p1, p2);
+			}
 		}
 		else if(sign == 0) {
-			return PointSet.of(circle.center.add(distance));
+			final Point point = circle.center.add(distance);
+			if(!line.isSegment() || doesContain(point, line)) {
+				return PointSet.of(circle.center.add(distance));
+			}
 		}
-		else {
-			return PointSet.empty();
-		}
+		return PointSet.empty();
 	}
 	
 	private PointSet doIntersect(final Circle c1, final Circle c2) {

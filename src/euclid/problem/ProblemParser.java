@@ -40,7 +40,7 @@ public class ProblemParser {
 
 	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\,]+)";
 	private static final Pattern CURVE_PATTERN = Pattern.compile(
-			"([cl]\\()" // declaration
+			"([cls]\\()" // declaration
 			+ PT_PTRN // point
 			+ "(\\;)" // separator
 			+ PT_PTRN // point
@@ -118,7 +118,7 @@ public class ProblemParser {
 			if(value.matches("p\\(.*")) {
 				points.put(key, parsePoint(value));
 			}
-			else if(value.matches("[cl]\\(.*")) {
+			else if(value.matches("[cls]\\(.*")) {
 				curves.put(key, parseCurve(value));
 			}
 			else {
@@ -169,10 +169,11 @@ public class ProblemParser {
 		}
 		final Matcher matcher = CURVE_PATTERN.matcher(value);
 		if(matcher.matches()) {
-			final boolean isLine = matcher.group(1).charAt(0) == 'l';
+			final char type = matcher.group(1).charAt(0);
 			final Point x = parsePoint(matcher.group(2));
 			final Point y = parsePoint(matcher.group(4));
-			final Curve curve = isLine ? algebra.line(x,y) :  algebra.circle(x,y);
+			final Curve curve = (type == 'l') ? algebra.line(x,y) : 
+				( (type == 's') ? algebra.segment(x, y) : algebra.circle(x,y) );
 			cacheByValue(curve, value, curves);
 			return curve;
 		}

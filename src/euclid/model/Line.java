@@ -47,11 +47,22 @@ public class Line implements Curve {
 	public Line asLine() {
 		return this;
 	}
+
+	public boolean isSegment() {
+		return false;
+	}
+
+	public Segment asSegment() {
+		throw new ClassCastException(this + " is not a segment");
+	}
 	
 	@Override
 	public boolean near(final Curve other) {
 		if(other.isLine()) {
 			final Line line = other.asLine();
+			if(line.isSegment()) {
+				return false;
+			}
 			return offset.near(line.offset) && normal.near(line.normal);
 		}
 		return false;
@@ -70,6 +81,9 @@ public class Line implements Curve {
 		final Curve other = (Curve) obj;
 		if(other.isLine()) {
 			final Line line = other.asLine();
+			if(line.isSegment()) {
+				return false;
+			}
 			return offset.equals(line.offset) && normal.equals(line.normal);
 		}
 		return false;
@@ -86,6 +100,9 @@ public class Line implements Curve {
 			return -1;
 		};
 		final Line line = other.asLine();
+		if(line.isSegment()) {
+			return -1;
+		}
 		final int compNormal = normal.compareTo(line.normal);
 		return compNormal != 0 ? compNormal : offset.compareTo(line.offset);
 	}
