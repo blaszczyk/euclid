@@ -13,10 +13,10 @@ public interface Constructable extends Comparable<Constructable>, Element<Constr
 	public Constructable root();
 	
 	public default Constructable min(final Constructable other) {
-		return compareTo(other) < 0 ? other : this;
+		return compareTo(other) < 0 ? this : other;
 	}
 	public default Constructable max(final Constructable other) {
-		return compareTo(other) > 0 ? other : this;
+		return compareTo(other) > 0 ? this : other;
 	}
 	
 	public int sign();

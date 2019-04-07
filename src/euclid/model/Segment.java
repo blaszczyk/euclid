@@ -7,8 +7,11 @@ public class Segment extends Line {
 
 	Segment(final Point normal, final Constructable offset, final Constructable end1, final Constructable end2) {
 		super(normal, offset);
-		this.from = end1.min(end2);
-		this.to = end1.max(end2);
+		final Constructable norm = norm(normal, offset);
+		final Constructable normEnd1 = end1.div(norm);
+		final Constructable normEnd2 = end2.div(norm);
+		this.from = normEnd1.min(normEnd2);
+		this.to = normEnd1.max(normEnd2);
 	}
 	
 	public Constructable from() {
@@ -66,7 +69,7 @@ public class Segment extends Line {
 
 	@Override
 	public String toString() {
-		return "line " + normal + " * p = " + offset;
+		return "segment " + normal + " * p = " + offset + "; " + from + " <= t <= " + to;
 	}
 
 	@Override

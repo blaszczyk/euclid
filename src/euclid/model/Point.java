@@ -49,7 +49,7 @@ public class Point implements Comparable<Point>, Element<Point> {
 	}
 
 	public Point orth() {
-		return point(y, x.negate());
+		return point(y.negate(), x);
 	}
 	
 	public boolean colinear(final Point other) {

@@ -19,7 +19,7 @@ public class Line implements Curve {
 		return offset;
 	}
 	
-	private static Constructable norm(final Point normal, final Constructable offset) {
+	static Constructable norm(final Point normal, final Constructable offset) {
 		final Constructable norm = normal.square().root();
 		final boolean negate;
 		final int signO = offset.sign();
