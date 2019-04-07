@@ -18,6 +18,7 @@ public class CliParameterParser {
 	private static final String KEY_CACHE = "cache";
 	private static final String VAL_CACHE_CURVES = "curves";
 	private static final String VAL_CACHE_INTERSECTIONS = "intersections";
+	private static final String VAL_CACHE_CANDIDATES = "candidates";
 	
 	private static final String KEY_THREAD_COUNT = "threads";
 	private static final String KEY_HELP = "help";
@@ -29,6 +30,10 @@ public class CliParameterParser {
 	}
 	
 	CliParameter parse() {
+		if(getBooleanValue(KEY_HELP, false, false)) {
+			return CliParameter.HELP;
+		}
+		
 		final File file = getFileValue(KEY_FILE, true, true);
 		
 		final int kpiInterval = getIntValue(KEY_KPI_INTERVAL, false, 5000);
@@ -37,14 +42,14 @@ public class CliParameterParser {
 		final boolean kpiCsv = kpiWriters.contains(VAL_KPI_CSV);
 		final boolean kpiOut = kpiWriters.contains(VAL_KPI_OUT);
 
-		final List<String> caches = getValues(KEY_CACHE, false, VAL_CACHE_CURVES);
+		final List<String> caches = getValues(KEY_CACHE, false);
 		final boolean cacheCurves = caches.contains(VAL_CACHE_CURVES);
 		final boolean cacheIntersections = caches.contains(VAL_CACHE_INTERSECTIONS);
+		final boolean cacheCandidates = caches.contains(VAL_CACHE_CANDIDATES);
 		
 		final int threadCount = getIntValue(KEY_THREAD_COUNT, false, Runtime.getRuntime().availableProcessors());
 
-		final boolean needsHelp = getBooleanValue(KEY_HELP, false, false);
-		return new CliParameter(file, kpiInterval, kpiCsv, kpiOut, cacheCurves, cacheIntersections, threadCount, needsHelp);
+		return new CliParameter(file, kpiInterval, kpiCsv, kpiOut, cacheCurves, cacheIntersections, cacheCandidates, threadCount);
 	}
 
 	private static Map<String, String> parseKeyValues(final String[] args) {

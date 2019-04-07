@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,14 +12,14 @@ import euclid.algorithm.Algorithm;
 import euclid.kpi.KpiReporter;
 
 public class SearchEngine<B> {
+	
+	private final Collection<B> solutions = new CopyOnWriteArrayList<>();
 
-	private final Collection<B> collector = ConcurrentHashMap.newKeySet();
+	private final CandidatePreFilter<B> filter;
 
-	private final Collection<B> solutions = new ConcurrentLinkedQueue<>();
+	private final EngineKpiProvider kpiProvider;
 
 	private final PriorityQueuePool<B> queues;
-	
-	private final EngineKpiProvider kpiProvider;
 	
 	private final Algorithm<B> algorithm;
 
@@ -32,11 +31,12 @@ public class SearchEngine<B> {
 		this.algorithm = algorithm;
 		this.parameters = parameters;
 		queues = new PriorityQueuePool<>(algorithm.maxMisses());
-		kpiProvider = parameters.findAll() ? new EngineKpiProvider(collector::size, solutions::size) : new EngineKpiProvider(collector::size);
+		kpiProvider = parameters.findAll() ? new EngineKpiProvider(solutions::size) : new EngineKpiProvider();
+		filter = parameters.deduplicate() ? new CandidateDeduplicator<>() : new CandidateCounter<>();
 	}
 	
 	public Collection<KpiReporter> kpiReporters() {
-		return Arrays.asList(kpiProvider, queues);
+		return Arrays.asList(filter, kpiProvider, queues);
 	}
 	
 	public boolean hasSolution() {
@@ -95,14 +95,11 @@ public class SearchEngine<B> {
 	}
 
 	private void testAndEnqueue(final B candidate) {
-		if(collector.add(candidate)) {
+		if(filter.accept(candidate)) {
 			final int misses = test(candidate);
 			if(misses > 0) {
 				queues.enqueue(candidate, misses - 1);
 			}
-		}
-		else {
-			kpiProvider.incrementDupes();
 		}
 	}
 	

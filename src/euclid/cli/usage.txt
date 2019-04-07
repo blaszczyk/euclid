@@ -1,0 +1,7 @@
+euCLId usage:
+arguments: (*required)
+-file*			path to problem file
+-cache			from [curves,intersections,candidates], default empty
+-threads		positive integer, default #processors
+-kpiinterval	in ms, default 5000
+-kpiwriter		from [out, csv], default csv

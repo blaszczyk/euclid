@@ -10,20 +10,15 @@ public class EngineKpiProvider implements KpiReporter {
 
 	private final AtomicInteger processedCount = new AtomicInteger();
 
-	private final AtomicInteger dupeCount = new AtomicInteger();
-
 	private final AtomicInteger cumulatedDepth = new AtomicInteger();
-
-	private final IntSupplier totalCount;
 
 	private final IntSupplier solutionsCount;
 
-	public EngineKpiProvider(final IntSupplier totalCount) {
-		this(totalCount,() -> -1);
+	public EngineKpiProvider() {
+		this(() -> -1);
 	}
 
-	public EngineKpiProvider(final IntSupplier totalCount, final IntSupplier solutionsCount) {
-		this.totalCount = totalCount;
+	public EngineKpiProvider(final IntSupplier solutionsCount) {
 		this.solutionsCount = solutionsCount;
 	}
 
@@ -32,8 +27,6 @@ public class EngineKpiProvider implements KpiReporter {
 		final int processed = processedCount.get();
 		final int depth = Math.round(1000f * cumulatedDepth.get() / processed);
 		collector.add("processed", processed);
-		collector.add("total", totalCount.getAsInt());
-		collector.add("dupes", dupeCount.get());
 		collector.add("depth", depth);
 		final int solutions = solutionsCount.getAsInt();
 		if(solutions >= 0) {
@@ -44,10 +37,6 @@ public class EngineKpiProvider implements KpiReporter {
 	public void incrementProcessedAndAddDepth(final int depth) {
 		processedCount.incrementAndGet();
 		cumulatedDepth.addAndGet(depth);
-	}
-
-	public void incrementDupes() {
-		dupeCount.incrementAndGet();
 	}
 
 }

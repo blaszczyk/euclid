@@ -1,6 +1,11 @@
 package euclid.cli;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -19,9 +24,28 @@ import euclid.problem.*;
 public class EuCLId {
 
 	public static void main(final String[] args) {
-		final CliParameter parameters = new CliParameterParser(args).parse();
-		final EuCLId euCLId = new EuCLId(parameters);
-		euCLId.process();
+		try {
+			final CliParameter parameters = new CliParameterParser(args).parse();
+			if(parameters.needsHelp()) {
+				usage();
+				return;
+			}
+			final EuCLId euCLId = new EuCLId(parameters);
+			euCLId.process();
+		}
+		catch(final CliParameterParserExcepion e) {
+			System.err.println(e.getMessage());
+			usage();
+		}
+	}
+
+	private static void usage() {
+		try {
+			final URI uri = EuCLId.class.getResource("usage.txt").toURI();
+			Files.copy(Paths.get(uri), System.out);
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private final CurveLifeCycle lifeCycle;
@@ -39,7 +63,7 @@ public class EuCLId {
 		algebra = params.cacheIntersections() ? new CachedIntersectionAlgebra(lifeCycle) : new Algebra(lifeCycle);
 		problem = new ProblemParser(algebra, params.problemFile()).parse();
 		
-		final EngineParameters parameters = new EngineParameters("euCLId", problem.findAll(), params.threadCount());
+		final EngineParameters parameters = new EngineParameters("euCLId", problem.findAll(), params.threadCount(), params.cacheCandidates());
 		engine = new SearchEngine<>(createAlgorithm(), parameters);
 
 		monitor = new KpiMonitor(params.kpiInterval());				
