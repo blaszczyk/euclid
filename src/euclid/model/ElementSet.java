@@ -20,6 +20,10 @@ abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S
 		this.copyConstructor = copyConstructor;
 	}
 
+	public boolean contains(final E e) {
+		return set.contains(e);
+	}
+
 	public boolean containsNot(final E e) {
 		return !set.contains(e);
 	}
