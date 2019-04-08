@@ -4,7 +4,7 @@ import java.io.File;
 
 public class CliParameter {
 	
-	static final CliParameter HELP = new CliParameter(null, 0, false, false, false, false, false, 0);
+	static final CliParameter HELP = new CliParameter(null, 0, false, false, false, false, 0, 0);
 
 	private final File problemFile;
 	
@@ -20,17 +20,17 @@ public class CliParameter {
 	
 	private final int threadCount;
 
-	private final boolean cacheCandidates;
+	private final int dedupeDepth;
 
 	public CliParameter(final File problemFile, final int kpiInterval, final boolean kpiCsv, final boolean kpiOut, final boolean cacheCurves,
-			final boolean cacheIntersections, final boolean cacheCandidates, final int threadCount) {
+			final boolean cacheIntersections, final int dedupeDepth, final int threadCount) {
 		this.problemFile = problemFile;
 		this.kpiInterval = kpiInterval;
 		this.kpiCsv = kpiCsv;
 		this.kpiOut = kpiOut;
 		this.cacheCurves = cacheCurves;
 		this.cacheIntersections = cacheIntersections;
-		this.cacheCandidates = cacheCandidates;
+		this.dedupeDepth = dedupeDepth;
 		this.threadCount = threadCount;
 	}
 
@@ -58,8 +58,8 @@ public class CliParameter {
 		return cacheIntersections;
 	}
 
-	public boolean cacheCandidates() {
-		return cacheCandidates;
+	public int dedupeDepth() {
+		return dedupeDepth;
 	}
 	
 	int threadCount() {

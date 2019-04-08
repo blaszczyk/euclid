@@ -22,5 +22,6 @@ bisection = l(m;n)
 initial = p1 : p2
 required = bisection
 maxDepth = 3
-findAll = false
+depthFirst = true
+maxSolutions = 3
 algorithm = curve_based

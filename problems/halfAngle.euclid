@@ -17,5 +17,6 @@ l2=l(o;p2)
 initial = p1 : l2 : l1
 required = lhalf
 maxdepth = 4
-findAll = false
+depthfirst = true
+maxsolutions = 1
 algorithm = point_based

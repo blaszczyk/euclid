@@ -8,17 +8,17 @@ import euclid.kpi.KpiReporter;
 
 public class PriorityQueuePool<B> implements KpiReporter{
 	
-	private final List<MonitoredQueue<B>> queues;
+	private final List<MonitoredDeque<B>> queues;
 	
-	PriorityQueuePool(final int queueCount) {
+	PriorityQueuePool(final int queueCount, final boolean stack) {
 		queues = new ArrayList<>(queueCount);
 		for(int i = 0; i < queueCount; i++) {
-			queues.add(new MonitoredQueue<>());
+			queues.add(stack ? MonitoredDeque.newStack() : MonitoredDeque.newQueue());
 		}
 	}
 	
 	B poll() {
-		for(final MonitoredQueue<B> queue : queues) {
+		for(final MonitoredDeque<B> queue : queues) {
 			final B b = queue.poll();
 			if(b != null) {
 				return b;
@@ -38,7 +38,7 @@ public class PriorityQueuePool<B> implements KpiReporter{
 	@Override
 	public void fetchReport(final KpiCollector collector) {
 		for(int i = 0; i < queues.size(); i++) {
-			final MonitoredQueue<?> queue = queues.get(i);
+			final MonitoredDeque<?> queue = queues.get(i);
 			final int queuedCount = queue.queuedCount();
 			final int totalCount = queue.totalCount();
 			collector.add("dequeued-" + i, totalCount - queuedCount);

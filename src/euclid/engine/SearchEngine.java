@@ -2,8 +2,7 @@ package euclid.engine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.Collection;	
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,7 +14,7 @@ public class SearchEngine<B> {
 	
 	private final Collection<B> solutions = new CopyOnWriteArrayList<>();
 
-	private final CandidatePreFilter<B> filter;
+	private final Deduplicator<B> deduper;
 
 	private final EngineKpiProvider kpiProvider;
 
@@ -30,25 +29,21 @@ public class SearchEngine<B> {
 	public SearchEngine(final Algorithm<B> algorithm,  final EngineParameters parameters) {
 		this.algorithm = algorithm;
 		this.parameters = parameters;
-		queues = new PriorityQueuePool<>(algorithm.maxMisses());
-		kpiProvider = parameters.findAll() ? new EngineKpiProvider(solutions::size) : new EngineKpiProvider();
-		filter = parameters.deduplicate() ? new CandidateDeduplicator<>() : new CandidateCounter<>();
+		queues = new PriorityQueuePool<B>(algorithm.maxMisses(), parameters.depthFirst());
+		kpiProvider = new EngineKpiProvider(solutions::size);
+		deduper = new Deduplicator<>(parameters.dedupeDepth());
 	}
 	
 	public Collection<KpiReporter> kpiReporters() {
-		return Arrays.asList(filter, kpiProvider, queues);
+		return Arrays.asList(deduper, kpiProvider, queues);
 	}
 	
 	public boolean hasSolution() {
 		return ! solutions.isEmpty();
 	}
 
-	public Collection<B> allSolutions() {
+	public Collection<B> solutions() {
 		return new ArrayList<>(solutions);
-	}
-
-	public Optional<B> firstSolution() {
-		return solutions.isEmpty() ? Optional.empty() : Optional.of(solutions.iterator().next());
 	}
 
 	public void start(final boolean async) {
@@ -56,7 +51,7 @@ public class SearchEngine<B> {
 				.mapToObj(this::threadName)
 				.map(SearchThread::new)
 				.collect(Collectors.toList());
-		testAndEnqueue(algorithm.first());
+		testAndEnqueue(algorithm.first(), 0);
 		threads.forEach(SearchThread::start);
 		final Thread watcher = new Thread(() -> {
 			while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
@@ -90,12 +85,12 @@ public class SearchEngine<B> {
 		kpiProvider.incrementProcessedAndAddDepth(depth);
 		if(misses > 0 && depth < algorithm.maxDepth()) {
 			final Collection<B> next = algorithm.nextGeneration(candidate);
-			next.forEach(this::testAndEnqueue);
+			next.forEach(n -> testAndEnqueue(n, depth));
 		}
 	}
 
-	private void testAndEnqueue(final B candidate) {
-		if(filter.accept(candidate)) {
+	private void testAndEnqueue(final B candidate, final int depth) {
+		if(deduper.checkDupe(candidate, depth)) {
 			final int misses = test(candidate);
 			if(misses > 0) {
 				queues.enqueue(candidate, misses - 1);
@@ -107,7 +102,7 @@ public class SearchEngine<B> {
 		final int misses = algorithm.misses(candidate);
 		if(misses == 0) {
 			solutions.add(candidate);
-			if(!parameters.findAll()) {
+			if(solutions.size() >= parameters.maxSolutions()) {
 				halt = true;
 			}
 		}

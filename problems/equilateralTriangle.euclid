@@ -20,5 +20,6 @@ l31 = l(p3 ; p1)
 initial = p1 : p2
 required = l12 : l23 : l31
 maxDepth = 5
-findAll = false
+depthFirst = false
+maxSolutions = 6
 algorithm = curve_based

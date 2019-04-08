@@ -24,4 +24,5 @@ after successful build, execute `euCLId.(bat|sh) -file {problemFileName}`
   * `required` list of points and curves to be constructed
   * `algorithm` choice of search algorithm (`curve_based` vs `point_based`)
   * `maxDepth` maximal depth of the search algorithm
-  * `findAll` search for all solutions within depth range
+  * `depthFirst` search depth or breadth first
+  * `maxSolutions` number of solutions to terminate search

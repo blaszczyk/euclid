@@ -17,5 +17,6 @@ l41 = l(p4;p1)
 initial = o : p1 : c
 required = l12 : l23 : l34 : l41
 maxdepth = 7
-findAll = false
+depthfirst = false
+maxsolutions = 1
 algorithm = curve_based

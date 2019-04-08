@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Optional;
 
 import euclid.algorithm.Algorithm;
 import euclid.algorithm.CurveBasedSearch;
@@ -63,7 +62,7 @@ public class EuCLId {
 		algebra = params.cacheIntersections() ? new CachedIntersectionAlgebra(lifeCycle) : new Algebra(lifeCycle);
 		problem = new ProblemParser(algebra, params.problemFile()).parse();
 		
-		final EngineParameters parameters = new EngineParameters("euCLId", problem.findAll(), params.threadCount(), params.cacheCandidates());
+		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), params.threadCount(), params.dedupeDepth());
 		engine = new SearchEngine<>(createAlgorithm(), parameters);
 
 		monitor = new KpiMonitor(params.kpiInterval());				
@@ -97,14 +96,8 @@ public class EuCLId {
 	private void process() {
 		monitor.start();
 		engine.start(false);
-		if(problem.findAll()) {
-			final Collection<Board> solutions = engine.allSolutions();
-			new ResultPrinter(problem, algebra).printAll(solutions);
-		}
-		else {
-			final Optional<Board> solution = engine.firstSolution();
-			new ResultPrinter(problem, algebra).printFirst(solution);
-		}
+		final Collection<Board> solutions = engine.solutions();
+		new ResultPrinter(problem, algebra).printAll(solutions);
 		monitor.halt();
 	}
 

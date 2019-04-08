@@ -14,10 +14,6 @@ public class EngineKpiProvider implements KpiReporter {
 
 	private final IntSupplier solutionsCount;
 
-	public EngineKpiProvider() {
-		this(() -> -1);
-	}
-
 	public EngineKpiProvider(final IntSupplier solutionsCount) {
 		this.solutionsCount = solutionsCount;
 	}
@@ -28,10 +24,7 @@ public class EngineKpiProvider implements KpiReporter {
 		final int depth = Math.round(1000f * cumulatedDepth.get() / processed);
 		collector.add("processed", processed);
 		collector.add("depth", depth);
-		final int solutions = solutionsCount.getAsInt();
-		if(solutions >= 0) {
-			collector.add("solutions", solutions);
-		}
+		collector.add("solutions", solutionsCount.getAsInt());
 	}
 	
 	public void incrementProcessedAndAddDepth(final int depth) {

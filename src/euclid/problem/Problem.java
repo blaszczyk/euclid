@@ -12,18 +12,18 @@ public class Problem {
 	private final Board initial;
 	private final Board required;
 	private final int maxDepth;
-	private final boolean findAll;
+	private final boolean depthFirst;
+	private final int maxSolutions;
 	private final AlgorithmType algorithmType;
 	
-	public Problem(final Board initial, final Board required, final int maxDepth, final boolean findAll, final AlgorithmType algorithmType) {
+	public Problem(final Board initial, final Board required, final int maxDepth, final boolean depthFirst, final int maxSolutions, final AlgorithmType algorithmType) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
-		this.findAll = findAll;
+		this.depthFirst = depthFirst;
+		this.maxSolutions = maxSolutions;
 		this.algorithmType = algorithmType;
-	}
-	
-	
+	}	
 
 	public final Board initial() {
 		return initial;
@@ -36,9 +36,13 @@ public class Problem {
 	public final int maxDepth() {
 		return maxDepth;
 	}
+	
+	public final boolean depthFirst() {
+		return depthFirst;
+	}
 
-	public final boolean findAll() {
-		return findAll;
+	public final int maxSolutions() {
+		return maxSolutions;
 	}
 
 	public final AlgorithmType algorithmType() {

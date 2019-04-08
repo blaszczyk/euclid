@@ -25,10 +25,12 @@ public class ProblemParser {
 	public static final String KEY_INITIAL = "initial";
 	public static final String KEY_REQUIRED = "required";
 	public static final String KEY_MAX_DEPTH = "maxdepth";
+	public static final String KEY_DEPTH_FIRST = "depthfirst";
+	public static final String KEY_MAX_SOLUTIONS = "maxsolutions";
 	public static final String KEY_ALGORITHM = "algorithm";
-	public static final String KEY_FIND_ALL = "findall";
 	
-	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_MAX_DEPTH, KEY_ALGORITHM, KEY_FIND_ALL);
+	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_MAX_DEPTH, KEY_DEPTH_FIRST,
+			KEY_ALGORITHM, KEY_MAX_SOLUTIONS);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
@@ -95,10 +97,11 @@ public class ProblemParser {
 		final Board required = parseBoard(getValue(KEY_REQUIRED));
 
 		final int maxDepth = Integer.parseInt(getValue(KEY_MAX_DEPTH));
+		final boolean depthFirst = Boolean.parseBoolean(getValue(KEY_DEPTH_FIRST));
 		final AlgorithmType algorithm = AlgorithmType.valueOf(getValue(KEY_ALGORITHM).toUpperCase());
-		final boolean findAll = Boolean.parseBoolean(getValue(KEY_FIND_ALL));
+		final int maxSolutions = Integer.parseInt(getValue(KEY_MAX_SOLUTIONS));
 
-		return new Problem(initial, required, maxDepth, findAll, algorithm);
+		return new Problem(initial, required, maxDepth, depthFirst, maxSolutions, algorithm);
 	}
 
 	private void validateKeywords() {

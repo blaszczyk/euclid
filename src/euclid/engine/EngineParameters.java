@@ -4,33 +4,40 @@ public class EngineParameters {
 	
 	private final String id;
 	
-	private final boolean findAll;
+	private final int maxSolutions;
+
+	private final boolean depthFirst;
 	
 	private final int threadCount;
 	
-	private final boolean deduplicate;
+	private final int dedupeDepth;
 
-	public EngineParameters(final String id, final boolean findAll, final int threadCount, final boolean deduplicate) {
+	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final int threadCount, final int dedupeDepth) {
 		this.id = id;
-		this.findAll = findAll;
+		this.maxSolutions = maxSolutions;
+		this.depthFirst = depthFirst;
 		this.threadCount = threadCount;
-		this.deduplicate = deduplicate;
+		this.dedupeDepth = dedupeDepth;
 	}
 
 	public String id() {
 		return id;
 	}
 
-	public boolean findAll() {
-		return findAll;
+	public int maxSolutions() {
+		return maxSolutions;
+	}
+
+	public boolean depthFirst() {
+		return depthFirst;
 	}
 
 	public int threadCount() {
 		return threadCount;
 	}
 
-	public boolean deduplicate() {
-		return deduplicate;
+	public int dedupeDepth() {
+		return dedupeDepth;
 	}
 
 }
