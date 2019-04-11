@@ -15,9 +15,7 @@ public class CliParameterParser {
 	private static final String VAL_KPI_CSV = "csv";
 	private static final String VAL_KPI_OUT = "out";
 
-	private static final String KEY_CACHE = "cache";
-	private static final String VAL_CACHE_CURVES = "curves";
-	private static final String VAL_CACHE_INTERSECTIONS = "intersections";
+	private static final String KEY_CACHE_CURVES = "cachecurves";
 
 
 	private static final String KEY_DEDUPE_DEPTH = "dedupedepth";
@@ -43,15 +41,13 @@ public class CliParameterParser {
 		final boolean kpiCsv = kpiWriters.contains(VAL_KPI_CSV);
 		final boolean kpiOut = kpiWriters.contains(VAL_KPI_OUT);
 
-		final List<String> caches = getValues(KEY_CACHE, false);
-		final boolean cacheCurves = caches.contains(VAL_CACHE_CURVES);
-		final boolean cacheIntersections = caches.contains(VAL_CACHE_INTERSECTIONS);
+		final boolean cacheCurves = getBooleanValue(KEY_CACHE_CURVES, false, false);
 		
 		final int dedupeDepth = getIntValue(KEY_DEDUPE_DEPTH, false, 0);
 		
 		final int threadCount = getIntValue(KEY_THREAD_COUNT, false, Runtime.getRuntime().availableProcessors());
 
-		return new CliParameter(file, kpiInterval, kpiCsv, kpiOut, cacheCurves, cacheIntersections, dedupeDepth, threadCount);
+		return new CliParameter(file, kpiInterval, kpiCsv, kpiOut, cacheCurves, dedupeDepth, threadCount);
 	}
 
 	private static Map<String, String> parseKeyValues(final String[] args) {

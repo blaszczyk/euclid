@@ -13,39 +13,44 @@ import euclid.problem.*;
 
 public class ResultPrinter {
 
-	private static final PrintStream out = System.out;
+	private final PrintStream printStream;
 	
 	private final Problem problem;
 	
 	private final Algebra algebra;
 
-	public ResultPrinter(final Problem problem, final Algebra algebra) {
+	public ResultPrinter(final Problem problem, final Algebra algebra, final PrintStream printStream) {
 		this.problem = problem;
 		this.algebra = algebra;
+		this.printStream = printStream;
+	}
+
+	public ResultPrinter(final Problem problem, final Algebra algebra) {
+		this(problem, algebra, System.out);
 	}
 
 	void printAll(final Collection<Board> solutions) {
 		printProblem();
-		out.println(solutions.size() + " solution(s):");
+		println(solutions.size() + " solution(s):");
 		solutions.forEach(this::printSolution);
 	}
 	
 	void printFirst(final Optional<Board> solution) {
 		printProblem();
 		if(solution.isPresent()) {
-			out.println("solution:");
+			println("solution:");
 			printSolution(solution.get());
 		}
 		else {
-			out.println("no solution");
+			println("no solution");
 		}
 	}
 	
 	private void printProblem() {
-		out.println("\r\n");
-		out.println("initial:");
+		println("\r\n");
+		println("initial:");
 		print(problem.initial());
-		out.println("required:");
+		println("required:");
 		print(problem.required());
 	}
 	
@@ -58,17 +63,25 @@ public class ResultPrinter {
 				.map(c -> algebra.intersect(c, curve))
 				.map(PointSet::asList)
 				.forEach(newPoints::addAll);
-			out.println(curve);
-			out.println("  " + newPoints);
+			println(curve);
+			println("  " + newPoints);
 			curves.add(curve);
 		}
-		out.println();
+		println();
 	}
 	
-	private static void print(final Board board) {
-		board.curves().forEach(out::println);
-		out.println(board.points());
-		out.println();
+	private void print(final Board board) {
+		board.curves().forEach(printStream::println);
+		println(board.points());
+		println();
+	}
+
+	private void println() {
+		printStream.println();
+	}
+	
+	private void println(final Object o) {
+		printStream.println(o);
 	}
 
 }
