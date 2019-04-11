@@ -26,7 +26,7 @@ public class CurveBasedSearch extends BoardSearch {
 	@Override
 	public Collection<Board> nextGeneration(final Board board) {
 		final CurveSet curves = board.curves();
-		final Set<Curve> successors = createAllCurves(board.points());
+		final Set<Curve> successors = successors(board);
 		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
 			if(curves.containsNot(successor)) {
@@ -46,4 +46,9 @@ public class CurveBasedSearch extends BoardSearch {
 	int missingDepth(final int pointMisses, final int curveMisses) {
 		return Math.max(curveMisses, pointMisses > 0 ? 1 : 0);
 	}
+	
+	Set<Curve> successors(final Board board) {
+		return createAllCurves(board.points());
+	}
+	
 }

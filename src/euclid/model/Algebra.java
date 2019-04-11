@@ -4,7 +4,7 @@ import static euclid.model.Sugar.*;
 
 public class Algebra {
 	
-	private final CurveLifeCycle lifeCycle;
+	final CurveLifeCycle lifeCycle;
 	
 	public Algebra(final CurveLifeCycle lifeCycle) {
 		this.lifeCycle = lifeCycle;
@@ -73,7 +73,7 @@ public class Algebra {
 		return point.sub(circle.center).square().near(circle.radiusSquare);
 	}
 
-	private PointSet doIntersect(final Line l1, final Line l2) {
+	PointSet doIntersect(final Line l1, final Line l2) {
 		final Constructable det = l1.normal.cross(l2.normal);
 		if(det.sign() == 0) {
 			return PointSet.empty();

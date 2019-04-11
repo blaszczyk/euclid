@@ -9,8 +9,6 @@ import java.nio.file.Paths;
 import java.util.Collection;
 
 import euclid.algorithm.Algorithm;
-import euclid.algorithm.CurveBasedSearch;
-import euclid.algorithm.PointBasedSearch;
 import euclid.engine.EngineParameters;
 import euclid.engine.SearchEngine;
 import euclid.kpi.KpiCsvWriter;
@@ -49,7 +47,7 @@ public class EuCLId {
 
 	private final CurveLifeCycle lifeCycle;
 	
-	private final Algebra algebra;
+	private final AdvancedAlgebra algebra;
 
 	private final Problem problem;
 	
@@ -59,24 +57,15 @@ public class EuCLId {
 	
 	private EuCLId(final CliParameter params) {
 		lifeCycle = params.cacheCurves() ? new CachedCurveLifeCycle() : new BasicCurveLifeCycle();
-		algebra = params.cacheIntersections() ? new CachedIntersectionAlgebra(lifeCycle) : new Algebra(lifeCycle);
+		algebra = new AdvancedAlgebra(lifeCycle);
 		problem = new ProblemParser(algebra, params.problemFile()).parse();
-		
+
+		final Algorithm<Board> algorithm = problem.algorithm().create(problem, algebra);
 		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), params.threadCount(), params.dedupeDepth());
-		engine = new SearchEngine<>(createAlgorithm(), parameters);
+		engine = new SearchEngine<>(algorithm, parameters);
 
 		monitor = new KpiMonitor(params.kpiInterval());				
 		wireKpiMonitor(params);
-	}
-
-	private Algorithm<Board> createAlgorithm() {
-		switch (problem.algorithmType()) {
-		case CURVE_BASED:
-			return new CurveBasedSearch(problem, algebra);
-		case POINT_BASED:
-			return new PointBasedSearch(problem, algebra);
-		}
-		return null;
 	}
 
 	private void wireKpiMonitor(final CliParameter params) {

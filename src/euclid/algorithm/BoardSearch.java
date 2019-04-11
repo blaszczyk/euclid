@@ -1,7 +1,9 @@
 package euclid.algorithm;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
 
 import euclid.model.*;
 import euclid.problem.Problem;
@@ -65,28 +67,33 @@ abstract class BoardSearch implements Algorithm <Board> {
 		}
 		return count;
 	}
-	
+
 	Set<Curve> createAllCurves(final PointSet set) {
 		final Set<Curve> curves = new TreeSet<>();
-		for(final Point p1 : set)
-			for(final Point p2 : set)
-				if(p1.compareTo(p2) < 0)
-				{
-					curves.add(algebra.line(p1,p2));
-					curves.add(algebra.circle(p1,p2));
-					curves.add(algebra.circle(p2,p1));
-				}
+		forEachDistinctPair(set.asList(), (p1,p2) -> {
+			curves.add(algebra.line(p1,p2));
+			curves.add(algebra.circle(p1,p2));
+			curves.add(algebra.circle(p2,p1));
+		});
 		return curves;
 	}
 
-	Set<Point> createAllIntersections(final CurveSet curves) {
+	Set<Point> createAllIntersections(final CurveSet set) {
 		final Set<Point> points = new TreeSet<>();
-		for(final Curve c1 : curves)
-			for(final Curve c2 : curves)
-				if(c1.compareTo(c2) < 0) {
-					algebra.intersect(c1,c2).forEach(points::add);
-				}
+		forEachDistinctPair(set.asList(), (c1,c2) -> {
+			algebra.intersect(c1, c2).forEach(points::add);
+		});
 		return points;
 	}
+	
+	<E> void forEachDistinctPair(final List<E> es, final BiConsumer<E, E> consumer ) {
+		for(int i = 1; i < es.size(); i++) {
+			for(int j = 0; j < i; j++) {
+				final E e1 = es.get(i);
+				final E e2 = es.get(j);
+				consumer.accept(e1, e2);
+			}
+		}
+	};
 
 }

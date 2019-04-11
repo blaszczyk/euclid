@@ -17,8 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static euclid.model.Sugar.*;
+
+import euclid.algorithm.AlgorithmType;
 import euclid.model.*;
-import euclid.problem.Problem.AlgorithmType;
 
 public class ProblemParser {
 
