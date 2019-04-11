@@ -64,6 +64,10 @@ public class Board {
 		return this;
 	}
 	
+	public int depth() {
+		return parent == null ? 0 : parent.depth() + 1;
+	}
+	
 	public Board identifyByPoints() {
 		return new Board(points, curves) {
 			@Override

@@ -25,11 +25,11 @@ public class SearchEngine<B> {
 	private final EngineParameters parameters;
 
 	private boolean halt = false;
-	
+
 	public SearchEngine(final Algorithm<B> algorithm,  final EngineParameters parameters) {
 		this.algorithm = algorithm;
 		this.parameters = parameters;
-		queues = new PriorityQueuePool<B>(algorithm.maxMisses(), parameters.depthFirst());
+		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst());
 		kpiProvider = new EngineKpiProvider(solutions::size);
 		deduper = new Deduplicator<>(parameters.dedupeDepth());
 	}
@@ -51,11 +51,11 @@ public class SearchEngine<B> {
 				.mapToObj(this::threadName)
 				.map(SearchThread::new)
 				.collect(Collectors.toList());
-		testAndEnqueue(algorithm.first(), 0);
+		process(algorithm.first());
 		threads.forEach(SearchThread::start);
 		final Thread watcher = new Thread(() -> {
 			while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
-				hibernate();
+				hibernate(1000);
 			}
 			halt();
 		}, String.format("engine-watcher-%s", parameters.id()));
@@ -77,36 +77,26 @@ public class SearchEngine<B> {
 	public boolean finished() {
 		return halt;
 	}
-	
-	private void process(final B b) {
-		final B candidate = algorithm.digest(b);
-		final int misses = test(candidate);
-		final int depth = algorithm.depth(candidate);
-		kpiProvider.incrementProcessedAndAddDepth(depth);
-		if(misses > 0 && depth < algorithm.maxDepth()) {
-			final Collection<B> next = algorithm.nextGeneration(candidate);
-			next.forEach(n -> testAndEnqueue(n, depth));
-		}
-	}
 
-	private void testAndEnqueue(final B candidate, final int depth) {
-		if(deduper.checkDupe(candidate, depth)) {
-			final int misses = test(candidate);
-			if(misses > 0) {
-				queues.enqueue(candidate, misses - 1);
+	private void process(final B parent) {
+		final int depth = algorithm.depth(parent);
+		final Collection<B> nextGeneration = algorithm.nextGeneration(parent);
+		kpiProvider.reportProcessed(depth, nextGeneration.size());
+		for(final B candidate : nextGeneration) {
+			final int priority = algorithm.priority(candidate);
+			kpiProvider.reportCandidate(priority);
+			if(priority == 0) {
+				solutions.add(candidate);
+				if(solutions.size() >= parameters.maxSolutions()) {
+					halt = true;
+				}
+			}
+			else if(priority > 0) {
+				if(deduper.checkDupe(candidate, depth)) {
+					queues.enqueue(candidate, priority - 1);
+				}
 			}
 		}
-	}
-	
-	private int test(final B candidate) {
-		final int misses = algorithm.misses(candidate);
-		if(misses == 0) {
-			solutions.add(candidate);
-			if(solutions.size() >= parameters.maxSolutions()) {
-				halt = true;
-			}
-		}
-		return misses;
 	}
 	
 	private class SearchThread extends Thread {
@@ -126,7 +116,7 @@ public class SearchEngine<B> {
 				while(!halt) {
 					final B b = queues.poll();
 					if(idle = (b == null)) {
-						hibernate();
+						hibernate(100);
 					}
 					else {
 						process(b);
@@ -139,9 +129,9 @@ public class SearchEngine<B> {
 		}
 	}
 
-	private static void hibernate() {
+	private static void hibernate(final int timeout) {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(timeout);
 		}
 		catch(InterruptedException e) {
 		}

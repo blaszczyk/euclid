@@ -4,26 +4,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import euclid.model.*;
 import euclid.problem.Problem;
 
-public class CurveBasedSearch extends BoardSearch{
+public class CurveBasedSearch extends BoardSearch {
 	
 	public CurveBasedSearch(final Problem problem, final Algebra algebra) {
 		super(problem, algebra);
 	}
-
+	
 	@Override
-	public Board digest(final Board board) {
-		final Set<Point> points = createAllIntersections(board.curves());
-		board.points().forEach(points::add);
-		return Board.withPoints(points).andCurves(board.curves()).parent(board);
-	}
-
-	@Override
-	public int depth(final Board board) {
-		return board.curves().size() - problem.initial().curves().size();
+	public Board first() {
+		final Board preFirst = super.first();
+		final Set<Point> points = createAllIntersections(preFirst.curves());
+		preFirst.points().forEach(points::add);
+		return Board.withPoints(points).andCurves(preFirst.curves());
 	}
 
 	@Override
@@ -33,10 +30,20 @@ public class CurveBasedSearch extends BoardSearch{
 		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
 			if(curves.containsNot(successor)) {
-				final Board next = Board.withPoints(board.points()).andCurves(curves.adjoin(successor)).identifyByCurves().parent(board);
+				final Set<Point> points = new TreeSet<>();
+				board.points().forEach(points::add);
+				for(final Curve curve : curves) {
+					algebra.intersect(successor, curve).forEach(points::add);
+				}
+				final Board next = Board.withPoints(points).andCurves(curves.adjoin(successor)).identifyByCurves().parent(board);
 				nextGeneration.add(next);
 			}
 		}
 		return nextGeneration;
+	}
+
+	@Override
+	int missingDepth(final int pointMisses, final int curveMisses) {
+		return Math.max(curveMisses, pointMisses > 0 ? 1 : 0);
 	}
 }

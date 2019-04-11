@@ -2,7 +2,6 @@ package euclid.model;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.TreeSet;
 
 public class PointSet extends ElementSet<Point, PointSet> {
 	
@@ -13,8 +12,7 @@ public class PointSet extends ElementSet<Point, PointSet> {
 	}
 
 	public static PointSet of(final Collection<? extends Point> points) {
-		final PointSet result = new PointSet(points);
-		return result;
+		return new PointSet(points);
 	}
 
 	public static PointSet empty() {
@@ -22,11 +20,11 @@ public class PointSet extends ElementSet<Point, PointSet> {
 	}
 	
 	private PointSet() {
-		super(new TreeSet<>(), PointSet::new);
+		super(PointSet::new);
 	}
 	
 	private PointSet(final Collection<? extends Point> points) {
-		super(new TreeSet<>(points), PointSet::new);
+		super(points, PointSet::new);
 	}
 
 }

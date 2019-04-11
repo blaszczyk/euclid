@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S>> implements Iterable<E> {
 
-	final Collection<E> set;
-	
-	E last;
+	final Set<E> set;
 	
 	private final Function<Collection<? extends E>, S> copyConstructor;
 
-	ElementSet(final Collection<E> set, final Function<Collection<? extends E>, S> copyConstructor) {
-		this.set = set;
+	ElementSet(final Function<Collection<? extends E>, S> copyConstructor) {
+		this.set = new TreeSet<>();
+		this.copyConstructor = copyConstructor;
+	}
+
+	ElementSet(final Collection<? extends E> set, final Function<Collection<? extends E>, S> copyConstructor) {
+		this.set = new TreeSet<>(set);
 		this.copyConstructor = copyConstructor;
 	}
 
@@ -35,10 +39,6 @@ abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S
 	public int size() {
 		return set.size();
 	}
-
-	public Stream<E> stream() {
-		return set.stream();
-	}
 	
 	public List<E> asList() {
 		return new ArrayList<>(set);
@@ -47,7 +47,6 @@ abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S
 	public S adjoin(final E e) {
 		final S result = copyConstructor.apply(set);
 		result.set.add(e);
-		result.last = e;
 		return result;
 	}
 
@@ -64,7 +63,7 @@ abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S
 	
 	@Override
 	public int hashCode() {
-		return stream().mapToInt(Object::hashCode).sum();
+		return set.hashCode();
 	}
 	
 	@Override
