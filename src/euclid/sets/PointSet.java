@@ -1,7 +1,9 @@
-package euclid.model;
+package euclid.sets;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import euclid.geometry.Point;
 
 public class PointSet extends ElementSet<Point, PointSet> {
 	

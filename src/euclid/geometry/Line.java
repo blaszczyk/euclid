@@ -1,12 +1,12 @@
-package euclid.model;
+package euclid.geometry;
 
-public class Line implements Curve {
+public class Line extends AbstractElement<Curve> implements Curve {
 	
-	final Point normal;
-	final Constructable offset;
+	private final Point normal;
+	private final Number offset;
 
-	Line(final Point normal, final Constructable offset) {
-		final Constructable norm = norm(normal, offset);
+	public Line(final Point normal, final Number offset) {
+		final Number norm = norm(normal, offset);
 		this.normal = normal.div(norm);
 		this.offset = offset.div(norm);
 	}
@@ -15,18 +15,18 @@ public class Line implements Curve {
 		return normal;
 	}
 	
-	public Constructable offset() {
+	public Number offset() {
 		return offset;
 	}
-	
-	static Constructable norm(final Point normal, final Constructable offset) {
-		final Constructable norm = normal.square().root();
+
+	static Number norm(final Point normal, final Number offset) {
+		final Number norm = normal.square().root();
 		final boolean negate;
 		final int signO = offset.sign();
 		if(signO == 0) {
-			final int signX = normal.x.sign();
+			final int signX = normal.x().sign();
 			if(signX == 0) {
-				negate = normal.y.sign() < 0;
+				negate = normal.y().sign() < 0;
 			}
 			else {
 				negate = signX < 0;
@@ -63,30 +63,18 @@ public class Line implements Curve {
 			if(line.isSegment()) {
 				return false;
 			}
-			return offset.near(line.offset) && normal.near(line.normal);
+			return isNear(line);
 		}
 		return false;
+	}
+	
+	boolean isNear(final Line other) {
+		return offset.near(other.offset) && normal.near(other.normal);
 	}
 	
 	@Override
 	public int hashCode() {
 		return 137 * normal.hashCode() + 353 * offset.hashCode();
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		if(this == obj) {
-			return true;
-		}
-		final Curve other = (Curve) obj;
-		if(other.isLine()) {
-			final Line line = other.asLine();
-			if(line.isSegment()) {
-				return false;
-			}
-			return offset.equals(line.offset) && normal.equals(line.normal);
-		}
-		return false;
 	}
 
 	@Override
@@ -103,8 +91,12 @@ public class Line implements Curve {
 		if(line.isSegment()) {
 			return -1;
 		}
-		final int compNormal = normal.compareTo(line.normal);
-		return compNormal != 0 ? compNormal : offset.compareTo(line.offset);
+		return doCompareTo(line);
+	}
+	
+	int doCompareTo(final Line other) {
+		final int compNormal = normal.compareTo(other.normal);
+		return compNormal != 0 ? compNormal : offset.compareTo(other.offset);
 	}
 
 }

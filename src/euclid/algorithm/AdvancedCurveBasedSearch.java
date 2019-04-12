@@ -6,16 +6,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import euclid.model.*;
+import euclid.algebra.AdvancedAlgebra;
+import euclid.geometry.*;
 import euclid.problem.Problem;
+import euclid.sets.Board;
+import euclid.sets.CurveSet;
 
 public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 	
-	private final AdvancedAlgebra advanced;
-	
-	public AdvancedCurveBasedSearch(final Problem problem, final AdvancedAlgebra algebra) {
-		super(problem, algebra);
-		advanced = algebra;
+	public AdvancedCurveBasedSearch(final Problem problem) {
+		super(problem);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 	private Set<Curve> bisectors(final List<Point> points) {
 		final Set<Curve> curves = new TreeSet<>();
 		forEachDistinctPair(points, (p1,p2) -> {
-			curves.add(advanced.bisector(p1,p2));
+			curves.add(AdvancedAlgebra.bisector(p1,p2));
 		});
 		return curves;
 	}
@@ -50,7 +50,7 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 	private Set<Curve> angleBisectors(final List<Line> lines) {
 		final Set<Curve> curves = new TreeSet<>();
 		forEachDistinctPair(lines, (l1,l2) -> {
-			advanced.angleBisector(l1, l2).forEach(curves::add);
+			AdvancedAlgebra.angleBisector(l1, l2).forEach(curves::add);
 		});
 		return curves;
 	}
@@ -59,8 +59,8 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 		final Set<Curve> curves = new TreeSet<>();
 		for(final Point p : points) {
 			for(final Line l : lines) {
-				curves.add(advanced.perpendicular(p, l));
-				advanced.parallel(p, l).forEach(curves::add);
+				curves.add(AdvancedAlgebra.perpendicular(p, l));
+				AdvancedAlgebra.parallel(p, l).forEach(curves::add);
 			}
 		}
 		return curves;

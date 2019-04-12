@@ -13,10 +13,9 @@ import euclid.engine.EngineParameters;
 import euclid.engine.SearchEngine;
 import euclid.kpi.KpiCsvWriter;
 import euclid.kpi.KpiMonitor;
-import euclid.kpi.KpiReporter;
 import euclid.kpi.KpiStdoutLogger;
-import euclid.model.*;
 import euclid.problem.*;
+import euclid.sets.Board;
 
 public class EuCLId {
 
@@ -45,10 +44,6 @@ public class EuCLId {
 		}
 	}
 
-	private final CurveLifeCycle lifeCycle;
-	
-	private final AdvancedAlgebra algebra;
-
 	private final Problem problem;
 	
 	private final SearchEngine<Board> engine;
@@ -56,11 +51,9 @@ public class EuCLId {
 	private final KpiMonitor monitor;
 	
 	private EuCLId(final CliParameter params) {
-		lifeCycle = params.cacheCurves() ? new CachedCurveLifeCycle() : new BasicCurveLifeCycle();
-		algebra = new AdvancedAlgebra(lifeCycle);
-		problem = new ProblemParser(algebra, params.problemFile()).parse();
+		problem = new ProblemParser(params.problemFile()).parse();
 
-		final Algorithm<Board> algorithm = problem.algorithm().create(problem, algebra);
+		final Algorithm<Board> algorithm = problem.algorithm().create(problem);
 		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), params.threadCount(), params.dedupeDepth());
 		engine = new SearchEngine<>(algorithm, parameters);
 
@@ -70,10 +63,6 @@ public class EuCLId {
 
 	private void wireKpiMonitor(final CliParameter params) {
 		engine.kpiReporters().forEach(monitor::addReporter);
-		monitor.addReporter(lifeCycle);
-		if(algebra instanceof KpiReporter) {
-			monitor.addReporter((KpiReporter) algebra);
-		}
 		if(params.kpiCsv()) {
 			monitor.addConsumer(new KpiCsvWriter(new File("log")));
 		}
@@ -86,7 +75,7 @@ public class EuCLId {
 		monitor.start();
 		engine.start(false);
 		final Collection<Board> solutions = engine.solutions();
-		new ResultPrinter(problem, algebra).printAll(solutions);
+		new ResultPrinter(problem).printAll(solutions);
 		monitor.halt();
 	}
 

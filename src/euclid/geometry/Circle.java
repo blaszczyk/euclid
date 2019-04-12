@@ -1,11 +1,11 @@
-package euclid.model;
+package euclid.geometry;
 
-public class Circle implements Curve {
+public class Circle extends AbstractElement<Curve> implements Curve {
 	
-	final Point center;
-	final Constructable radiusSquare;
+	private final Point center;
+	private final Number radiusSquare;
 
-	Circle(final Point center, final Constructable radiusSquare) {
+	public Circle(final Point center, final Number radiusSquare) {
 		this.center = center;
 		this.radiusSquare = radiusSquare;
 	}
@@ -14,13 +14,13 @@ public class Circle implements Curve {
 		return center;
 	}
 	
-	public Constructable radiusSquare() {
+	public Number radiusSquare() {
 		return radiusSquare;
 	}
 	
 	@Override
-	public boolean isLine() {
-		return false;
+	public boolean isCircle() {
+		return true;
 	}
 	
 	@Override
@@ -40,19 +40,6 @@ public class Circle implements Curve {
 	@Override
 	public int hashCode() {
 		return 83 * center.hashCode() + 263 * radiusSquare.hashCode();
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		if(this == obj) {
-			return true;
-		}
-		final Curve other = (Curve) obj;
-		if(other.isCircle()) {
-			final Circle circle = other.asCircle();
-			return circle.center.equals(center) && circle.radiusSquare.equals(radiusSquare);
-		}
-		return false;
 	}
 
 	@Override

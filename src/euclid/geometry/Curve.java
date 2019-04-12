@@ -1,11 +1,13 @@
-package euclid.model;
+package euclid.geometry;
 
-public interface Curve extends Element<Curve>, Comparable<Curve> {
+public interface Curve extends Element<Curve> {
 	
-	public boolean isLine();
+	default public boolean isLine() {
+		return false;
+	};
 	
 	default public boolean isCircle() {
-		return !isLine();
+		return false;
 	}
 
 	default public Line asLine() {

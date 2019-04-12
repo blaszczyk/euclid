@@ -16,10 +16,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static euclid.model.Sugar.*;
-
+import euclid.algebra.Algebra;
 import euclid.algorithm.AlgorithmType;
-import euclid.model.*;
+import euclid.geometry.Curve;
+import euclid.geometry.Number;
+import euclid.geometry.Point;
+import euclid.sets.Board;
 
 public class ProblemParser {
 
@@ -49,16 +51,13 @@ public class ProblemParser {
 			+ PT_PTRN // point
 			+ "(\\))"); // close
 
-	private final Map<String, Constructable> constants = new HashMap<>();
+	private final Map<String, Number> constants = new HashMap<>();
 	private final Map<String, Point> points = new HashMap<>();
 	private final Map<String, Curve> curves = new HashMap<>();
 	
-	private final Algebra algebra;
-	
 	private final Map<String, String> keyValues;
 	
-	public ProblemParser(final Algebra algebra, final File file) {
-		this.algebra = algebra;
+	public ProblemParser(final File file) {
 		try {
 			final List<String> lines = Files.readAllLines(file.toPath());
 			keyValues = keyValues(lines);
@@ -68,8 +67,7 @@ public class ProblemParser {
 		}
 	}
 	
-	public ProblemParser(final Algebra algebra, final List<String> lines) {
-		this.algebra = algebra;
+	public ProblemParser(final List<String> lines) {
 		keyValues = keyValues(lines);
 	}
 	
@@ -162,8 +160,8 @@ public class ProblemParser {
 			final char type = matcher.group(1).charAt(0);
 			final Point x = parsePoint(matcher.group(2));
 			final Point y = parsePoint(matcher.group(4));
-			final Curve curve = (type == 'l') ? algebra.line(x,y) : 
-				( (type == 's') ? algebra.segment(x, y) : algebra.circle(x,y) );
+			final Curve curve = (type == 'l') ? Algebra.line(x,y) : 
+				( (type == 's') ? Algebra.segment(x, y) : Algebra.circle(x,y) );
 			cacheByValue(curve, value, curves);
 			return curve;
 		}
@@ -178,9 +176,9 @@ public class ProblemParser {
 		}
 		final Matcher matcher = POINT_PATTERN.matcher(value);
 		if(matcher.matches()) {
-			final Constructable x = parseConstant(matcher.group(2));
-			final Constructable y = parseConstant(matcher.group(4));
-			final Point point = point(x,y);
+			final Number x = parseConstant(matcher.group(2));
+			final Number y = parseConstant(matcher.group(4));
+			final Point point = new Point(x,y);
 			cacheByValue(point, value, points);
 			return point;
 		}
@@ -189,14 +187,14 @@ public class ProblemParser {
 		}
 	}
 
-	private Constructable parseConstant(final String value) {
+	private Number parseConstant(final String value) {
 		if(constants.containsKey(value)) {
 			return constants.get(value);
 		}
 		try {
 			final Calculator calculator = new Calculator(this::lookUpConstant);
 			final double numValue = calculator.evaluate(value);
-			final Constructable number = number(numValue);
+			final Number number = new Number(numValue);
 			cacheByValue(number, value, constants);
 			return number;
 		}

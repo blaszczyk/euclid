@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import euclid.model.*;
+import euclid.algebra.Algebra;
+import euclid.geometry.*;
 import euclid.problem.Problem;
+import euclid.sets.Board;
+import euclid.sets.CurveSet;
 
 public class CurveBasedSearch extends BoardSearch {
 	
-	public CurveBasedSearch(final Problem problem, final Algebra algebra) {
-		super(problem, algebra);
+	public CurveBasedSearch(final Problem problem) {
+		super(problem);
 	}
 	
 	@Override
@@ -33,7 +36,7 @@ public class CurveBasedSearch extends BoardSearch {
 				final Set<Point> points = new TreeSet<>();
 				board.points().forEach(points::add);
 				for(final Curve curve : curves) {
-					algebra.intersect(successor, curve).forEach(points::add);
+					Algebra.intersect(successor, curve).forEach(points::add);
 				}
 				final Board next = Board.withPoints(points).andCurves(curves.adjoin(successor)).identifyByCurves().parent(board);
 				nextGeneration.add(next);

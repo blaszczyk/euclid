@@ -1,7 +1,9 @@
-package euclid.model;
+package euclid.sets;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import euclid.geometry.Curve;
 
 public class CurveSet extends ElementSet<Curve, CurveSet> {
 	

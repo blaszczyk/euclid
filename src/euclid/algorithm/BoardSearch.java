@@ -5,17 +5,17 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
-import euclid.model.*;
+import euclid.algebra.Algebra;
+import euclid.geometry.*;
 import euclid.problem.Problem;
+import euclid.sets.*;
 
 abstract class BoardSearch implements Algorithm <Board> {
 	
 	final Problem problem;
-	final Algebra algebra;
 	
-	BoardSearch(final Problem problem, final Algebra algebra) {
+	BoardSearch(final Problem problem) {
 		this.problem = problem;
-		this.algebra = algebra;
 	}
 
 	@Override
@@ -71,9 +71,9 @@ abstract class BoardSearch implements Algorithm <Board> {
 	Set<Curve> createAllCurves(final PointSet set) {
 		final Set<Curve> curves = new TreeSet<>();
 		forEachDistinctPair(set.asList(), (p1,p2) -> {
-			curves.add(algebra.line(p1,p2));
-			curves.add(algebra.circle(p1,p2));
-			curves.add(algebra.circle(p2,p1));
+			curves.add(Algebra.line(p1,p2));
+			curves.add(Algebra.circle(p1,p2));
+			curves.add(Algebra.circle(p2,p1));
 		});
 		return curves;
 	}
@@ -81,7 +81,7 @@ abstract class BoardSearch implements Algorithm <Board> {
 	Set<Point> createAllIntersections(final CurveSet set) {
 		final Set<Point> points = new TreeSet<>();
 		forEachDistinctPair(set.asList(), (c1,c2) -> {
-			algebra.intersect(c1, c2).forEach(points::add);
+			Algebra.intersect(c1, c2).forEach(points::add);
 		});
 		return points;
 	}

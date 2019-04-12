@@ -1,4 +1,4 @@
-package euclid.model;
+package euclid.sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
+
+import euclid.geometry.Element;
 
 abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S>> implements Iterable<E> {
 

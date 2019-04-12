@@ -1,7 +1,7 @@
 package euclid.problem;
 
 import euclid.algorithm.AlgorithmType;
-import euclid.model.Board;
+import euclid.sets.Board;
 
 public class Problem {
 	

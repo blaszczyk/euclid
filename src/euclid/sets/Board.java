@@ -1,6 +1,8 @@
-package euclid.model;
+package euclid.sets;
 
 import java.util.Collection;
+
+import euclid.geometry.*;
 
 public class Board {
 	

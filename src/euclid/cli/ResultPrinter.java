@@ -8,25 +8,25 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import euclid.model.*;
+import euclid.algebra.Algebra;
+import euclid.geometry.*;
 import euclid.problem.*;
+import euclid.sets.Board;
+import euclid.sets.PointSet;
 
 public class ResultPrinter {
 
 	private final PrintStream printStream;
 	
 	private final Problem problem;
-	
-	private final Algebra algebra;
 
-	public ResultPrinter(final Problem problem, final Algebra algebra, final PrintStream printStream) {
+	public ResultPrinter(final Problem problem, final PrintStream printStream) {
 		this.problem = problem;
-		this.algebra = algebra;
 		this.printStream = printStream;
 	}
 
-	public ResultPrinter(final Problem problem, final Algebra algebra) {
-		this(problem, algebra, System.out);
+	public ResultPrinter(final Problem problem) {
+		this(problem, System.out);
 	}
 
 	void printAll(final Collection<Board> solutions) {
@@ -60,7 +60,7 @@ public class ResultPrinter {
 		for(final Curve curve : solution.curves()) {
 			final Set<Point> newPoints = new TreeSet<>();
 			curves.stream()
-				.map(c -> algebra.intersect(c, curve))
+				.map(c -> Algebra.intersect(c, curve))
 				.map(PointSet::asList)
 				.forEach(newPoints::addAll);
 			println(curve);
