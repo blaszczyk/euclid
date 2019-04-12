@@ -22,9 +22,10 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 	Set<Curve> successors(final Board board) {
 		final Set<Curve> successors = super.successors(board);
 		final List<Line> lines = pickLines(board.curves());
-		successors.addAll(bisectors(board.points()));
+		final List<Point> points = board.points().asList();
+		successors.addAll(bisectors(points));
 		successors.addAll(angleBisectors(lines));
-		successors.addAll(perpendiculars(board.points(), lines));
+		successors.addAll(perpendicularsAndParallels(points, lines));
 		return successors;
 	}
 
@@ -38,9 +39,9 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 		return lines;
 	}
 
-	private Set<Curve> bisectors(final PointSet set) {
+	private Set<Curve> bisectors(final List<Point> points) {
 		final Set<Curve> curves = new TreeSet<>();
-		forEachDistinctPair(set.asList(), (p1,p2) -> {
+		forEachDistinctPair(points, (p1,p2) -> {
 			curves.add(advanced.bisector(p1,p2));
 		});
 		return curves;
@@ -54,15 +55,17 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 		return curves;
 	}
 
-	private Collection<? extends Curve> perpendiculars(final PointSet points, final List<Line> lines) {
+	private Collection<? extends Curve> perpendicularsAndParallels(final List<Point> points, final List<Line> lines) {
 		final Set<Curve> curves = new TreeSet<>();
 		for(final Point p : points) {
 			for(final Line l : lines) {
 				curves.add(advanced.perpendicular(p, l));
+				if(!algebra.contains(p, l)) {
+					curves.add(advanced.parallel(p, l));
+				}
 			}
 		}
 		return curves;
 	}
-	
-	
+
 }
