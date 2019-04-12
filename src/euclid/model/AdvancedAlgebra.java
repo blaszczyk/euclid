@@ -22,10 +22,13 @@ public class AdvancedAlgebra extends Algebra {
 		return lifeCycle.line(normal, offset);
 	}
 
-	public Curve parallel(final Point p, final Line l) {
+	public CurveSet parallel(final Point p, final Line l) {
+		if(doesContain(p,l)) {
+			return CurveSet.empty();
+		}
 		final Point normal = l.normal;
 		final Constructable offset = normal.mul(p);
-		return lifeCycle.line(normal, offset);
+		return CurveSet.of(lifeCycle.line(normal, offset));
 	}
 
 	public CurveSet angleBisector(final Line l1, final Line l2) {

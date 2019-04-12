@@ -60,9 +60,7 @@ public class AdvancedCurveBasedSearch extends CurveBasedSearch {
 		for(final Point p : points) {
 			for(final Line l : lines) {
 				curves.add(advanced.perpendicular(p, l));
-				if(!algebra.contains(p, l)) {
-					curves.add(advanced.parallel(p, l));
-				}
+				advanced.parallel(p, l).forEach(curves::add);
 			}
 		}
 		return curves;

@@ -20,14 +20,14 @@ public class Algebra {
 	}
 	
 	public Curve line(final Point p1, final Point p2) {
-		final Point	normal = p1.sub(p2).orth();
-		final Constructable	offset = normal.mul(p1);
+		final Point normal = p1.sub(p2).orth();
+		final Constructable offset = normal.mul(p1);
 		return lifeCycle.line(normal, offset);
 	}
 	
 	public Curve segment(final Point p1, final Point p2) {
-		final Point	normal = p1.sub(p2).orth();
-		final Constructable	offset = normal.mul(p1);
+		final Point normal = p1.sub(p2).orth();
+		final Constructable offset = normal.mul(p1);
 		final Constructable end1 = normal.cross(p1);
 		final Constructable end2 = normal.cross(p2);
 		return lifeCycle.segment(normal, offset, end1, end2);
@@ -57,7 +57,7 @@ public class Algebra {
 		}
 	}
 	
-	private boolean doesContain(final Point point, final Line line) {
+	boolean doesContain(final Point point, final Line line) {
 		if(point.mul(line.normal).near(line.offset)) {
 			if(line.isSegment()) {
 				final Segment segment = line.asSegment();
@@ -69,7 +69,7 @@ public class Algebra {
 		return false;
 	}
 	
-	private boolean doesContain(final Point point, final Circle circle) {
+	boolean doesContain(final Point point, final Circle circle) {
 		return point.sub(circle.center).square().near(circle.radiusSquare);
 	}
 
@@ -87,8 +87,8 @@ public class Algebra {
 		}
 		return PointSet.of(point(x, y));
 	}
-	
-	private PointSet doIntersect(final Line line, final Circle circle) {
+
+	PointSet doIntersect(final Line line, final Circle circle) {
 		final Point normal = line.normal;
 		final Point distance = normal.mul(line.offset.sub(normal.mul(circle.center)));
 		final Constructable discriminant = circle.radiusSquare.sub(distance.square());
@@ -117,7 +117,7 @@ public class Algebra {
 		return PointSet.empty();
 	}
 	
-	private PointSet doIntersect(final Circle c1, final Circle c2) {
+	PointSet doIntersect(final Circle c1, final Circle c2) {
 		if(c1.center.near(c2.center))
 		{
 			return PointSet.empty();
