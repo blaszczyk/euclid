@@ -1,32 +1,30 @@
 package euclid.sets;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import euclid.geometry.Curve;
 
+@SuppressWarnings("serial")
 public class CurveSet extends ElementSet<Curve, CurveSet> {
 	
-	private static final CurveSet EMPTY = new CurveSet();
+	public static final CurveSet EMPTY = new CurveSet();
 	
-	public static CurveSet of(final Curve... curves) {
-		return of(Arrays.asList(curves));
+	public CurveSet() {
 	}
 	
-	public static CurveSet of(final Collection<? extends Curve> curves) {
-		return new CurveSet(curves);
+	public CurveSet(final Collection<? extends Curve> init) {
+		super(init);
+	}
+	
+	public CurveSet(final Curve... curves) {
+		for(final Curve c : curves) {
+			add(c);
+		}
 	}
 
-	public static CurveSet empty() {
-		return EMPTY;
-	}
-	
-	private CurveSet() {
-		super(CurveSet::new);
-	}
-	
-	private CurveSet(final Collection<? extends Curve> init) {
-		super(init, CurveSet::new);
+	@Override
+	public CurveSet copy() {
+		return new CurveSet(this);
 	}
 
 }

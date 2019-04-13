@@ -25,26 +25,26 @@ public class AdvancedAlgebra {
 		return new Line(normal, offset);
 	}
 
-	public static CurveSet parallel(final Point p, final Line l) {
+	public static Curve parallel(final Point p, final Line l) {
 		if(Algebra.doesContain(p,l)) {
-			return CurveSet.empty();
+			return null;
 		}
 		final Point normal = l.normal();
 		final Number offset = normal.mul(p);
-		return CurveSet.of(new Line(normal, offset));
+		return new Line(normal, offset);
 	}
 
 	public static CurveSet angleBisector(final Line l1, final Line l2) {
 		final List<Point> intersections = Algebra.doIntersect(l1, l2).asList();
 		if(intersections.isEmpty()) {
-			return CurveSet.empty();
+			return CurveSet.EMPTY;
 		}
 		final Point intersection = intersections.get(0);
 		final Point n1 = l1.normal().add(l2.normal());
 		final Point n2 = l1.normal().sub(l2.normal());
 		final Number o1 = n1.mul(intersection);
 		final Number o2 = n2.mul(intersection);
-		return CurveSet.of(new Line(n1, o1), new Line(n2, o2));
+		return new CurveSet(new Line(n1, o1), new Line(n2, o2));
 	}
 
 }

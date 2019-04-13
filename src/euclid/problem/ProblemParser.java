@@ -3,7 +3,6 @@ package euclid.problem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +20,7 @@ import euclid.algorithm.AlgorithmType;
 import euclid.geometry.Curve;
 import euclid.geometry.Number;
 import euclid.geometry.Point;
-import euclid.sets.Board;
+import euclid.sets.*;
 
 public class ProblemParser {
 
@@ -134,8 +133,8 @@ public class ProblemParser {
 			return Board.EMPTY;
 		}
 		final String[] split = values.split("\\:");
-		final List<Curve> cs = new ArrayList<>();
-		final List<Point> ps = new ArrayList<>();
+		final PointSet ps = new PointSet();
+		final CurveSet cs = new CurveSet();
 		for(final String value : split) {
 			if(isPoint(value)) {
 				ps.add(parsePoint(value));
@@ -144,7 +143,7 @@ public class ProblemParser {
 				cs.add(parseCurve(value));
 			}
 		}
-		return Board.withPoints(ps).andCurves(cs);
+		return new Board(ps, cs);
 	}
 
 	private boolean isPoint(final String value) {

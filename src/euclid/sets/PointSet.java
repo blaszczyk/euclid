@@ -1,32 +1,30 @@
 package euclid.sets;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import euclid.geometry.Point;
 
+@SuppressWarnings("serial")
 public class PointSet extends ElementSet<Point, PointSet> {
 	
-	private static final PointSet EMPTY = new PointSet();
+	public static final PointSet EMPTY = new PointSet();
 	
-	public static PointSet of(final Point... points) {
-		return of(Arrays.asList(points));
-	}
-
-	public static PointSet of(final Collection<? extends Point> points) {
-		return new PointSet(points);
-	}
-
-	public static PointSet empty() {
-		return EMPTY;
+	public PointSet() {
 	}
 	
-	private PointSet() {
-		super(PointSet::new);
+	public PointSet(final Collection<? extends Point> points) {
+		super(points);
 	}
 	
-	private PointSet(final Collection<? extends Point> points) {
-		super(points, PointSet::new);
+	public PointSet(final Point... points) {
+		for(final Point p : points) {
+			add(p);
+		}
+	}
+	
+	@Override
+	public PointSet copy() {
+		return new PointSet(this);
 	}
 
 }

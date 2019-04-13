@@ -1,8 +1,6 @@
 package euclid.algorithm;
 
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 import euclid.algebra.Algebra;
@@ -68,8 +66,7 @@ abstract class BoardSearch implements Algorithm <Board> {
 		return count;
 	}
 
-	Set<Curve> createAllCurves(final PointSet set) {
-		final Set<Curve> curves = new TreeSet<>();
+	CurveSet addAllCurves(final PointSet set, final CurveSet curves) {
 		forEachDistinctPair(set.asList(), (p1,p2) -> {
 			curves.add(Algebra.line(p1,p2));
 			curves.add(Algebra.circle(p1,p2));
@@ -78,8 +75,7 @@ abstract class BoardSearch implements Algorithm <Board> {
 		return curves;
 	}
 
-	Set<Point> createAllIntersections(final CurveSet set) {
-		final Set<Point> points = new TreeSet<>();
+	PointSet addAllIntersections(final CurveSet set, final PointSet points) {
 		forEachDistinctPair(set.asList(), (c1,c2) -> {
 			Algebra.intersect(c1, c2).forEach(points::add);
 		});

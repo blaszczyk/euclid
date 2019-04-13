@@ -1,52 +1,22 @@
 package euclid.sets;
 
-import java.util.Collection;
-
-import euclid.geometry.*;
-
 public class Board {
 	
-	public static final Board EMPTY = Board.withPoints().andCurves();
-
-	public static BoardBuilder withPoints(final Point... points) {
-		return withPoints(PointSet.of(points));
-	}
-
-	public static BoardBuilder withPoints(final Collection<Point> points) {
-		return withPoints(PointSet.of(points));
-	}
-	
-	public static BoardBuilder withPoints(final PointSet points) {
-		return new BoardBuilder(points);
-	}
-	
-	public static class BoardBuilder {
-		final PointSet points;
-		
-		private BoardBuilder(final PointSet points) {
-			this.points = points;
-		}
-		
-		public Board andCurves(final Curve... curves) {
-			return andCurves(CurveSet.of(curves));
-		}
-
-		public Board andCurves(final Collection<Curve> curves) {
-			return andCurves(CurveSet.of(curves));
-		}
-
-		public Board andCurves(final CurveSet curves) {
-			return new Board(points, curves);
-		}
-	}
+	public static final Board EMPTY = new Board(PointSet.EMPTY, CurveSet.EMPTY);
 
 	private final PointSet points;
 	private final CurveSet curves;
-	private Board parent;
+	private final Board parent;
 	
-	private Board(final PointSet points, final CurveSet curves) {
+	
+	public Board(final PointSet points, final CurveSet curves, final Board parent) {
 		this.points = points;
 		this.curves = curves;
+		this.parent = parent;
+	}
+	
+	public Board(final PointSet points, final CurveSet curves) {
+		this(points, curves, null);
 	}
 
 	public final PointSet points() {
@@ -61,17 +31,12 @@ public class Board {
 		return parent;
 	}
 	
-	public Board parent(final Board parent) {
-		this.parent = parent;
-		return this;
-	}
-	
 	public int depth() {
 		return parent == null ? 0 : parent.depth() + 1;
 	}
 	
 	public Board identifyByPoints() {
-		return new Board(points, curves) {
+		return new Board(points, curves, parent) {
 			@Override
 			public int hashCode() {
 				return points.hashCode();
@@ -86,7 +51,7 @@ public class Board {
 	}
 	
 	public Board identifyByCurves() {
-		return new Board(points, curves) {
+		return new Board(points, curves, parent) {
 			@Override
 			public int hashCode() {
 				return curves.hashCode();

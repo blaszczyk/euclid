@@ -3,14 +3,13 @@ package euclid.algorithm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import euclid.algebra.Algebra;
 import euclid.geometry.*;
 import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
+import euclid.sets.PointSet;
 
 public class CurveBasedSearch extends BoardSearch {
 	
@@ -21,24 +20,23 @@ public class CurveBasedSearch extends BoardSearch {
 	@Override
 	public Board first() {
 		final Board preFirst = super.first();
-		final Set<Point> points = createAllIntersections(preFirst.curves());
-		preFirst.points().forEach(points::add);
-		return Board.withPoints(points).andCurves(preFirst.curves());
+		final PointSet points = preFirst.points().copy();
+		addAllIntersections(preFirst.curves(), points);
+		return new Board(points, preFirst.curves());
 	}
 
 	@Override
 	public Collection<Board> nextGeneration(final Board board) {
 		final CurveSet curves = board.curves();
-		final Set<Curve> successors = successors(board);
+		final CurveSet successors = successors(board);
 		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
 			if(curves.containsNot(successor)) {
-				final Set<Point> points = new TreeSet<>();
-				board.points().forEach(points::add);
+				final PointSet points = board.points().copy();
 				for(final Curve curve : curves) {
-					Algebra.intersect(successor, curve).forEach(points::add);
+					points.addAll(Algebra.intersect(successor, curve));
 				}
-				final Board next = Board.withPoints(points).andCurves(curves.adjoin(successor)).identifyByCurves().parent(board);
+				final Board next = new Board(points, curves.adjoin(successor), board).identifyByCurves();
 				nextGeneration.add(next);
 			}
 		}
@@ -50,8 +48,8 @@ public class CurveBasedSearch extends BoardSearch {
 		return Math.max(curveMisses, pointMisses > 0 ? 1 : 0);
 	}
 	
-	Set<Curve> successors(final Board board) {
-		return createAllCurves(board.points());
+	CurveSet successors(final Board board) {
+		return addAllCurves(board.points(), new CurveSet());
 	}
 	
 }
