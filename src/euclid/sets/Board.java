@@ -7,12 +7,13 @@ public class Board {
 	private final PointSet points;
 	private final CurveSet curves;
 	private final Board parent;
-	
+	private final int depth;
 	
 	public Board(final PointSet points, final CurveSet curves, final Board parent) {
 		this.points = points;
 		this.curves = curves;
 		this.parent = parent;
+		this.depth = parent == null ? 0 : parent.depth + 1;
 	}
 	
 	public Board(final PointSet points, final CurveSet curves) {
@@ -32,7 +33,7 @@ public class Board {
 	}
 	
 	public int depth() {
-		return parent == null ? 0 : parent.depth() + 1;
+		return depth;
 	}
 	
 	public Board identifyByPoints() {
@@ -46,21 +47,6 @@ public class Board {
 			public boolean equals(final Object obj) {
 				final Board other = (Board) obj;
 				return points.equals(other.points);
-			}
-		};
-	}
-	
-	public Board identifyByCurves() {
-		return new Board(points, curves, parent) {
-			@Override
-			public int hashCode() {
-				return curves.hashCode();
-			}
-
-			@Override
-			public boolean equals(final Object obj) {
-				final Board other = (Board) obj;
-				return curves.equals(other.curves);
 			}
 		};
 	}

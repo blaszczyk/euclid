@@ -9,7 +9,7 @@ import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
 
-public class AdvancedCurveBasedSearch extends CurveBasedSearch {
+public class AdvancedCurveBasedSearch extends BasicCurveBasedSearch {
 	
 	public AdvancedCurveBasedSearch(final Problem problem) {
 		super(problem);

@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -29,21 +28,10 @@ public class ResultPrinter {
 		this(problem, System.out);
 	}
 
-	void printAll(final Collection<Board> solutions) {
+	void printAll(final Collection<? extends Board> solutions) {
 		printProblem();
 		println(solutions.size() + " solution(s):");
 		solutions.forEach(this::printSolution);
-	}
-	
-	void printFirst(final Optional<Board> solution) {
-		printProblem();
-		if(solution.isPresent()) {
-			println("solution:");
-			printSolution(solution.get());
-		}
-		else {
-			println("no solution");
-		}
 	}
 	
 	private void printProblem() {

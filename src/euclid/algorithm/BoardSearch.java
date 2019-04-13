@@ -8,7 +8,7 @@ import euclid.geometry.*;
 import euclid.problem.Problem;
 import euclid.sets.*;
 
-abstract class BoardSearch implements Algorithm <Board> {
+abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 	
 	final Problem problem;
 	
@@ -17,12 +17,14 @@ abstract class BoardSearch implements Algorithm <Board> {
 	}
 
 	@Override
-	public Board first() {
-		return problem.initial();
+	public B first() {
+		return decorateFirst(problem.initial());
 	}
+	
+	abstract B decorateFirst(final Board b);
 
 	@Override
-	public int depth(final Board board) {
+	public int depth(final B board) {
 		return board.depth();
 	}
 
@@ -32,7 +34,7 @@ abstract class BoardSearch implements Algorithm <Board> {
 	}
 	
 	@Override
-	public int priority(final Board b) {
+	public int priority(final B b) {
 		final int depth = depth(b);
 		final int curveMisses = curveMisses(b);
 		final int pointMisses = pointMisses(b);
@@ -68,9 +70,7 @@ abstract class BoardSearch implements Algorithm <Board> {
 
 	CurveSet addAllCurves(final PointSet set, final CurveSet curves) {
 		forEachDistinctPair(set.asList(), (p1,p2) -> {
-			curves.add(Algebra.line(p1,p2));
-			curves.add(Algebra.circle(p1,p2));
-			curves.add(Algebra.circle(p2,p1));
+			addAllCurves(p1, p2, curves);
 		});
 		return curves;
 	}
@@ -91,5 +91,11 @@ abstract class BoardSearch implements Algorithm <Board> {
 			}
 		}
 	};
+	
+	void addAllCurves(final Point p1, final Point p2, final CurveSet curves) {
+		curves.add(Algebra.line(p1,p2));
+		curves.add(Algebra.circle(p1,p2));
+		curves.add(Algebra.circle(p2,p1));
+	}
 
 }

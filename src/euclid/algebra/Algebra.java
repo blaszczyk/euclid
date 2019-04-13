@@ -65,7 +65,7 @@ public class Algebra {
 			if(line.isSegment()) {
 				final Segment segment = line.asSegment();
 				final Number position = line.normal().cross(point);
-				return position.compareTo(segment.from()) >= 0 && position.compareTo(segment.to()) <= 0;
+				return position.greaterEq(segment.from()) && position.lessEq(segment.to());
 			}
 			return true;
 		}
