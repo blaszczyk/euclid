@@ -54,7 +54,7 @@ public class EuCLId {
 		problem = new ProblemParser(params.problemFile()).parse();
 
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
-		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), params.threadCount());
+		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), problem.shuffle(), params.threadCount());
 		engine = new SearchEngine<>(algorithm, parameters);
 
 		monitor = new KpiMonitor(params.kpiInterval());				
@@ -73,7 +73,8 @@ public class EuCLId {
 
 	private void process() {
 		monitor.start();
-		engine.start(false);
+		engine.start();
+		engine.join();
 		final Collection<? extends Board> solutions = engine.solutions();
 		new ResultPrinter(problem).printAll(solutions);
 		monitor.halt();

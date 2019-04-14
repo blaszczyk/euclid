@@ -23,6 +23,7 @@ initial = p1 : p2
 required = bisection
 maxDepth = 3
 depthFirst = true
+shuffle = true
 maxSolutions = 3
 algorithm = curve_based
 priority = coarse

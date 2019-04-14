@@ -7,13 +7,16 @@ public class EngineParameters {
 	private final int maxSolutions;
 
 	private final boolean depthFirst;
+
+	private final boolean shuffle;
 	
 	private final int threadCount;
 
-	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final int threadCount) {
+	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final boolean shuffle, final int threadCount) {
 		this.id = id;
 		this.maxSolutions = maxSolutions;
 		this.depthFirst = depthFirst;
+		this.shuffle = shuffle;
 		this.threadCount = threadCount;
 	}
 
@@ -27,6 +30,10 @@ public class EngineParameters {
 
 	public boolean depthFirst() {
 		return depthFirst;
+	}
+
+	public boolean shuffle() {
+		return shuffle;
 	}
 
 	public int threadCount() {

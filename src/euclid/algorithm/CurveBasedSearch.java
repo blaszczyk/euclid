@@ -1,7 +1,6 @@
 package euclid.algorithm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import euclid.algebra.Algebra;
@@ -18,7 +17,7 @@ abstract class CurveBasedSearch<B extends Board> extends BoardSearch<B> {
 	}
 
 	@Override
-	public Collection<B> nextGeneration(final B board) {
+	public List<B> nextGeneration(final B board) {
 		final CurveSet successors = successors(board);
 		successors.removeAll(board.curves());
 		final List<B> nextGeneration = new ArrayList<>(successors.size());

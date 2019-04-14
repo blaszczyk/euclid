@@ -3,6 +3,7 @@ package euclid.engine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class SearchEngine<B> {
 		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst());
 		kpiProvider = new EngineKpiProvider(solutions::size);
 		threads = IntStream.range(0, parameters.threadCount())
-				.mapToObj(this::threadName)
+				.mapToObj(i -> String.format("search-%s-%d", parameters.id(), i))
 				.map(SearchThread::new)
 				.collect(Collectors.toList());
 	}
@@ -41,25 +42,24 @@ public class SearchEngine<B> {
 	public Collection<KpiReporter> kpiReporters() {
 		return Arrays.asList(kpiProvider, queues);
 	}
-	
-	public boolean hasSolution() {
-		return ! solutions.isEmpty();
-	}
 
 	public List<B> solutions() {
 		return new ArrayList<>(solutions);
 	}
 
-	public void start(final boolean async) {
+	public void start() {
 		process(algorithm.first());
 		threads.forEach(SearchThread::start);
-		if(!async) {
-			threads.forEach(SearchEngine::join);
-		}
 	}
 
-	private String threadName(final int count) {
-		return String.format("search-%s-%d", parameters.id(), count);
+	public void join() {
+		try {
+			for(final SearchThread thread : threads) {
+				thread.join();
+			}
+		}
+		catch(InterruptedException ignore) {
+		}
 	}
 
 	public void halt() {
@@ -72,7 +72,10 @@ public class SearchEngine<B> {
 
 	private void process(final B parent) {
 		final int depth = algorithm.depth(parent);
-		final Collection<B> nextGeneration = algorithm.nextGeneration(parent);
+		final List<B> nextGeneration = algorithm.nextGeneration(parent);
+		if(parameters.shuffle()) {
+			Collections.shuffle(nextGeneration);
+		}
 		kpiProvider.reportProcessed(depth, nextGeneration.size());
 		for(final B candidate : nextGeneration) {
 			final int priority = algorithm.priority(candidate);
@@ -80,7 +83,7 @@ public class SearchEngine<B> {
 			if(priority == 0) {
 				solutions.add(candidate);
 				if(solutions.size() >= parameters.maxSolutions()) {
-					halt = true;
+					halt();
 				}
 			}
 			else if(priority > 0) {
@@ -88,7 +91,7 @@ public class SearchEngine<B> {
 			}
 		}
 	}
-	
+
 	private class SearchThread extends Thread {
 		private boolean idle = false;
 		
@@ -110,7 +113,7 @@ public class SearchEngine<B> {
 							halt();
 						}
 						else {
-							hibernate(100);
+							Thread.sleep(100);
 						}
 					}
 					else {
@@ -118,25 +121,11 @@ public class SearchEngine<B> {
 					}
 				}
 			}
+			catch(InterruptedException ignore) {
+			}
 			finally {
 				halt();
 			}
-		}
-	}
-
-	private static void hibernate(final int timeout) {
-		try {
-			Thread.sleep(timeout);
-		}
-		catch(InterruptedException e) {
-		}
-	}
-	
-	private static void join(final Thread thread) {
-		try {
-			thread.join();
-		}
-		catch(InterruptedException e) {
 		}
 	}
 

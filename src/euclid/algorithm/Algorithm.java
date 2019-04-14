@@ -1,6 +1,6 @@
 package euclid.algorithm;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * contract:
@@ -20,6 +20,6 @@ public interface Algorithm<B> {
 	
 	public int depth(final B b);
 	
-	public Collection<B> nextGeneration(final B b);
+	public List<B> nextGeneration(final B b);
 
 }

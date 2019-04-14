@@ -1,7 +1,6 @@
 package euclid.algorithm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import euclid.geometry.*;
@@ -24,7 +23,7 @@ public class PointBasedSearch extends BoardSearch<Board> {
 	}
 
 	@Override
-	public Collection<Board> nextGeneration(final Board board) {
+	public List<Board> nextGeneration(final Board board) {
 		final PointSet points = board.points();
 		final PointSet successors = addAllIntersections(board.curves(), new PointSet());
 		final List<Board> nextGeneration = new ArrayList<>(successors.size());

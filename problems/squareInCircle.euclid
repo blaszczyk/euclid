@@ -18,6 +18,7 @@ initial = o : p1 : c
 required = l12 : l23 : l34 : l41
 maxdepth = 7
 depthfirst = false
+shuffle = false
 maxsolutions = 1
 algorithm = curve_based
 priority = coarse

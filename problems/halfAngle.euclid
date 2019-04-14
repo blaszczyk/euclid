@@ -18,6 +18,7 @@ initial = p1 : l2 : l1
 required = lhalf
 maxdepth = 4
 depthfirst = true
+shuffle = true
 maxsolutions = 1
 algorithm = point_based
 priority = coarse

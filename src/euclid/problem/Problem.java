@@ -10,16 +10,18 @@ public class Problem {
 	private final Board required;
 	private final int maxDepth;
 	private final boolean depthFirst;
+	private final boolean shuffle;
 	private final int maxSolutions;
 	private final AlgorithmType algorithm;
 	private final PriorityType priority;
 	
 	public Problem(final Board initial, final Board required, final int maxDepth, final boolean depthFirst, 
-			final int maxSolutions, final AlgorithmType algorithm, final PriorityType priority) {
+			final boolean shuffle, final int maxSolutions, final AlgorithmType algorithm, final PriorityType priority) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
 		this.depthFirst = depthFirst;
+		this.shuffle = shuffle;
 		this.maxSolutions = maxSolutions;
 		this.algorithm = algorithm;
 		this.priority = priority;
@@ -39,6 +41,10 @@ public class Problem {
 	
 	public final boolean depthFirst() {
 		return depthFirst;
+	}
+	
+	public final boolean shuffle() {
+		return shuffle;
 	}
 
 	public final int maxSolutions() {
