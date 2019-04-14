@@ -1,7 +1,6 @@
 euCLId usage:
 arguments: (*required)
 -file*			path to problem file
--dedupedepth	depth to which candidates are deduplicated, default 0
 -threads		positive integer, default #processors
 -kpiinterval	in ms, default 5000
 -kpiwriter		from [out, csv], default csv

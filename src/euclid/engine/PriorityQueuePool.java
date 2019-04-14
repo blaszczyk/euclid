@@ -40,7 +40,7 @@ public class PriorityQueuePool<B> implements KpiReporter{
 		for(int i = 0; i < queues.size(); i++) {
 			final MonitoredDeque<?> queue = queues.get(i);
 			final int queuedCount = queue.queuedCount();
-			final int totalCount = queue.totalCount();
+			final long totalCount = queue.totalCount();
 			collector.add("dequeued-" + i, totalCount - queuedCount);
 			collector.add("queued-" + i, queuedCount);
 			collector.add("total-" + i, totalCount);

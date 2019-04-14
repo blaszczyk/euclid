@@ -15,11 +15,11 @@ public class SearchEngine<B> {
 	
 	private final Collection<B> solutions = new CopyOnWriteArrayList<>();
 
-	private final Deduplicator<B> deduper;
-
 	private final EngineKpiProvider kpiProvider;
 
 	private final PriorityQueuePool<B> queues;
+	
+	private final Collection<SearchThread> threads;
 	
 	private final Algorithm<B> algorithm;
 
@@ -32,11 +32,14 @@ public class SearchEngine<B> {
 		this.parameters = parameters;
 		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst());
 		kpiProvider = new EngineKpiProvider(solutions::size);
-		deduper = new Deduplicator<>(parameters.dedupeDepth());
+		threads = IntStream.range(0, parameters.threadCount())
+				.mapToObj(this::threadName)
+				.map(SearchThread::new)
+				.collect(Collectors.toList());
 	}
 	
 	public Collection<KpiReporter> kpiReporters() {
-		return Arrays.asList(deduper, kpiProvider, queues);
+		return Arrays.asList(kpiProvider, queues);
 	}
 	
 	public boolean hasSolution() {
@@ -48,21 +51,9 @@ public class SearchEngine<B> {
 	}
 
 	public void start(final boolean async) {
-		final Collection<SearchThread> threads = IntStream.range(0, parameters.threadCount())
-				.mapToObj(this::threadName)
-				.map(SearchThread::new)
-				.collect(Collectors.toList());
 		process(algorithm.first());
 		threads.forEach(SearchThread::start);
-		final Thread watcher = new Thread(() -> {
-			while(!(halt || threads.stream().allMatch(SearchThread::idle))) {
-				hibernate(1000);
-			}
-			halt();
-		}, String.format("engine-watcher-%s", parameters.id()));
-		watcher.start();
 		if(!async) {
-			join(watcher);
 			threads.forEach(SearchEngine::join);
 		}
 	}
@@ -93,9 +84,7 @@ public class SearchEngine<B> {
 				}
 			}
 			else if(priority > 0) {
-				if(deduper.checkDupe(candidate, depth)) {
-					queues.enqueue(candidate, priority - 1);
-				}
+				queues.enqueue(candidate, priority - 1);
 			}
 		}
 	}
@@ -117,7 +106,12 @@ public class SearchEngine<B> {
 				while(!halt) {
 					final B b = queues.poll();
 					if(idle = (b == null)) {
-						hibernate(100);
+						if(threads.stream().allMatch(SearchThread::idle)) {
+							halt();
+						}
+						else {
+							hibernate(100);
+						}
 					}
 					else {
 						process(b);
@@ -125,7 +119,7 @@ public class SearchEngine<B> {
 				}
 			}
 			finally {
-				idle = true;
+				halt();
 			}
 		}
 	}

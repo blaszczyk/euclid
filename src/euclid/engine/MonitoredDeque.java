@@ -2,7 +2,7 @@ package euclid.engine;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 abstract class MonitoredDeque<B> {
 	
@@ -10,7 +10,7 @@ abstract class MonitoredDeque<B> {
 		return new MonitoredDeque<S>() {
 			@Override
 			S poll() {
-				return queue.pollLast();
+				return deque.pollLast();
 			}
 		};
 	}
@@ -19,27 +19,27 @@ abstract class MonitoredDeque<B> {
 		return new MonitoredDeque<S>() {
 			@Override
 			S poll() {
-				return queue.pollFirst();
+				return deque.pollFirst();
 			}
 		};
 	}
 
-	final Deque<B> queue = new ConcurrentLinkedDeque<>();
+	final Deque<B> deque = new ConcurrentLinkedDeque<>();
 
-	private final AtomicInteger totalCount = new AtomicInteger();
+	private final AtomicLong totalCount = new AtomicLong();
 	
 	abstract B poll();
 	
 	void enqueue(final B b) {
-		queue.addFirst(b);
+		deque.addFirst(b);
 		totalCount.incrementAndGet();
 	}
 	
 	int queuedCount() {
-		return queue.size();
+		return deque.size();
 	}
 	
-	int totalCount() {
+	long totalCount() {
 		return totalCount.get();
 	}
 

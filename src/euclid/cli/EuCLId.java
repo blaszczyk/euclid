@@ -54,7 +54,7 @@ public class EuCLId {
 		problem = new ProblemParser(params.problemFile()).parse();
 
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
-		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), params.threadCount(), params.dedupeDepth());
+		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), params.threadCount());
 		engine = new SearchEngine<>(algorithm, parameters);
 
 		monitor = new KpiMonitor(params.kpiInterval());				

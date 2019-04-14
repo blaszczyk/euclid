@@ -9,15 +9,12 @@ public class EngineParameters {
 	private final boolean depthFirst;
 	
 	private final int threadCount;
-	
-	private final int dedupeDepth;
 
-	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final int threadCount, final int dedupeDepth) {
+	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final int threadCount) {
 		this.id = id;
 		this.maxSolutions = maxSolutions;
 		this.depthFirst = depthFirst;
 		this.threadCount = threadCount;
-		this.dedupeDepth = dedupeDepth;
 	}
 
 	public String id() {
@@ -34,10 +31,6 @@ public class EngineParameters {
 
 	public int threadCount() {
 		return threadCount;
-	}
-
-	public int dedupeDepth() {
-		return dedupeDepth;
 	}
 
 }

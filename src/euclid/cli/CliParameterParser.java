@@ -15,8 +15,6 @@ public class CliParameterParser {
 	private static final String VAL_KPI_CSV = "csv";
 	private static final String VAL_KPI_OUT = "out";
 
-
-	private static final String KEY_DEDUPE_DEPTH = "dedupedepth";
 	private static final String KEY_THREAD_COUNT = "threads";
 	private static final String KEY_HELP = "help";
 
@@ -30,20 +28,18 @@ public class CliParameterParser {
 		if(getBooleanValue(KEY_HELP, false, false)) {
 			return CliParameter.HELP;
 		}
-		
+
 		final File file = getFileValue(KEY_FILE, true, true);
-		
+
 		final int kpiInterval = getIntValue(KEY_KPI_INTERVAL, false, 5000);
-		
+
 		final List<String> kpiWriters = getValues(KEY_KPI_WRITER, false, VAL_KPI_CSV);
 		final boolean kpiCsv = kpiWriters.contains(VAL_KPI_CSV);
 		final boolean kpiOut = kpiWriters.contains(VAL_KPI_OUT);
 		
-		final int dedupeDepth = getIntValue(KEY_DEDUPE_DEPTH, false, 0);
-		
 		final int threadCount = getIntValue(KEY_THREAD_COUNT, false, Runtime.getRuntime().availableProcessors());
 
-		return new CliParameter(file, kpiInterval, kpiCsv, kpiOut, dedupeDepth, threadCount);
+		return new CliParameter(file, kpiInterval, kpiCsv, kpiOut, threadCount);
 	}
 
 	private static Map<String, String> parseKeyValues(final String[] args) {
