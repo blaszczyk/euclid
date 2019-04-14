@@ -12,8 +12,11 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 	
 	final Problem problem;
 	
-	BoardSearch(final Problem problem) {
+	private final Prioritizer prioritizer;
+	
+	BoardSearch(final Problem problem, final Prioritizer prioritizer) {
 		this.problem = problem;
+		this.prioritizer = prioritizer;
 	}
 
 	@Override
@@ -30,7 +33,7 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 
 	@Override
 	public int maxPriority() {
-		return problem.required().points().size() + problem.required().curves().size();
+		return prioritizer.maxPriority();
 	}
 	
 	@Override
@@ -41,7 +44,7 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 		if(missingDepth(pointMisses, curveMisses) > problem.maxDepth() - depth) {
 			return -1;
 		}
-		return pointMisses + curveMisses;
+		return prioritizer.priotiry(b, pointMisses, curveMisses);
 	}
 
 	abstract int missingDepth(final int pointMisses, final int curveMisses);

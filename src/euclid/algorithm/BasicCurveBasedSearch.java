@@ -8,8 +8,8 @@ import euclid.sets.PointSet;
 
 public class BasicCurveBasedSearch extends CurveBasedSearch<Board> {
 	
-	public BasicCurveBasedSearch(final Problem problem) {
-		super(problem);
+	public BasicCurveBasedSearch(final Problem problem, final Prioritizer prioritizer) {
+		super(problem, prioritizer);
 	}
 	
 	@Override

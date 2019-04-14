@@ -11,8 +11,8 @@ import euclid.sets.CurveSet;
 
 public class AdvancedCurveBasedSearch extends BasicCurveBasedSearch {
 	
-	public AdvancedCurveBasedSearch(final Problem problem) {
-		super(problem);
+	public AdvancedCurveBasedSearch(final Problem problem, final Prioritizer prioritizer) {
+		super(problem, prioritizer);
 	}
 
 	@Override

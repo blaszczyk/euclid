@@ -10,9 +10,26 @@ public enum AlgorithmType {
 	CURVE_ADVANCED(AdvancedCurveBasedSearch::new),
 	CURVE_DEDUPE(CurveBasedDedupingSearch::new);
 
+	public enum PriorityType {
+		COARSE(CoarsePrioritizer::new),
+		FINE(FinePrioritizer::new);
+
+		@FunctionalInterface
+		interface PriorityCreator {
+			public Prioritizer create(final Problem problem);
+		}
+
+		final PriorityCreator creator;
+
+		private PriorityType(final PriorityCreator creator) {
+			this.creator = creator;
+		}
+
+	}
+
 	@FunctionalInterface
 	interface AlgorithmCreator {
-		public Algorithm<? extends Board> create(final Problem problem);
+		public Algorithm<? extends Board> create(final Problem problem, final Prioritizer priorizer);
 	}
 
 	private final AlgorithmCreator creator;
@@ -22,7 +39,8 @@ public enum AlgorithmType {
 	}
 
 	public Algorithm<? extends Board> create(final Problem problem) {
-		return creator.create(problem);
+		final Prioritizer prioritizer = problem.priority().creator.create(problem);
+		return creator.create(problem, prioritizer);
 	}
 	
 }

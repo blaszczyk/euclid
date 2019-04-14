@@ -10,8 +10,8 @@ import euclid.sets.PointSet;
 
 public class CurveBasedDedupingSearch extends CurveBasedSearch<CurveBuiltBoard> {
 	
-	public CurveBasedDedupingSearch(final Problem problem) {
-		super(problem);
+	public CurveBasedDedupingSearch(final Problem problem, final Prioritizer prioritizer) {
+		super(problem, prioritizer);
 	}
 	
 	@Override

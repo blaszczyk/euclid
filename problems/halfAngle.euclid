@@ -20,3 +20,4 @@ maxdepth = 4
 depthfirst = true
 maxsolutions = 1
 algorithm = point_based
+priority = coarse

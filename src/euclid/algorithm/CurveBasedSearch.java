@@ -13,8 +13,8 @@ import euclid.sets.PointSet;
 
 abstract class CurveBasedSearch<B extends Board> extends BoardSearch<B> {
 	
-	public CurveBasedSearch(final Problem problem) {
-		super(problem);
+	public CurveBasedSearch(final Problem problem, final Prioritizer prioritizer) {
+		super(problem, prioritizer);
 	}
 
 	@Override

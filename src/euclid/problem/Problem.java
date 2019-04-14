@@ -1,6 +1,7 @@
 package euclid.problem;
 
 import euclid.algorithm.AlgorithmType;
+import euclid.algorithm.AlgorithmType.PriorityType;
 import euclid.sets.Board;
 
 public class Problem {
@@ -11,14 +12,17 @@ public class Problem {
 	private final boolean depthFirst;
 	private final int maxSolutions;
 	private final AlgorithmType algorithm;
+	private final PriorityType priority;
 	
-	public Problem(final Board initial, final Board required, final int maxDepth, final boolean depthFirst, final int maxSolutions, final AlgorithmType algorithm) {
+	public Problem(final Board initial, final Board required, final int maxDepth, final boolean depthFirst, 
+			final int maxSolutions, final AlgorithmType algorithm, final PriorityType priority) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
 		this.depthFirst = depthFirst;
 		this.maxSolutions = maxSolutions;
 		this.algorithm = algorithm;
+		this.priority = priority;
 	}	
 
 	public final Board initial() {
@@ -45,4 +49,7 @@ public class Problem {
 		return algorithm;
 	}
 	
+	public final PriorityType priority() {
+		return priority;
+	}
 }

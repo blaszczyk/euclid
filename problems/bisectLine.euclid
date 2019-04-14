@@ -25,3 +25,4 @@ maxDepth = 3
 depthFirst = true
 maxSolutions = 3
 algorithm = curve_based
+priority = coarse

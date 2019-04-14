@@ -12,8 +12,8 @@ import euclid.sets.PointSet;
 
 public class PointBasedSearch extends BoardSearch<Board> {
 	
-	public PointBasedSearch(final Problem problem) {
-		super(problem);
+	public PointBasedSearch(final Problem problem, final Prioritizer prioritizer) {
+		super(problem, prioritizer);
 	}
 	
 	@Override
