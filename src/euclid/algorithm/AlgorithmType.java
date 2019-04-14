@@ -11,8 +11,10 @@ public enum AlgorithmType {
 	CURVE_DEDUPE(CurveBasedDedupingSearch::new);
 
 	public enum PriorityType {
+		NO(NoPrioritizer::new),
 		COARSE(CoarsePrioritizer::new),
-		FINE(FinePrioritizer::new);
+		FINE(FinePrioritizer::new),
+		FINEST(FinestPrioritizer::new);
 
 		@FunctionalInterface
 		interface PriorityCreator {
