@@ -5,20 +5,16 @@ import java.util.List;
 
 import euclid.algebra.Algebra;
 import euclid.geometry.*;
-import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
 abstract class CurveBasedSearch<B extends Board> extends BoardSearch<B> {
-	
-	public CurveBasedSearch(final Problem problem, final Prioritizer prioritizer) {
-		super(problem, prioritizer);
-	}
 
 	@Override
 	public List<B> nextGeneration(final B board) {
-		final CurveSet successors = successors(board);
+		final CurveSet successors = new CurveSet(curveComparator);
+		addSuccessors(board, successors);
 		successors.removeAll(board.curves());
 		final List<B> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
@@ -42,7 +38,7 @@ abstract class CurveBasedSearch<B extends Board> extends BoardSearch<B> {
 		return points;
 	}
 
-	abstract CurveSet successors(final B board);
+	abstract void addSuccessors(final B board, final CurveSet successors);
 
 	abstract B next(final B parent, final Curve successor);
 	

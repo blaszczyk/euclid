@@ -1,23 +1,29 @@
 package euclid.geometry;
 
-public interface Element<T extends Element<T>> extends Comparable<T> {
+public abstract class Element<E extends Element<E>> implements Comparable<E> {
 	
-	public boolean near(final T other);
+	public abstract boolean near(final E other);
 	
-	public default boolean greater(final T other) {
+	public boolean greater(final E other) {
 		return compareTo(other) > 0;
 	}
 	
-	public default boolean greaterEq(final T other) {
+	public boolean greaterEq(final E other) {
 		return compareTo(other) >= 0;
 	}
 	
-	public default boolean less(final T other) {
+	public boolean less(final E other) {
 		return compareTo(other) < 0;
 	}
 	
-	public default boolean lessEq(final T other) {
+	public boolean lessEq(final E other) {
 		return compareTo(other) <= 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(final Object obj) {
+		return near((E) obj);
 	}
 	
 }

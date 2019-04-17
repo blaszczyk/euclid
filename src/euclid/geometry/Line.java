@@ -1,6 +1,6 @@
 package euclid.geometry;
 
-public class Line extends AbstractElement<Curve> implements Curve {
+public class Line extends Curve {
 	
 	private final Point normal;
 	private final Number offset;
@@ -91,10 +91,10 @@ public class Line extends AbstractElement<Curve> implements Curve {
 		if(line.isSegment()) {
 			return -1;
 		}
-		return doCompareTo(line);
+		return compareAsLine(line);
 	}
 	
-	int doCompareTo(final Line other) {
+	public int compareAsLine(final Line other) {
 		final int compNormal = normal.compareTo(other.normal);
 		return compNormal != 0 ? compNormal : offset.compareTo(other.offset);
 	}

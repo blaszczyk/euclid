@@ -1,6 +1,6 @@
 package euclid.geometry;
 
-public class Point extends AbstractElement<Point> implements Element<Point> {
+public class Point extends Element<Point> {
 	
 	private final Number x;
 	private final Number y;

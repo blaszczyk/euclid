@@ -2,6 +2,7 @@ package euclid.sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -15,6 +16,10 @@ abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S
 
 	ElementSet(final Collection<? extends E> set) {
 		super(set);
+	}
+
+	ElementSet(final Comparator<E> comparator) {
+		super(comparator);
 	}
 
 	public boolean containsNot(final E e) {

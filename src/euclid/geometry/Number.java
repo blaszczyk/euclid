@@ -2,7 +2,7 @@ package euclid.geometry;
 
 import java.text.DecimalFormat;
 
-public class Number extends AbstractElement<Number> {
+public class Number extends Element<Number> {
 
 	public static final Number M_TWO = new Number(-2);
 	public static final Number M_ONE = new Number(-1);

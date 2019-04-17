@@ -1,6 +1,6 @@
 package euclid.geometry;
 
-public class Circle extends AbstractElement<Curve> implements Curve {
+public class Circle extends Curve {
 	
 	private final Point center;
 	private final Number radiusSquare;

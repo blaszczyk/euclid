@@ -3,26 +3,19 @@ package euclid.algorithm;
 import euclid.algebra.Algebra;
 import euclid.geometry.Curve;
 import euclid.geometry.Point;
-import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
-public class FinePrioritizer<B extends Board> implements Prioritizer {
-	
-	private final Problem problem;
-
-	FinePrioritizer(Problem problem) {
-		this.problem = problem;
-	}
+class FinePrioritizer extends Prioritizer {
 
 	@Override
-	public int maxPriority() {
+	int maxPriority() {
 		return 2 * (problem.required().points().size() + problem.required().curves().size());
 	}
 
 	@Override
-	public int priotiry(final Board b, final int pointMisses, final int curveMisses) {
+	int priotiry(final Board b, final int pointMisses, final int curveMisses) {
 		final int nearPointMisses = nearPointMisses(b);
 		final int nearCurveMisses = nearCurveMisses(b);
 		return pointMisses + nearPointMisses + curveMisses + nearCurveMisses;

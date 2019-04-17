@@ -1,6 +1,7 @@
 package euclid.sets;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 import euclid.geometry.Curve;
 
@@ -15,7 +16,11 @@ public class CurveSet extends ElementSet<Curve, CurveSet> {
 	public CurveSet(final Collection<? extends Curve> init) {
 		super(init);
 	}
-	
+
+	public CurveSet(final Comparator<Curve> comparator) {
+		super(comparator);
+	}
+
 	public CurveSet(final Curve... curves) {
 		for(final Curve c : curves) {
 			add(c);

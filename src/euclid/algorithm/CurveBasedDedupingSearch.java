@@ -2,17 +2,12 @@ package euclid.algorithm;
 
 import euclid.algebra.Algebra;
 import euclid.geometry.*;
-import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveBuiltBoard;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
 public class CurveBasedDedupingSearch extends CurveBasedSearch<CurveBuiltBoard> {
-	
-	public CurveBasedDedupingSearch(final Problem problem, final Prioritizer prioritizer) {
-		super(problem, prioritizer);
-	}
 	
 	@Override
 	public CurveBuiltBoard decorateFirst(final Board first) {
@@ -27,8 +22,8 @@ public class CurveBasedDedupingSearch extends CurveBasedSearch<CurveBuiltBoard> 
 		return new CurveBuiltBoard(points, parent.curves().copy(), successor, parent);
 	}
 	
-	CurveSet successors(final CurveBuiltBoard board) {
-		final CurveSet successors = new CurveSet();
+	@Override
+	void addSuccessors(final CurveBuiltBoard board, final CurveSet successors) {
 		final PointSet lastPoints = board.points().copy();
 		final Board parent = board.parent();
 		if(parent != null) {
@@ -49,7 +44,6 @@ public class CurveBasedDedupingSearch extends CurveBasedSearch<CurveBuiltBoard> 
 		forEachDistinctPair(lastPoints.asList(), (p1,p2) -> {
 			addAllCurves(p1, p2, successors);
 		});
-		return successors;
 	}
 
 	private static void addIfGreater(final Curve newCurve, final Curve lastCurve, final CurveSet curves) {

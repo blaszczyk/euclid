@@ -1,11 +1,18 @@
 package euclid.algorithm;
 
+import euclid.problem.Problem;
 import euclid.sets.Board;
 
-public interface Prioritizer {
+abstract class Prioritizer {
+
+	Problem problem;
 	
-	public int priotiry(final Board b, final int pointMisses, final int curveMisses);
+	void init(final Problem problem) {
+		this.problem = problem;
+	}
 	
-	public int maxPriority();
+	abstract int priotiry(final Board b, final int pointMisses, final int curveMisses);
+	
+	abstract int maxPriority();
 
 }

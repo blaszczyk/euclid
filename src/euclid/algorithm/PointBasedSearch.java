@@ -4,16 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import euclid.geometry.*;
-import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
 public class PointBasedSearch extends BoardSearch<Board> {
-	
-	public PointBasedSearch(final Problem problem, final Prioritizer prioritizer) {
-		super(problem, prioritizer);
-	}
 	
 	@Override
 	public Board decorateFirst(final Board first) {

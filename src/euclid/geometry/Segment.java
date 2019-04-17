@@ -61,7 +61,7 @@ public class Segment extends Line {
 		};
 		final Line line = other.asLine();
 		if(line.isSegment()) {
-			final int compLine = doCompareTo(line);
+			final int compLine = compareAsLine(line);
 			if(compLine!= 0) {
 				return compLine;
 			}

@@ -1,6 +1,7 @@
 package euclid.problem;
 
 import euclid.algorithm.AlgorithmType;
+import euclid.algorithm.AlgorithmType.CurveIdentification;
 import euclid.algorithm.AlgorithmType.PriorityType;
 import euclid.sets.Board;
 
@@ -14,9 +15,11 @@ public class Problem {
 	private final int maxSolutions;
 	private final AlgorithmType algorithm;
 	private final PriorityType priority;
+	private final CurveIdentification curveIdentification;
 	
 	public Problem(final Board initial, final Board required, final int maxDepth, final boolean depthFirst, 
-			final boolean shuffle, final int maxSolutions, final AlgorithmType algorithm, final PriorityType priority) {
+			final boolean shuffle, final int maxSolutions, final AlgorithmType algorithm, final PriorityType priority,
+			final CurveIdentification curveIdentification) {
 		this.initial = initial;
 		this.required = required;
 		this.maxDepth = maxDepth;
@@ -25,6 +28,7 @@ public class Problem {
 		this.maxSolutions = maxSolutions;
 		this.algorithm = algorithm;
 		this.priority = priority;
+		this.curveIdentification = curveIdentification;
 	}	
 
 	public final Board initial() {
@@ -57,5 +61,9 @@ public class Problem {
 	
 	public final PriorityType priority() {
 		return priority;
+	}
+
+	public final CurveIdentification curveIdentification() {
+		return curveIdentification;
 	}
 }

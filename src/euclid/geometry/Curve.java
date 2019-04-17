@@ -1,20 +1,20 @@
 package euclid.geometry;
 
-public interface Curve extends Element<Curve> {
+public abstract class Curve extends Element<Curve> {
 	
-	default public boolean isLine() {
+	public boolean isLine() {
 		return false;
 	};
 	
-	default public boolean isCircle() {
+	public boolean isCircle() {
 		return false;
 	}
 
-	default public Line asLine() {
+	public Line asLine() {
 		throw new ClassCastException(this + " is not a line");
 	}
 	
-	default public Circle asCircle() {
+	public Circle asCircle() {
 		throw new ClassCastException(this + " is not a circle");
 	}
 }

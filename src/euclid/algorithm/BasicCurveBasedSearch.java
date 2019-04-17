@@ -1,16 +1,11 @@
 package euclid.algorithm;
 
 import euclid.geometry.*;
-import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
 public class BasicCurveBasedSearch extends CurveBasedSearch<Board> {
-	
-	public BasicCurveBasedSearch(final Problem problem, final Prioritizer prioritizer) {
-		super(problem, prioritizer);
-	}
 	
 	@Override
 	public Board decorateFirst(final Board first) {
@@ -20,8 +15,8 @@ public class BasicCurveBasedSearch extends CurveBasedSearch<Board> {
 	}
 
 	@Override
-	CurveSet successors(final Board board) {
-		return addAllCurves(board.points(), new CurveSet());
+	void addSuccessors(final Board board, final CurveSet successors) {
+		addAllCurves(board.points(), successors);
 	}
 
 	@Override

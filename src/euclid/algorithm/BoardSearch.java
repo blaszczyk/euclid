@@ -1,5 +1,6 @@
 package euclid.algorithm;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -10,13 +11,16 @@ import euclid.sets.*;
 
 abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 	
-	final Problem problem;
+	Problem problem;
 	
-	private final Prioritizer prioritizer;
+	private Prioritizer prioritizer;
 	
-	BoardSearch(final Problem problem, final Prioritizer prioritizer) {
+	Comparator<Curve> curveComparator;
+	
+	void init(final Problem problem, final Prioritizer prioritizer, final Comparator<Curve> curveComparator) {
 		this.problem = problem;
 		this.prioritizer = prioritizer;
+		this.curveComparator = curveComparator;
 	}
 
 	@Override
@@ -84,7 +88,7 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 		});
 		return points;
 	}
-	
+
 	<E> void forEachDistinctPair(final List<E> es, final BiConsumer<E, E> consumer ) {
 		for(int i = 1; i < es.size(); i++) {
 			for(int j = 0; j < i; j++) {

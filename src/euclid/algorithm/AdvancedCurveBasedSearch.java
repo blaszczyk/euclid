@@ -5,19 +5,14 @@ import java.util.List;
 
 import euclid.algebra.AdvancedAlgebra;
 import euclid.geometry.*;
-import euclid.problem.Problem;
 import euclid.sets.Board;
 import euclid.sets.CurveSet;
 
 public class AdvancedCurveBasedSearch extends BasicCurveBasedSearch {
-	
-	public AdvancedCurveBasedSearch(final Problem problem, final Prioritizer prioritizer) {
-		super(problem, prioritizer);
-	}
 
 	@Override
-	CurveSet successors(final Board board) {
-		final CurveSet successors = super.successors(board);
+	void addSuccessors(final Board board, final CurveSet successors) {
+		super.addSuccessors(board, successors);
 		final List<Line> lines = pickLines(board.curves());
 		final List<Point> points = board.points().asList();
 		
@@ -33,8 +28,6 @@ public class AdvancedCurveBasedSearch extends BasicCurveBasedSearch {
 				successors.addNonNull(AdvancedAlgebra.parallel(p, l));
 			}
 		}
-		
-		return successors;
 	}
 
 	private static List<Line> pickLines(final CurveSet curves) {

@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import euclid.algebra.Algebra;
 import euclid.algorithm.AlgorithmType;
+import euclid.algorithm.AlgorithmType.CurveIdentification;
 import euclid.algorithm.AlgorithmType.PriorityType;
 import euclid.geometry.Curve;
 import euclid.geometry.Number;
@@ -33,9 +34,10 @@ public class ProblemParser {
 	public static final String KEY_MAX_SOLUTIONS = "maxsolutions";
 	public static final String KEY_ALGORITHM = "algorithm";
 	public static final String KEY_PRIORITY = "priority";
+	public static final String KEY_CURVE_IDENTIFIACTION = "curveidentification";
 	
 	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_MAX_DEPTH, KEY_DEPTH_FIRST,
-			KEY_SHUFFLE, KEY_ALGORITHM, KEY_PRIORITY, KEY_MAX_SOLUTIONS);
+			KEY_SHUFFLE, KEY_ALGORITHM, KEY_PRIORITY, KEY_CURVE_IDENTIFIACTION, KEY_MAX_SOLUTIONS);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
@@ -102,9 +104,10 @@ public class ProblemParser {
 		final boolean shuffle = Boolean.parseBoolean(getValue(KEY_SHUFFLE));
 		final AlgorithmType algorithm = AlgorithmType.valueOf(getValue(KEY_ALGORITHM).toUpperCase());
 		final PriorityType priority = PriorityType.valueOf(getValue(KEY_PRIORITY).toUpperCase());
+		final CurveIdentification curveIdentification = CurveIdentification.valueOf(getValue(KEY_CURVE_IDENTIFIACTION).toUpperCase());
 		final int maxSolutions = Integer.parseInt(getValue(KEY_MAX_SOLUTIONS));
 
-		return new Problem(initial, required, maxDepth, depthFirst, shuffle, maxSolutions, algorithm, priority);
+		return new Problem(initial, required, maxDepth, depthFirst, shuffle, maxSolutions, algorithm, priority, curveIdentification);
 	}
 
 	private void validateKeywords() {
