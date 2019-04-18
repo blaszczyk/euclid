@@ -6,6 +6,9 @@ public class Line extends Curve {
 	private final Number offset;
 
 	public Line(final Point normal, final Number offset) {
+		if(normal.near(Point.ORIGIN)) {
+			throw new IllegalArgumentException("normal must not be zero");
+		}
 		final Number norm = norm(normal, offset);
 		this.normal = normal.div(norm);
 		this.offset = offset.div(norm);

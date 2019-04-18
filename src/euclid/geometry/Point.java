@@ -2,6 +2,8 @@ package euclid.geometry;
 
 public class Point extends Element<Point> {
 	
+	public static final Point ORIGIN = new Point(Number.ZERO, Number.ZERO);
+	
 	private final Number x;
 	private final Number y;
 	

@@ -6,6 +6,9 @@ public class Circle extends Curve {
 	private final Number radiusSquare;
 
 	public Circle(final Point center, final Number radiusSquare) {
+		if(radiusSquare.less(Number.ZERO)) {
+			throw new IllegalArgumentException("radius square must be positive");
+		}
 		this.center = center;
 		this.radiusSquare = radiusSquare;
 	}

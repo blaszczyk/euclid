@@ -75,7 +75,7 @@ public class Number extends Element<Number> {
 	
 	@Override
 	public String toString() {
-		return new DecimalFormat("#.######").format(value);
+		return new DecimalFormat("#.##########").format(value);
 	}
 	
 	@Override

@@ -48,6 +48,22 @@ public class AdvancedAlgebra {
 		return new CurveSet(new Line(n1, o1), new Line(n2, o2));
 	}
 
+	public static Curve angleBisector(final Point p1, final Point p2, final Point center) {
+		if(center.near(p1) || center.near(p2)) {
+			return null;
+		}
+		final Point n1 = p1.sub(center).orth();
+		final Point n2 = p2.sub(center).orth();
+		final Point n1n = n1.div(n1.square().root());
+		final Point n2n = n2.div(n2.square().root());
+		Point normal = n1n.add(n2n);
+		if(normal.near(Point.ORIGIN)) {
+			normal = n1n.orth();
+		}
+		final Number offset = normal.mul(center);
+		return new Line(normal, offset);
+	}
+
 	public static Curve nonCollapsingCompass(final Point p1, final Point p2, final Point center) {
 		return new Circle(center, p1.sub(p2).square());
 	}

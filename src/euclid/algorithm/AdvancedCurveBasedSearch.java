@@ -31,6 +31,7 @@ public class AdvancedCurveBasedSearch extends BasicCurveBasedSearch {
 		forEachDistinctPair(points, (p1,p2) -> {
 			for(final Point center : points) {
 				successors.add(AdvancedAlgebra.nonCollapsingCompass(p1, p2, center));
+				successors.addNonNull(AdvancedAlgebra.angleBisector(p1, p2, center));
 			}
 		});
 	}
