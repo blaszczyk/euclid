@@ -2,6 +2,7 @@ package euclid.algebra;
 
 import java.util.List;
 
+import euclid.geometry.Circle;
 import euclid.geometry.Curve;
 import euclid.geometry.Line;
 import euclid.geometry.Number;
@@ -45,6 +46,10 @@ public class AdvancedAlgebra {
 		final Number o1 = n1.mul(intersection);
 		final Number o2 = n2.mul(intersection);
 		return new CurveSet(new Line(n1, o1), new Line(n2, o2));
+	}
+
+	public static Curve nonCollapsingCompass(final Point p1, final Point p2, final Point center) {
+		return new Circle(center, p1.sub(p2).square());
 	}
 
 }

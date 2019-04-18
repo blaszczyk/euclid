@@ -72,8 +72,8 @@ public class EuCLId {
 	}
 
 	private void process() {
-		monitor.start();
 		engine.start();
+		monitor.start();
 		engine.join();
 		final Collection<? extends Board> solutions = engine.solutions();
 		new ResultPrinter(problem).printAll(solutions);

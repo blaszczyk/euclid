@@ -28,6 +28,11 @@ public class AdvancedCurveBasedSearch extends BasicCurveBasedSearch {
 				successors.addNonNull(AdvancedAlgebra.parallel(p, l));
 			}
 		}
+		forEachDistinctPair(points, (p1,p2) -> {
+			for(final Point center : points) {
+				successors.add(AdvancedAlgebra.nonCollapsingCompass(p1, p2, center));
+			}
+		});
 	}
 
 	private static List<Line> pickLines(final CurveSet curves) {

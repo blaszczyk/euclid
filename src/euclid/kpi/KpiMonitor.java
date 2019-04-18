@@ -36,6 +36,7 @@ public class KpiMonitor {
 			return;
 		}
 		startTime = System.currentTimeMillis();
+		fetchAndProcessReport();
 		thread.start();
 	}
 
