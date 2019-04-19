@@ -60,6 +60,9 @@ public class Segment extends Line {
 			return -1;
 		};
 		final Line line = other.asLine();
+		if(line.isRay()) {
+			return 1;
+		}
 		if(line.isSegment()) {
 			final int compLine = compareAsLine(line);
 			if(compLine!= 0) {

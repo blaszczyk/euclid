@@ -5,6 +5,7 @@ import euclid.geometry.Curve;
 import euclid.geometry.Line;
 import euclid.geometry.Number;
 import euclid.geometry.Point;
+import euclid.geometry.Ray;
 import euclid.geometry.Segment;
 import euclid.sets.PointSet;
 
@@ -26,6 +27,14 @@ public class Algebra {
 		final Point normal = p1.sub(p2).orth();
 		final Number offset = normal.mul(p1);
 		return new Line(normal, offset);
+	}
+	
+	public static Curve ray(final Point p1, final Point p2) {
+		final Point normal = p1.sub(p2).orth();
+		final Number offset = normal.mul(p1);
+		final Number end = normal.cross(p1);
+		final boolean orientation = normal.cross(p2).greater(end);
+		return new Ray(normal, offset, end, orientation);
 	}
 	
 	public static Curve segment(final Point p1, final Point p2) {
@@ -62,6 +71,11 @@ public class Algebra {
 	
 	static boolean doesContain(final Point point, final Line line) {
 		if(point.mul(line.normal()).near(line.offset())) {
+			if(line.isRay()) {
+				final Ray ray = line.asRay();
+				final Number position = line.normal().cross(point);
+				return position.greaterEq(ray.end()) == ray.orientation();
+			}
 			if(line.isSegment()) {
 				final Segment segment = line.asSegment();
 				final Number position = line.normal().cross(point);
@@ -84,8 +98,8 @@ public class Algebra {
 		final Number x = l1.offset().mul(l2.normal().y()).sub(l2.offset().mul(l1.normal().y())).div(det);
 		final Number y = l2.offset().mul(l1.normal().x()).sub(l1.offset().mul(l2.normal().x())).div(det);
 		final Point point = new Point(x, y);
-		if((l1.isSegment() && !doesContain(point, l1))
-			|| (l2.isSegment() && !doesContain(point, l2))) {
+		if((l1.hasEnds() && !doesContain(point, l1))
+			|| (l2.hasEnds() && !doesContain(point, l2))) {
 			return PointSet.EMPTY;
 		}
 		return new PointSet(point);
@@ -93,7 +107,7 @@ public class Algebra {
 
 	static PointSet doIntersect(final Line line, final Circle circle) {
 		final PointSet result = new PointSet();
-		final boolean isLine = !line.isSegment();
+		final boolean hasNoEnds = !line.hasEnds();
 		final Point normal = line.normal();
 		final Point distance = normal.mul(line.offset().sub(normal.mul(circle.center())));
 		final Number discriminant = circle.radiusSquare().sub(distance.square());
@@ -103,16 +117,16 @@ public class Algebra {
 			final Point separation = normal.orth().mul(discriminant.root());
 			final Point p1 = midpoint.add(separation);
 			final Point p2 = midpoint.sub(separation);
-			if(isLine || doesContain(p1, line)) {
+			if(hasNoEnds || doesContain(p1, line)) {
 				result.add(p1);
 			}
-			if(isLine || doesContain(p2, line)) {
+			if(hasNoEnds || doesContain(p2, line)) {
 				result.add(p2);
 			}
 		}
 		else if(sign == 0) {
 			final Point point = circle.center().add(distance);
-			if(isLine || doesContain(point, line)) {
+			if(hasNoEnds || doesContain(point, line)) {
 				result.add(circle.center().add(distance));
 			}
 		}

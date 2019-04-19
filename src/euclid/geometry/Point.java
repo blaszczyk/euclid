@@ -51,6 +51,10 @@ public class Point extends Element<Point> {
 	public Point orth() {
 		return new Point(y.negate(), x);
 	}
+
+	public Point negate() {
+		return new Point(x.negate(), y.negate());
+	}
 	
 	public boolean colinear(final Point other) {
 		return x.mul(other.y).equals(y.mul(other.x));

@@ -27,8 +27,8 @@ public enum AlgorithmType {
 	};
 	
 	public enum CurveIdentification {
-		SEGMENT_IS_NOT_LINE((c1,c2) -> c1.compareTo(c2)),
-		SEGMENT_IS_LINE((c1,c2) -> {
+		LINE_TYPES_DISTINCT((c1,c2) -> c1.compareTo(c2)),
+		LINE_TYPES_EQUAL((c1,c2) -> {
 			if(c1.isLine() && c2.isLine()) {
 				return c1.asLine().compareAsLine(c2.asLine());
 			}

@@ -50,6 +50,10 @@ public class Line extends Curve {
 	public Line asLine() {
 		return this;
 	}
+	
+	public boolean hasEnds() {
+		return isRay() || isSegment();
+	}
 
 	public boolean isSegment() {
 		return false;
@@ -58,12 +62,20 @@ public class Line extends Curve {
 	public Segment asSegment() {
 		throw new ClassCastException(this + " is not a segment");
 	}
+
+	public boolean isRay() {
+		return false;
+	}
+
+	public Ray asRay() {
+		throw new ClassCastException(this + " is not a ray");
+	}
 	
 	@Override
 	public boolean near(final Curve other) {
 		if(other.isLine()) {
 			final Line line = other.asLine();
-			if(line.isSegment()) {
+			if(line.hasEnds()) {
 				return false;
 			}
 			return isNear(line);
@@ -91,7 +103,7 @@ public class Line extends Curve {
 			return -1;
 		};
 		final Line line = other.asLine();
-		if(line.isSegment()) {
+		if(line.hasEnds()) {
 			return -1;
 		}
 		return compareAsLine(line);

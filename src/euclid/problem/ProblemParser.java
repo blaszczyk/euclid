@@ -49,7 +49,7 @@ public class ProblemParser {
 
 	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\,]+)";
 	private static final Pattern CURVE_PATTERN = Pattern.compile(
-			"([cls]\\()" // declaration
+			"([clrs]\\()" // declaration
 			+ PT_PTRN // point
 			+ "(\\;)" // separator
 			+ PT_PTRN // point
@@ -127,7 +127,7 @@ public class ProblemParser {
 			if(value.matches("p\\(.*")) {
 				points.put(key, parsePoint(value));
 			}
-			else if(value.matches("[cls]\\(.*")) {
+			else if(value.matches("[clrs]\\(.*")) {
 				curves.put(key, parseCurve(value));
 			}
 			else {
@@ -167,14 +167,27 @@ public class ProblemParser {
 			final char type = matcher.group(1).charAt(0);
 			final Point x = parsePoint(matcher.group(2));
 			final Point y = parsePoint(matcher.group(4));
-			final Curve curve = (type == 'l') ? Algebra.line(x,y) : 
-				( (type == 's') ? Algebra.segment(x, y) : Algebra.circle(x,y) );
+			final Curve curve = createCurve(type, x, y);
 			cacheByValue(curve, value, curves);
 			return curve;
 		}
 		else {
 			throw new ProblemParserException("invalid or unknown curve:'%s'", value);
 		}
+	}
+	
+	private static Curve createCurve(final char type, final Point x, final Point y) {
+		switch(type) {
+		case 'l':
+			return Algebra.line(x, y);
+		case 'r':
+			return Algebra.ray(x, y);
+		case 's':
+			return Algebra.segment(x, y);
+		case 'c':
+			return Algebra.circle(x, y);
+		}
+		throw new IllegalArgumentException("illegal curve type " + type);
 	}
 
 	private Point parsePoint(final String value) {
