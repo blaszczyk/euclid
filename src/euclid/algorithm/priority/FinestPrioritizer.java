@@ -1,4 +1,4 @@
-package euclid.algorithm;
+package euclid.algorithm.priority;
 
 import euclid.algebra.Algebra;
 import euclid.geometry.Curve;
@@ -7,15 +7,15 @@ import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
-class FinestPrioritizer extends Prioritizer {
+public class FinestPrioritizer extends Prioritizer {
 
 	@Override
-	int maxPriority() {
+	public int maxPriority() {
 		return 3 * (problem.required().points().size() + problem.required().curves().size());
 	}
 
 	@Override
-	int priotiry(final Board b, final int pointMisses, final int curveMisses) {
+	public int priotiry(final Board b, final int pointMisses, final int curveMisses) {
 		final int nearPointMisses = nearPointMisses(b);
 		final int nearCurveMisses = nearCurveMisses(b);
 		return pointMisses + nearPointMisses + curveMisses + nearCurveMisses;

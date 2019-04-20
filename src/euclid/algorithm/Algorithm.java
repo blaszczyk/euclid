@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * contract:
  * <br/>
- * priority(b) &lt;= maxPriority()
+ * priority(b) &lt;= maxPriority() , = 0 for solutions, &lt; 0 for dead ends
  * <br/>
  * nextGeneration(b1).contains(b2) implies depth(b2) = depth(b1) + 1
  * 

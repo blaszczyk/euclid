@@ -3,6 +3,7 @@ package euclid.algorithm;
 import java.util.Comparator;
 import java.util.function.Supplier;
 
+import euclid.algorithm.priority.*;
 import euclid.geometry.Curve;
 import euclid.problem.Problem;
 import euclid.sets.Board;
@@ -17,7 +18,9 @@ public enum AlgorithmType {
 		NO(NoPrioritizer::new),
 		COARSE(CoarsePrioritizer::new),
 		FINE(FinePrioritizer::new),
-		FINEST(FinestPrioritizer::new);
+		FINEST(FinestPrioritizer::new),
+		FINE_PLUS_DEPTH(FinePlusDepth::new),
+		FINEST_PLUS_DEPTH(FinestPlusDepth::new);
 
 		final Supplier<Prioritizer> constructor;
 		private PriorityType(final Supplier<Prioritizer> constructor) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import euclid.algebra.Algebra;
+import euclid.algorithm.priority.Prioritizer;
 import euclid.geometry.*;
 import euclid.problem.Problem;
 import euclid.sets.*;
@@ -45,6 +46,9 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 		final int depth = depth(b);
 		final int curveMisses = curveMisses(b);
 		final int pointMisses = pointMisses(b);
+		if(pointMisses + curveMisses == 0) {
+			return 0;
+		}
 		if(missingDepth(pointMisses, curveMisses) > problem.maxDepth() - depth) {
 			return -1;
 		}
