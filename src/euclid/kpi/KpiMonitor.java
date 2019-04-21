@@ -42,16 +42,17 @@ public class KpiMonitor {
 
 	public void halt() {
 		halt = true;
+		fetchAndProcessReport();
 	}
 
 	private void run() {
-		while(!halt) {
-			try {
-				Thread.sleep(interval);
+		try {
+			while(!halt) {
 				fetchAndProcessReport();
+				Thread.sleep(interval);
 			}
-			catch(InterruptedException e) {
-			}
+		}
+		catch(InterruptedException e) {
 		}
 	}
 	

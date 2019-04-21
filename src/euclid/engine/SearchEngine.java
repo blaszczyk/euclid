@@ -32,7 +32,7 @@ public class SearchEngine<B> {
 		this.algorithm = algorithm;
 		this.parameters = parameters;
 		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst());
-		kpiProvider = new EngineKpiProvider(solutions::size);
+		kpiProvider = new EngineKpiProvider();
 		threads = IntStream.range(0, parameters.threadCount())
 				.mapToObj(i -> String.format("search-%s-%d", parameters.id(), i))
 				.map(SearchThread::new)
@@ -76,24 +76,23 @@ public class SearchEngine<B> {
 
 	private void process(final B parent) {
 		final int depth = algorithm.depth(parent);
-		final List<B> nextGeneration = algorithm.nextGeneration(parent);
+		final PrioritizedGeneration<B> generation = new PrioritizedGeneration<>(algorithm.maxPriority());
+		final List<B> candidates = algorithm.nextGeneration(parent);
 		if(parameters.shuffle()) {
-			Collections.shuffle(nextGeneration);
+			Collections.shuffle(candidates);
 		}
-		kpiProvider.reportProcessed(depth, nextGeneration.size());
-		for(final B candidate : nextGeneration) {
+		for(final B candidate : candidates) {
 			final int priority = algorithm.priority(candidate);
-			kpiProvider.reportCandidate(priority);
 			if(priority == 0) {
 				solutions.add(candidate);
 				if(solutions.size() >= parameters.maxSolutions()) {
 					halt();
 				}
 			}
-			else if(priority > 0) {
-				queues.enqueue(candidate, priority - 1);
-			}
+			generation.add(candidate, priority-1);
 		}
+		kpiProvider.report(depth, generation);
+		queues.enqueue(generation);
 	}
 
 	private class SearchThread extends Thread {

@@ -26,14 +26,6 @@ public class PriorityQueuePool<B> implements KpiReporter{
 		}
 		return null;
 	}
-	
-	void enqueue(final B b, final int priority) {
-		if(priority < 0 || priority >= queues.size()) {
-			final String message = String.format("illegal priority %d for element: %s", priority, b);
-			throw new IndexOutOfBoundsException(message);
-		}
-		queues.get(priority).enqueue(b);
-	}
 
 	@Override
 	public void fetchReport(final KpiCollector collector) {
@@ -49,6 +41,12 @@ public class PriorityQueuePool<B> implements KpiReporter{
 	
 	void cleanUp() {
 		queues.clear();
+	}
+
+	public void enqueue(final PrioritizedGeneration<B> generation) {
+		for(int priority = 0; priority < queues.size(); priority++) {
+			queues.get(priority).enqueue(generation.get(priority));
+		}
 	}
 
 }
