@@ -1,0 +1,20 @@
+lu = l(p(-1,-1);p(1,-1))
+lo = l(p(-1, 1);p(1, 1))
+
+a = pi + (rand - 0.5)
+
+pd1 = p(cos(a),sin(a))
+pd2 = p(cos(a) + sin(a), sin(a) - cos(a))
+ld = l(pd1;pd2)
+
+c = c(p(0,0);p(1,0))
+
+initial=lu : lo  : ld
+required=c
+maxdepth=6
+depthfirst=false
+shuffle=false
+algorithm=CURVE_DEDUPE
+priority=FINEST
+curveidentification=LINE_TYPES_EQUAL
+maxsolutions=1

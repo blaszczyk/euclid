@@ -46,5 +46,9 @@ public class PriorityQueuePool<B> implements KpiReporter{
 			collector.add("total-" + i, totalCount);
 		}
 	}
+	
+	void cleanUp() {
+		queues.clear();
+	}
 
 }

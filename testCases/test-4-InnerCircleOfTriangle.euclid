@@ -1,0 +1,33 @@
+a1 = pi/3 + 0.15
+a2 = pi/3 - 0.25
+
+p1 = p( -1, 0)
+p2 = p(  1, 0)
+
+h = 2 / ( 1/tan(a1) + 1/tan(a2) )
+h2 = 2 / ( 1/tan(a1/2) + 1/tan(a2/2) )
+
+p3 = p( h / tan(a1) - 1 , h)
+
+pc = p( h2 / tan(a1/2) - 1 , h2)
+pu = p( h2 / tan(a1/2) - 1 , 0)
+c = c(pc;pu)
+
+l12 = s(p1;p2)
+l23 = s(p2;p3)
+l31 = s(p3;p1)
+
+# assist the algorithm
+d13 = h / sin(a1)
+ph = p(d13-1, 0)
+ch = c (p2;ph)
+
+initial=l12 : l23 : l31 : p1 : p2 : p3 
+required=c : pc : ch
+maxdepth=8
+depthfirst=false
+shuffle=false
+algorithm=CURVE_DEDUPE
+priority=FINEST_PLUS_DEPTH
+curveidentification=LINE_TYPES_EQUAL
+maxsolutions=1

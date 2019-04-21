@@ -63,7 +63,11 @@ public class SearchEngine<B> {
 	}
 
 	public void halt() {
-		halt=true;
+		halt = true;
+	}
+	
+	public void cleanUp() {
+		queues.cleanUp();
 	}
 	
 	public boolean finished() {
