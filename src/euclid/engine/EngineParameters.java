@@ -12,12 +12,15 @@ public class EngineParameters {
 	
 	private final int threadCount;
 
-	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final boolean shuffle, final int threadCount) {
+	private final int bunchSize;
+
+	public EngineParameters(final String id, final int maxSolutions, final boolean depthFirst, final boolean shuffle, final int threadCount, final int bunchSize) {
 		this.id = id;
 		this.maxSolutions = maxSolutions;
 		this.depthFirst = depthFirst;
 		this.shuffle = shuffle;
 		this.threadCount = threadCount;
+		this.bunchSize = bunchSize;
 	}
 
 	public String id() {
@@ -38,6 +41,10 @@ public class EngineParameters {
 
 	public int threadCount() {
 		return threadCount;
+	}
+
+	public int bunchSize() {
+		return bunchSize;
 	}
 
 }

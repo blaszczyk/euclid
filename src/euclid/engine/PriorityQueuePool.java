@@ -10,16 +10,33 @@ public class PriorityQueuePool<B> implements KpiReporter{
 	
 	private final List<MonitoredDeque<B>> queues;
 	
-	PriorityQueuePool(final int queueCount, final boolean stack) {
+	private final int bunchSize;
+	
+	PriorityQueuePool(final int queueCount, final boolean stack, final int bunchSize) {
+		this.bunchSize = bunchSize;
 		queues = new ArrayList<>(queueCount);
 		for(int i = 0; i < queueCount; i++) {
 			queues.add(stack ? MonitoredDeque.newStack() : MonitoredDeque.newQueue());
 		}
 	}
+
+	void enqueue(final PrioritizedGeneration<B> generation) {
+		for(int priority = 0; priority < queues.size(); priority++) {
+			final List<B> list = generation.get(priority);
+			final int listSize = list.size();
+			if(listSize > 0) {
+				for(int i = 0; i < listSize; i += bunchSize) {
+					final int toIndex = Math.min(i + bunchSize, listSize);
+					final List<B> bunch = list.subList(i, toIndex);
+					queues.get(priority).enqueue(bunch);
+				}
+			}
+		}
+	}
 	
-	B poll() {
+	List<B> poll() {
 		for(final MonitoredDeque<B> queue : queues) {
-			final B b = queue.poll();
+			final List<B> b = queue.poll();
 			if(b != null) {
 				return b;
 			}
@@ -31,22 +48,16 @@ public class PriorityQueuePool<B> implements KpiReporter{
 	public void fetchReport(final KpiCollector collector) {
 		for(int i = 0; i < queues.size(); i++) {
 			final MonitoredDeque<?> queue = queues.get(i);
-			final int queuedCount = queue.queuedCount();
+			final long dequeuedCount = queue.dequeuedCount();
 			final long totalCount = queue.totalCount();
-			collector.add("dequeued-" + i, totalCount - queuedCount);
-			collector.add("queued-" + i, queuedCount);
+			collector.add("dequeued-" + i, dequeuedCount);
+			collector.add("queued-" + i, totalCount - dequeuedCount);
 			collector.add("total-" + i, totalCount);
 		}
 	}
 	
 	void cleanUp() {
 		queues.clear();
-	}
-
-	public void enqueue(final PrioritizedGeneration<B> generation) {
-		for(int priority = 0; priority < queues.size(); priority++) {
-			queues.get(priority).enqueue(generation.get(priority));
-		}
 	}
 
 }

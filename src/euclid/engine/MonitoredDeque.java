@@ -10,7 +10,7 @@ abstract class MonitoredDeque<B> {
 	static <S> MonitoredDeque<S> newQueue() {
 		return new MonitoredDeque<S>() {
 			@Override
-			S poll() {
+			List<S> pollIntern() {
 				return deque.pollFirst();
 			}
 		};
@@ -19,25 +19,35 @@ abstract class MonitoredDeque<B> {
 	static <S> MonitoredDeque<S> newStack() {
 		return new MonitoredDeque<S>() {
 			@Override
-			S poll() {
+			List<S> pollIntern() {
 				return deque.pollLast();
 			}
 		};
 	}
 
-	final Deque<B> deque = new ConcurrentLinkedDeque<>();
+	final Deque<List<B>> deque = new ConcurrentLinkedDeque<>();
 
 	private final AtomicLong totalCount = new AtomicLong();
+
+	private final AtomicLong dequeuedCount = new AtomicLong();
+
+	List<B> poll() {
+		final List<B> next = pollIntern();
+		if(next != null) {
+			dequeuedCount.addAndGet(next.size());
+		}
+		return next;
+	}
 	
-	abstract B poll();
-	
+	abstract List<B> pollIntern();
+
 	void enqueue(final List<B> list) {
-		deque.addAll(list);
+		deque.add(list);
 		totalCount.addAndGet(list.size());
 	}
 	
-	int queuedCount() {
-		return deque.size();
+	long dequeuedCount() {
+		return dequeuedCount.get();
 	}
 	
 	long totalCount() {

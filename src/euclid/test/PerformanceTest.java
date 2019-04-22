@@ -22,26 +22,28 @@ public class PerformanceTest {
 		final File testCasesDir = new File(args[0]);
 		final int repetitions = Integer.parseInt(args[1]);
 		final int timeOut = Integer.parseInt(args[2]);
+		final int bunchSize = Integer.parseInt(args[3]);
+		
 		for(final File testCaseFile : testCasesDir.listFiles(f -> f.getName().endsWith(".euclid"))) {
 			final String testName = testCaseFile.getName().substring(0, testCaseFile.getName().lastIndexOf('.'));
 			System.out.println("executing " + testName);
 			final List<Map<String, Number>> results = new ArrayList<>();
 			for(int i = 0; i < repetitions; i++) {
-				final Map<String, Number> result = process(testCaseFile, timeOut);
+				final Map<String, Number> result = process(testCaseFile, timeOut, bunchSize);
 				results.add(result);
 			}
 			printResults(results);
 		}
 	}
 
-	private static Map<String, Number> process(final File testCaseFile, final int timeout) throws InterruptedException {
+	private static Map<String, Number> process(final File testCaseFile, final int timeout, final int bunchSize) throws InterruptedException {
 		System.gc();
 		Thread.sleep(1000);
 		
 		final Problem problem = new ProblemParser(testCaseFile).parse();
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
 		final EngineParameters params = new EngineParameters(testCaseFile.getName(), problem.maxSolutions(), problem.depthFirst(), 
-				false, Runtime.getRuntime().availableProcessors());
+				false, Runtime.getRuntime().availableProcessors(), bunchSize);
 		final SearchEngine<? extends Board> engine = new SearchEngine<>(algorithm, params);
 		
 		final long startTime = System.currentTimeMillis();

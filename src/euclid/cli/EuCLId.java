@@ -14,25 +14,30 @@ import euclid.engine.SearchEngine;
 import euclid.kpi.KpiCsvWriter;
 import euclid.kpi.KpiMonitor;
 import euclid.kpi.KpiStdoutLogger;
+import euclid.kpi.SystemKpi;
 import euclid.problem.*;
 import euclid.sets.Board;
 
 public class EuCLId {
 
+	private static final String KEY_FILE = "file";
+	private static final String KEY_HELP = "help";
+	
+	private static final String KEY_THREADS = "threads";
+	private static final String KEY_BUNCHSIZE = "bunchsize";
+
+	private static final String KEY_KPI_INTERVAL = "kpiinterval";
+	private static final String KEY_KPI_CSV = "kpicsv";
+	private static final String KEY_KPI_OUT = "kpiout";
+
 	public static void main(final String[] args) {
-		try {
-			final CliParameter parameters = new CliParameterParser(args).parse();
-			if(parameters.needsHelp()) {
-				usage();
-				return;
-			}
-			final EuCLId euCLId = new EuCLId(parameters);
-			euCLId.process();
-		}
-		catch(final CliParameterParserExcepion e) {
-			System.err.println(e.getMessage());
+		final CliParameters parameters = new CliParameters(args);
+		if(parameters.getBooleanValue(KEY_HELP, false)) {
 			usage();
+			return;
 		}
+		final EuCLId euCLId = new EuCLId(parameters);
+		euCLId.process();
 	}
 
 	private static void usage() {
@@ -50,23 +55,24 @@ public class EuCLId {
 	
 	private final KpiMonitor monitor;
 	
-	private EuCLId(final CliParameter params) {
-		problem = new ProblemParser(params.problemFile()).parse();
+	private EuCLId(final CliParameters params) {
+		final File problemFile = params.getFileValue(KEY_FILE);
+		problem = new ProblemParser(problemFile).parse();
 
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
-		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), problem.shuffle(), params.threadCount());
+		final int threadCount = params.getIntValue(KEY_THREADS, Runtime.getRuntime().availableProcessors());
+		final int bunchSize = params.getIntValue(KEY_BUNCHSIZE, 50);
+		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), problem.shuffle(),
+				threadCount, bunchSize);
 		engine = new SearchEngine<>(algorithm, parameters);
 
-		monitor = new KpiMonitor(params.kpiInterval());				
-		wireKpiMonitor(params);
-	}
-
-	private void wireKpiMonitor(final CliParameter params) {
+		monitor = new KpiMonitor(params.getIntValue(KEY_KPI_INTERVAL, 1000));
 		engine.kpiReporters().forEach(monitor::addReporter);
-		if(params.kpiCsv()) {
+		monitor.addReporter(new SystemKpi());
+		if(params.getBooleanValue(KEY_KPI_CSV, true)) {
 			monitor.addConsumer(new KpiCsvWriter(new File("log")));
 		}
-		if(params.kpiOut()) {
+		if(params.getBooleanValue(KEY_KPI_OUT, false)) {
 			monitor.addConsumer(new KpiStdoutLogger());
 		}
 	}
@@ -75,9 +81,9 @@ public class EuCLId {
 		engine.start();
 		monitor.start();
 		engine.join();
+		monitor.halt();
 		final Collection<? extends Board> solutions = engine.solutions();
 		new ResultPrinter(problem).printAll(solutions);
-		monitor.halt();
 	}
 
 }

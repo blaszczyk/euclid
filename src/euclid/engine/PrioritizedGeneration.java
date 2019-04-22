@@ -1,6 +1,7 @@
 package euclid.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,6 +41,12 @@ public class PrioritizedGeneration<B> {
 	
 	int deadEnds() {
 		return deadEnds;
+	}
+
+	void shuffle() {
+		for(final List<B> list : byPriority) {
+			Collections.shuffle(list);
+		}
 	}
 	
 }

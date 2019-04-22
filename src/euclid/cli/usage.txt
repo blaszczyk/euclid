@@ -1,6 +1,8 @@
 euCLId usage:
-arguments: (*required)
--file*			path to problem file
--threads		positive integer, default #processors
--kpiinterval	in ms, default 5000
--kpiwriter		from [out, csv], default csv
+arguments:
+-file          path to problem file, mandatory
+-threads       positive integer, default #processors
+-kpiinterval   in ms, default 1000
+-kpicsv        default true
+-kpiout        default false
+-bunchsize     default 50

@@ -31,7 +31,7 @@ public class SearchEngine<B> {
 	public SearchEngine(final Algorithm<B> algorithm,  final EngineParameters parameters) {
 		this.algorithm = algorithm;
 		this.parameters = parameters;
-		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst());
+		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst(), parameters.bunchSize());
 		kpiProvider = new EngineKpiProvider();
 		threads = IntStream.range(0, parameters.threadCount())
 				.mapToObj(i -> String.format("search-%s-%d", parameters.id(), i))
@@ -48,7 +48,7 @@ public class SearchEngine<B> {
 	}
 
 	public void start() {
-		process(algorithm.first());
+		process(Collections.singletonList(algorithm.first()));
 		threads.forEach(SearchThread::start);
 	}
 
@@ -74,24 +74,27 @@ public class SearchEngine<B> {
 		return halt;
 	}
 
-	private void process(final B parent) {
-		final int depth = algorithm.depth(parent);
+	private void process(final List<B> bs) {
+		final int depth = algorithm.depth(bs.get(0));
 		final PrioritizedGeneration<B> generation = new PrioritizedGeneration<>(algorithm.maxPriority());
-		final List<B> candidates = algorithm.nextGeneration(parent);
-		if(parameters.shuffle()) {
-			Collections.shuffle(candidates);
-		}
-		for(final B candidate : candidates) {
-			final int priority = algorithm.priority(candidate);
-			if(priority == 0) {
-				solutions.add(candidate);
-				if(solutions.size() >= parameters.maxSolutions()) {
-					halt();
+		for(final B b : bs) {
+			final List<B> candidates = algorithm.nextGeneration(b);
+			for(final B candidate : candidates) {
+				final int priority = algorithm.priority(candidate);
+				if(priority == 0) {
+					solutions.add(candidate);
+					if(solutions.size() >= parameters.maxSolutions()) {
+						halt();
+					}
 				}
+				generation.add(candidate, priority-1);
 			}
-			generation.add(candidate, priority-1);
+			
 		}
-		kpiProvider.report(depth, generation);
+		if(parameters.shuffle()) {
+			generation.shuffle();
+		}
+		kpiProvider.report(depth, bs.size(), generation);
 		queues.enqueue(generation);
 	}
 
@@ -110,8 +113,8 @@ public class SearchEngine<B> {
 		public void run() {
 			try {
 				while(!halt) {
-					final B b = queues.poll();
-					if(idle = (b == null)) {
+					final List<B> bs = queues.poll();
+					if(idle = (bs == null)) {
 						if(threads.stream().allMatch(SearchThread::idle)) {
 							halt();
 						}
@@ -120,7 +123,7 @@ public class SearchEngine<B> {
 						}
 					}
 					else {
-						process(b);
+						process(bs);
 					}
 				}
 			}
