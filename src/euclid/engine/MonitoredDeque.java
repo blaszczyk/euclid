@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 abstract class MonitoredDeque<B> {
 	
@@ -39,7 +40,7 @@ abstract class MonitoredDeque<B> {
 
 	private final AtomicLong rejectedCount = new AtomicLong();
 	
-	private State state = State.EMPTY;
+	private final AtomicReference<State> state = new AtomicReference<>(State.EMPTY);
 	
 	private final int maxQueueSize;
 
@@ -48,7 +49,7 @@ abstract class MonitoredDeque<B> {
 	}
 
 	List<B> poll() {
-		if(state == State.EMPTY) {
+		if(state.get() == State.EMPTY) {
 			return null;
 		}
 		final List<B> next = pollIntern();
@@ -56,7 +57,10 @@ abstract class MonitoredDeque<B> {
 			dequeuedCount.addAndGet(next.size());
 		}
 		else {
-			state = State.EMPTY;
+			state.set(State.EMPTY);
+			if(!deque.isEmpty()) { // queue was filled in the meantime
+				state.set(State.ACTIVE);
+			}
 		}
 		return next;
 	}
@@ -64,14 +68,14 @@ abstract class MonitoredDeque<B> {
 	abstract List<B> pollIntern();
 
 	void enqueue(final List<B> list) {
-		if(state == State.LOCKED) {
+		if(state.get() == State.LOCKED) {
 			rejectedCount.addAndGet(list.size());
 		}
 		else {
 			deque.add(list);
 			final long total = totalCount.addAndGet(list.size());
 			final boolean lock = total - dequeuedCount() > maxQueueSize;
-			state = lock ? State.LOCKED : State.ACTIVE;
+			state.set(lock ? State.LOCKED : State.ACTIVE);
 		}
 	}
 	
