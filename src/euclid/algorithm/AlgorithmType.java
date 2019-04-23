@@ -12,7 +12,9 @@ public enum AlgorithmType {
 	CURVE_BASED(BasicCurveBasedSearch::new),
 	POINT_BASED(PointBasedSearch::new),
 	CURVE_ADVANCED(AdvancedCurveBasedSearch::new),
-	CURVE_DEDUPE(CurveBasedDedupingSearch::new);
+	CURVE_DEDUPE(CurveBasedDedupingSearch::new),
+	LINES_ONLY(LinesOnlySearch::new),
+	CIRCLES_ONLY(CirclesOnlySearch::new);
 
 	public enum PriorityType {
 		NO(NoPrioritizer::new),

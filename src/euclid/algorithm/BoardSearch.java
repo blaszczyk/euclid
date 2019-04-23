@@ -92,8 +92,14 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 		});
 		return points;
 	}
+	
+	void addAllCurves(final Point p1, final Point p2, final CurveSet curves) {
+		curves.add(Algebra.line(p1,p2));
+		curves.add(Algebra.circle(p1,p2));
+		curves.add(Algebra.circle(p2,p1));
+	}
 
-	<E> void forEachDistinctPair(final List<E> es, final BiConsumer<E, E> consumer ) {
+	static <E> void forEachDistinctPair(final List<E> es, final BiConsumer<E, E> consumer ) {
 		for(int i = 1; i < es.size(); i++) {
 			for(int j = 0; j < i; j++) {
 				final E e1 = es.get(i);
@@ -101,12 +107,6 @@ abstract class BoardSearch<B extends Board> implements Algorithm <B> {
 				consumer.accept(e1, e2);
 			}
 		}
-	};
-	
-	void addAllCurves(final Point p1, final Point p2, final CurveSet curves) {
-		curves.add(Algebra.line(p1,p2));
-		curves.add(Algebra.circle(p1,p2));
-		curves.add(Algebra.circle(p2,p1));
 	}
 
 }
