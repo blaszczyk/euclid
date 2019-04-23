@@ -24,7 +24,8 @@ public class EuCLId {
 	private static final String KEY_HELP = "help";
 	
 	private static final String KEY_THREADS = "threads";
-	private static final String KEY_BUNCHSIZE = "bunchsize";
+	private static final String KEY_BUNCH_SIZE = "bunchsize";
+	private static final String KEY_MAX_QUEUE_SIZE = "maxqueuesize";
 
 	private static final String KEY_KPI_INTERVAL = "kpiinterval";
 	private static final String KEY_KPI_CSV = "kpicsv";
@@ -61,9 +62,10 @@ public class EuCLId {
 
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
 		final int threadCount = params.getIntValue(KEY_THREADS, Runtime.getRuntime().availableProcessors());
-		final int bunchSize = params.getIntValue(KEY_BUNCHSIZE, 50);
+		final int bunchSize = params.getIntValue(KEY_BUNCH_SIZE, 50);
+		final int maxQueueSize = params.getIntValue(KEY_MAX_QUEUE_SIZE, 100000);
 		final EngineParameters parameters = new EngineParameters("euCLId", problem.maxSolutions(), problem.depthFirst(), problem.shuffle(),
-				threadCount, bunchSize);
+				threadCount, bunchSize, maxQueueSize);
 		engine = new SearchEngine<>(algorithm, parameters);
 
 		monitor = new KpiMonitor(params.getIntValue(KEY_KPI_INTERVAL, 1000));

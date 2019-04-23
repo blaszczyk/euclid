@@ -7,8 +7,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 abstract class MonitoredDeque<B> {
 	
-	static <S> MonitoredDeque<S> newQueue() {
-		return new MonitoredDeque<S>() {
+	enum State {
+		EMPTY,
+		ACTIVE,
+		LOCKED;
+	};
+	
+	static <S> MonitoredDeque<S> newQueue(final int maxQueueSize) {
+		return new MonitoredDeque<S>(maxQueueSize) {
 			@Override
 			List<S> pollIntern() {
 				return deque.pollFirst();
@@ -16,8 +22,8 @@ abstract class MonitoredDeque<B> {
 		};
 	}
 	
-	static <S> MonitoredDeque<S> newStack() {
-		return new MonitoredDeque<S>() {
+	static <S> MonitoredDeque<S> newStack(final int maxQueueSize) {
+		return new MonitoredDeque<S>(maxQueueSize) {
 			@Override
 			List<S> pollIntern() {
 				return deque.pollLast();
@@ -31,10 +37,26 @@ abstract class MonitoredDeque<B> {
 
 	private final AtomicLong dequeuedCount = new AtomicLong();
 
+	private final AtomicLong rejectedCount = new AtomicLong();
+	
+	private State state = State.EMPTY;
+	
+	private final int maxQueueSize;
+
+	MonitoredDeque(final int maxQueueSize) {
+		this.maxQueueSize = maxQueueSize;
+	}
+
 	List<B> poll() {
+		if(state == State.EMPTY) {
+			return null;
+		}
 		final List<B> next = pollIntern();
 		if(next != null) {
 			dequeuedCount.addAndGet(next.size());
+		}
+		else {
+			state = State.EMPTY;
 		}
 		return next;
 	}
@@ -42,8 +64,15 @@ abstract class MonitoredDeque<B> {
 	abstract List<B> pollIntern();
 
 	void enqueue(final List<B> list) {
-		deque.add(list);
-		totalCount.addAndGet(list.size());
+		if(state == State.LOCKED) {
+			rejectedCount.addAndGet(list.size());
+		}
+		else {
+			deque.add(list);
+			final long total = totalCount.addAndGet(list.size());
+			final boolean lock = total - dequeuedCount() > maxQueueSize;
+			state = lock ? State.LOCKED : State.ACTIVE;
+		}
 	}
 	
 	long dequeuedCount() {
@@ -52,6 +81,10 @@ abstract class MonitoredDeque<B> {
 	
 	long totalCount() {
 		return totalCount.get();
+	}
+	
+	long rejectedCount() {
+		return rejectedCount.get();
 	}
 
 }

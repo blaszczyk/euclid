@@ -12,11 +12,11 @@ public class PriorityQueuePool<B> implements KpiReporter{
 	
 	private final int bunchSize;
 	
-	PriorityQueuePool(final int queueCount, final boolean stack, final int bunchSize) {
+	PriorityQueuePool(final int queueCount, final boolean stack, final int bunchSize, final int maxQueueSize) {
 		this.bunchSize = bunchSize;
 		queues = new ArrayList<>(queueCount);
 		for(int i = 0; i < queueCount; i++) {
-			queues.add(stack ? MonitoredDeque.newStack() : MonitoredDeque.newQueue());
+			queues.add(stack ? MonitoredDeque.newStack(maxQueueSize) : MonitoredDeque.newQueue(maxQueueSize));
 		}
 	}
 
@@ -53,6 +53,7 @@ public class PriorityQueuePool<B> implements KpiReporter{
 			collector.add("dequeued-" + i, dequeuedCount);
 			collector.add("queued-" + i, totalCount - dequeuedCount);
 			collector.add("total-" + i, totalCount);
+			collector.add("rejected-" + i, queue.rejectedCount());
 		}
 	}
 	

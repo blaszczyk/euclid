@@ -43,7 +43,7 @@ public class PerformanceTest {
 		final Problem problem = new ProblemParser(testCaseFile).parse();
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
 		final EngineParameters params = new EngineParameters(testCaseFile.getName(), problem.maxSolutions(), problem.depthFirst(), 
-				false, Runtime.getRuntime().availableProcessors(), bunchSize);
+				false, Runtime.getRuntime().availableProcessors(), bunchSize, 100000);
 		final SearchEngine<? extends Board> engine = new SearchEngine<>(algorithm, params);
 		
 		final long startTime = System.currentTimeMillis();

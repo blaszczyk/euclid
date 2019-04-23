@@ -6,3 +6,4 @@ arguments:
 -kpicsv        default true
 -kpiout        default false
 -bunchsize     default 50
+-maxqueuesize  default 100,000

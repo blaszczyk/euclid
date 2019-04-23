@@ -31,7 +31,7 @@ public class SearchEngine<B> {
 	public SearchEngine(final Algorithm<B> algorithm,  final EngineParameters parameters) {
 		this.algorithm = algorithm;
 		this.parameters = parameters;
-		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst(), parameters.bunchSize());
+		queues = new PriorityQueuePool<B>(algorithm.maxPriority(), parameters.depthFirst(), parameters.bunchSize(), parameters.maxQueueSize());
 		kpiProvider = new EngineKpiProvider();
 		threads = IntStream.range(0, parameters.threadCount())
 				.mapToObj(i -> String.format("search-%s-%d", parameters.id(), i))
