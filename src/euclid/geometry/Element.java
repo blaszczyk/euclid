@@ -23,7 +23,7 @@ public abstract class Element<E extends Element<E>> implements Comparable<E> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(final Object obj) {
-		return near((E) obj);
+		return obj == this || near((E) obj);
 	}
 	
 }

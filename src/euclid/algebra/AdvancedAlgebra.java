@@ -35,7 +35,7 @@ public class AdvancedAlgebra {
 		return new Line(normal, offset);
 	}
 
-	public static CurveSet angleBisector(final Line l1, final Line l2) {
+	public static CurveSet angleBisectors(final Line l1, final Line l2) {
 		final List<Point> intersections = Algebra.doIntersect(l1, l2).asList();
 		if(intersections.isEmpty()) {
 			return CurveSet.EMPTY;

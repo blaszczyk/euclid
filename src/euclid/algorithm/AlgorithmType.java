@@ -3,6 +3,7 @@ package euclid.algorithm;
 import java.util.Comparator;
 import java.util.function.Supplier;
 
+import euclid.algorithm.constructor.*;
 import euclid.algorithm.priority.*;
 import euclid.geometry.Curve;
 import euclid.problem.Problem;
@@ -10,11 +11,22 @@ import euclid.sets.Board;
 
 public enum AlgorithmType {
 	CURVE_BASED(BasicCurveBasedSearch::new),
-	POINT_BASED(PointBasedSearch::new),
-	CURVE_ADVANCED(AdvancedCurveBasedSearch::new),
-	CURVE_DEDUPE(CurveBasedDedupingSearch::new),
-	LINES_ONLY(LinesOnlySearch::new),
-	CIRCLES_ONLY(CirclesOnlySearch::new);
+	CURVE_DEDUPE(CurveBasedDedupingSearch::new);
+	
+	public enum ConstructorType {
+		BASIC(BasicConstructor::new),
+		ADVANCED(AdvancedConstructor::new),
+		STRAIGHTEDGE(StraightEdgeOnly::new),
+		COMPASS(CompassOnly::new);
+		
+		final Supplier<Constructor> creator;
+		private ConstructorType(final Supplier<Constructor> creator) {
+			this.creator = creator;
+		}
+		public Constructor create() {
+			return creator.get();
+		}
+	}
 
 	public enum PriorityType {
 		NO(NoPrioritizer::new),
@@ -24,9 +36,9 @@ public enum AlgorithmType {
 		FINE_PLUS_DEPTH(FinePlusDepth::new),
 		FINEST_PLUS_DEPTH(FinestPlusDepth::new);
 
-		final Supplier<Prioritizer> constructor;
-		private PriorityType(final Supplier<Prioritizer> constructor) {
-			this.constructor = constructor;
+		final Supplier<Prioritizer> creator;
+		private PriorityType(final Supplier<Prioritizer> creator) {
+			this.creator = creator;
 		}
 
 	};
@@ -48,20 +60,22 @@ public enum AlgorithmType {
 
 	};
 
-	private final Supplier<BoardSearch<? extends Board>> constructor;
+	private final Supplier<CurveBasedSearch<? extends Board>> creator;
 
-	private AlgorithmType(final Supplier<BoardSearch<? extends Board>> constructor) {
-		this.constructor = constructor;
+	private AlgorithmType(final Supplier<CurveBasedSearch<? extends Board>> creator) {
+		this.creator = creator;
 	}
 
 	public Algorithm<? extends Board> create(final Problem problem) {
-		final Prioritizer prioritizer = problem.priority().constructor.get();
+		final Constructor constructor = problem.constructor().create();
+		
+		final Prioritizer prioritizer = problem.priority().creator.get();
 		prioritizer.init(problem);
 		
 		final Comparator<Curve> curveComparator = problem.curveIdentification().curveComparator;
 		
-		final BoardSearch<? extends Board> algorithm = constructor.get();
-		algorithm.init(problem, prioritizer, curveComparator);
+		final CurveBasedSearch<? extends Board> algorithm = creator.get();
+		algorithm.init(problem, constructor, prioritizer, curveComparator);
 		return algorithm;
 	}
 	

@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import euclid.algebra.Algebra;
 import euclid.algorithm.AlgorithmType;
+import euclid.algorithm.AlgorithmType.ConstructorType;
 import euclid.algorithm.AlgorithmType.CurveIdentification;
 import euclid.algorithm.AlgorithmType.PriorityType;
 import euclid.geometry.Curve;
@@ -33,13 +34,14 @@ public class ProblemParser {
 	public static final String KEY_SHUFFLE = "shuffle";
 	public static final String KEY_MAX_SOLUTIONS = "maxsolutions";
 	public static final String KEY_ALGORITHM = "algorithm";
+	public static final String KEY_CONSTRUCTOR = "constructor";
 	public static final String KEY_PRIORITY = "priority";
 	public static final String KEY_CURVE_IDENTIFIACTION = "curveidentification";
 	
 	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_MAX_DEPTH, KEY_DEPTH_FIRST,
-			KEY_SHUFFLE, KEY_ALGORITHM, KEY_PRIORITY, KEY_CURVE_IDENTIFIACTION, KEY_MAX_SOLUTIONS);
+			KEY_SHUFFLE, KEY_ALGORITHM, KEY_CONSTRUCTOR, KEY_PRIORITY, KEY_CURVE_IDENTIFIACTION, KEY_MAX_SOLUTIONS);
 	
-	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$]+)";
+	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\^]+)";
 	private static final Pattern POINT_PATTERN = Pattern.compile(
 			"(p\\()" // declaration
 			+ NUM_PTRN // number
@@ -47,7 +49,7 @@ public class ProblemParser {
 			+ NUM_PTRN // number
 			+ "(\\))"); // close
 
-	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\,]+)";
+	private static final String PT_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\^\\,]+)";
 	private static final Pattern CURVE_PATTERN = Pattern.compile(
 			"([clrs]\\()" // declaration
 			+ PT_PTRN // point
@@ -103,11 +105,12 @@ public class ProblemParser {
 		final boolean depthFirst = Boolean.parseBoolean(getValue(KEY_DEPTH_FIRST));
 		final boolean shuffle = Boolean.parseBoolean(getValue(KEY_SHUFFLE));
 		final AlgorithmType algorithm = AlgorithmType.valueOf(getValue(KEY_ALGORITHM).toUpperCase());
+		final ConstructorType constructor = ConstructorType.valueOf(getValue(KEY_CONSTRUCTOR).toUpperCase());
 		final PriorityType priority = PriorityType.valueOf(getValue(KEY_PRIORITY).toUpperCase());
 		final CurveIdentification curveIdentification = CurveIdentification.valueOf(getValue(KEY_CURVE_IDENTIFIACTION).toUpperCase());
 		final int maxSolutions = Integer.parseInt(getValue(KEY_MAX_SOLUTIONS));
 
-		return new Problem(initial, required, maxDepth, depthFirst, shuffle, maxSolutions, algorithm, priority, curveIdentification);
+		return new Problem(initial, required, maxDepth, depthFirst, shuffle, maxSolutions, algorithm, constructor, priority, curveIdentification);
 	}
 
 	private void validateKeywords() {
@@ -124,14 +127,14 @@ public class ProblemParser {
 				continue;
 			}
 			final String value = getValue(key);
-			if(value.matches("p\\(.*")) {
+			if(isPoint(value)) {
 				points.put(key, parsePoint(value));
 			}
-			else if(value.matches("[clrs]\\(.*")) {
+			else if(isCurve(value)) {
 				curves.put(key, parseCurve(value));
 			}
 			else {
-				constants.put(key, parseConstant(value));
+				constants.put(key, parseConstant(value, false));
 			}
 		}
 	}
@@ -144,18 +147,22 @@ public class ProblemParser {
 		final PointSet ps = new PointSet();
 		final CurveSet cs = new CurveSet();
 		for(final String value : split) {
-			if(isPoint(value)) {
-				ps.add(parsePoint(value));
+			if(isCurve(value)) {
+				cs.add(parseCurve(value));
 			}
 			else {
-				cs.add(parseCurve(value));
+				ps.add(parsePoint(value));
 			}
 		}
 		return new Board(ps, cs);
 	}
 
 	private boolean isPoint(final String value) {
-		return value.toLowerCase().startsWith("p(") || points.containsKey(value);
+		return value.matches("p\\(.*") || points.containsKey(value);
+	}
+	
+	private boolean isCurve(final String value) {
+		return value.matches("[clrs]\\(.*") || curves.containsKey(value);
 	}
 
 	private Curve parseCurve(final String value) {
@@ -196,18 +203,24 @@ public class ProblemParser {
 		}
 		final Matcher matcher = POINT_PATTERN.matcher(value);
 		if(matcher.matches()) {
-			final Number x = parseConstant(matcher.group(2));
-			final Number y = parseConstant(matcher.group(4));
+			final Number x = parseConstant(matcher.group(2), false);
+			final Number y = parseConstant(matcher.group(4), false);
 			final Point point = new Point(x,y);
 			cacheByValue(point, value, points);
 			return point;
 		}
 		else {
-			throw new ProblemParserException("invalid or unknown point: '%s'", value);
+			final Number x = parseConstant(value, true);
+			if(x != null) {
+				return new Point(x, Number.ZERO);
+			}
+			else {
+				throw new ProblemParserException("invalid or unknown point: '%s'", value);
+			}
 		}
 	}
 
-	private Number parseConstant(final String value) {
+	private Number parseConstant(final String value, final boolean silent) {
 		if(constants.containsKey(value)) {
 			return constants.get(value);
 		}
@@ -218,8 +231,13 @@ public class ProblemParser {
 			cacheByValue(number, value, constants);
 			return number;
 		}
-		catch (Exception e) {
-			throw new ProblemParserException(e, "error parsing numerical value '%s': %s", value, e.getMessage());
+		catch (final Exception e) {
+			if(silent) {
+				return null;
+			}
+			else {
+				throw new ProblemParserException(e, "error parsing numerical value '%s': %s", value, e.getMessage());
+			}
 		}
 	}
 	

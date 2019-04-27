@@ -9,7 +9,7 @@ import java.util.TreeSet;
 import euclid.geometry.Element;
 
 @SuppressWarnings("serial")
-abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S>> extends TreeSet<E> {
+public abstract class ElementSet<E extends Element<? super E>, S extends ElementSet<E,S>> extends TreeSet<E> {
 
 	ElementSet() {
 	}

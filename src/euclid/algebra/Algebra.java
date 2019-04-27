@@ -74,7 +74,7 @@ public class Algebra {
 			if(line.isRay()) {
 				final Ray ray = line.asRay();
 				final Number position = line.normal().cross(point);
-				return position.greaterEq(ray.end()) == ray.orientation();
+				return ray.orientation() ? position.greaterEq(ray.end()) : position.lessEq(ray.end());
 			}
 			if(line.isSegment()) {
 				final Segment segment = line.asSegment();
