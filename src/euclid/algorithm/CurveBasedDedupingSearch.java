@@ -4,10 +4,8 @@ import java.util.List;
 
 import euclid.algebra.Algebra;
 import euclid.geometry.*;
-import euclid.sets.Board;
-import euclid.sets.CurveBuiltBoard;
-import euclid.sets.CurveSet;
-import euclid.sets.PointSet;
+import euclid.sets.*;
+import static euclid.algorithm.ListHelper.*;
 
 public class CurveBasedDedupingSearch extends CurveBasedSearch<CurveBuiltBoard> {
 	
@@ -32,8 +30,8 @@ public class CurveBasedDedupingSearch extends CurveBasedSearch<CurveBuiltBoard> 
 
 	@Override
 	void addSuccessors(final CurveBuiltBoard board, final CurveSet successors) {
-		final Board parent = board.parent();
-		if(parent != null) {
+		if(board.hasParent()) {
+			final Board parent = board.parent();
 			final Curve last = board.last();
 			@SuppressWarnings("serial")
 			final CurveSet dedupeSuccessors = new CurveSet(curveComparator) {

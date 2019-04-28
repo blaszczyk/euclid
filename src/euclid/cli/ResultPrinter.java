@@ -1,17 +1,10 @@
 package euclid.cli;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import euclid.algebra.Algebra;
-import euclid.geometry.*;
+import euclid.algorithm.Reconstruction;
 import euclid.problem.*;
 import euclid.sets.Board;
-import euclid.sets.PointSet;
 
 public class ResultPrinter {
 
@@ -28,7 +21,7 @@ public class ResultPrinter {
 		this(problem, System.out);
 	}
 
-	void printAll(final Collection<? extends Board> solutions) {
+	void printAll(final List<? extends Board> solutions) {
 		printProblem();
 		println(solutions.size() + " solution(s):");
 		solutions.forEach(this::printSolution);
@@ -43,17 +36,12 @@ public class ResultPrinter {
 	}
 	
 	private void printSolution(final Board solution) {
-		final List<Curve> curves = new ArrayList<>(solution.curves().size());
-		problem.initial().curves().forEach(curves::add);
-		for(final Curve curve : solution.curves()) {
-			final Set<Point> newPoints = new TreeSet<>();
-			curves.stream()
-				.map(c -> Algebra.intersect(c, curve))
-				.map(PointSet::asList)
-				.forEach(newPoints::addAll);
-			println(curve);
-			println("  " + newPoints);
-			curves.add(curve);
+		Reconstruction construction = Reconstruction.from(solution, problem.constructor().create());
+		while(construction != null) {
+			println("construct " + construction.curve() + " from " + construction.constituents());
+			final Board board = construction.board();
+			println("new points: " + board.points().without(board.parent().points()));
+			construction = construction.next();
 		}
 		println();
 	}

@@ -12,7 +12,7 @@ import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.ElementSet;
 
-abstract class CurveBasedSearch<B extends Board> extends ListHelper implements Algorithm<B> {
+abstract class CurveBasedSearch<B extends Board> implements Algorithm<B> {
 
 	Problem problem;
 	Constructor constructor;
@@ -74,16 +74,5 @@ abstract class CurveBasedSearch<B extends Board> extends ListHelper implements A
 			}
 		}
 		return count;
-	}
-
-	static List<Line> pickLines(final Board board) {
-		final CurveSet curves = board.curves();
-		final List<Line> lines = new ArrayList<>(curves.size());
-		for(final Curve c : curves) {
-			if(c.isLine()) {
-				lines.add(c.asLine());
-			}
-		}
-		return lines;
 	}
 }

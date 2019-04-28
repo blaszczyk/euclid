@@ -4,9 +4,9 @@ import java.util.List;
 
 import euclid.algebra.Algebra;
 import euclid.geometry.*;
-import euclid.sets.Board;
+import euclid.sets.*;
 import euclid.sets.CurveSet;
-import euclid.sets.PointSet;
+import static euclid.algorithm.ListHelper.*;
 
 public class BasicCurveBasedSearch extends CurveBasedSearch<Board> {
 	

@@ -49,4 +49,10 @@ public abstract class ElementSet<E extends Element<? super E>, S extends Element
 		result.addAll(other);
 		return result;
 	}
+	
+	public S without(final S other) {
+		final S result = copy();
+		result.removeAll(other);
+		return result;
+	}
 }

@@ -35,20 +35,9 @@ public class Board {
 	public int depth() {
 		return depth;
 	}
-	
-	public Board identifyByPoints() {
-		return new Board(points, curves, parent) {
-			@Override
-			public int hashCode() {
-				return points.hashCode();
-			}
 
-			@Override
-			public boolean equals(final Object obj) {
-				final Board other = (Board) obj;
-				return points.equals(other.points);
-			}
-		};
+	public boolean hasParent() {
+		return parent != null;
 	}
 	
 	@Override

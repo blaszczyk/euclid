@@ -6,7 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.List;
 
 import euclid.algorithm.Algorithm;
 import euclid.engine.EngineParameters;
@@ -37,6 +37,12 @@ public class EuCLId {
 			usage();
 			return;
 		}
+		final File problemFile = parameters.getFileValue(KEY_FILE);
+		if(problemFile == null || ! problemFile.exists()) {
+			System.out.println("problem file not specified or not existing");
+			usage();
+			return;
+		}
 		final EuCLId euCLId = new EuCLId(parameters);
 		euCLId.process();
 	}
@@ -57,8 +63,7 @@ public class EuCLId {
 	private final KpiMonitor monitor;
 	
 	private EuCLId(final CliParameters params) {
-		final File problemFile = params.getFileValue(KEY_FILE);
-		problem = new ProblemParser(problemFile).parse();
+		problem = new ProblemParser(params.getFileValue(KEY_FILE)).parse();
 
 		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
 		final int threadCount = params.getIntValue(KEY_THREADS, Runtime.getRuntime().availableProcessors());
@@ -84,7 +89,7 @@ public class EuCLId {
 		monitor.start();
 		engine.join();
 		monitor.halt();
-		final Collection<? extends Board> solutions = engine.solutions();
+		final List<? extends Board> solutions = engine.solutions();
 		new ResultPrinter(problem).printAll(solutions);
 	}
 

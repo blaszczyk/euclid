@@ -1,6 +1,12 @@
 package euclid.algorithm;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import euclid.geometry.Curve;
+import euclid.geometry.Line;
+import euclid.sets.Board;
+import euclid.sets.CurveSet;
 
 public class ListHelper {
 	
@@ -54,6 +60,17 @@ public class ListHelper {
 		for(final E e1 : singles) {
 			forEachDistinctPair(distincts, (e2,e3) -> consumer.accept(e1, e2, e3));
 		}
+	}
+
+	static List<Line> pickLines(final Board board) {
+		final CurveSet curves = board.curves();
+		final List<Line> lines = new ArrayList<>(curves.size());
+		for(final Curve c : curves) {
+			if(c.isLine()) {
+				lines.add(c.asLine());
+			}
+		}
+		return lines;
 	}
 
 }
