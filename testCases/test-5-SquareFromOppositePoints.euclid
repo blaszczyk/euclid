@@ -18,6 +18,7 @@ maxdepth=10
 depthfirst=false
 shuffle=false
 algorithm=CURVE_DEDUPE
+constructor=BASIC
 priority=COARSE
 curveidentification=LINE_TYPES_DISTINCT
 maxsolutions=1

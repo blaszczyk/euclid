@@ -15,6 +15,7 @@ maxdepth=6
 depthfirst=false
 shuffle=false
 algorithm=CURVE_DEDUPE
+constructor=BASIC
 priority=FINEST
 curveidentification=LINE_TYPES_EQUAL
 maxsolutions=1
