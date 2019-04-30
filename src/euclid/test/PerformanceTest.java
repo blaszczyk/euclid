@@ -19,6 +19,10 @@ import euclid.sets.Board;
 public class PerformanceTest {
 	
 	public static void main(final String[] args) throws InterruptedException {
+		if(args.length < 4) {
+			System.out.println("usage: performanceTest problemsDir repetitions timeOutMs bunchSize");
+			System.exit(1);
+		}
 		final File testCasesDir = new File(args[0]);
 		final int repetitions = Integer.parseInt(args[1]);
 		final int timeOut = Integer.parseInt(args[2]);

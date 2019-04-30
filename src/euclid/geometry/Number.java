@@ -10,8 +10,8 @@ public class Number extends Element<Number> {
 	public static final Number ONE = new Number(1);
 	public static final Number TWO = new Number(2);
 	
-	private static final double PRECISION = 0.000_000_001;
-	private static final double INV_PRECISION = 1_000_000_000.;
+	private static final double PRECISION = 0.000_000_000_001;
+	private static final double INV_PRECISION = 1_000_000_000_000.;
 	private final double value;
 	
 	public Number(double value) {
