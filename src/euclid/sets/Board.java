@@ -1,58 +1,40 @@
 package euclid.sets;
 
-public class Board {
-	
-	public static final Board EMPTY = new Board(PointSet.EMPTY, CurveSet.EMPTY);
+import java.util.Collections;
+import java.util.List;
 
-	private final PointSet points;
-	private final CurveSet curves;
-	private final Board parent;
-	private final int depth;
-	
-	public Board(final PointSet points, final CurveSet curves, final Board parent) {
-		this.points = points;
-		this.curves = curves;
-		this.parent = parent;
-		this.depth = parent == null ? 0 : parent.depth + 1;
-	}
-	
-	public Board(final PointSet points, final CurveSet curves) {
-		this(points, curves, null);
-	}
+import euclid.geometry.*;
 
-	public final PointSet points() {
-		return points;
-	}
+public abstract class Board {
+	
+	public static final Board EMPTY = new RootBoard(PointSet.EMPTY, CurveSet.EMPTY);
 
-	public final CurveSet curves() {
-		return curves;
-	}
-	
-	public Board parent() {
-		return parent;
-	}
-	
-	public int depth() {
-		return depth;
-	}
+	public abstract PointSet points();
 
-	public boolean hasParent() {
-		return parent != null;
-	}
-	
-	@Override
-	public int hashCode() {
-		return points.hashCode() + curves.hashCode();
-	}
+	public abstract CurveSet curves();
 
-	@Override
-	public boolean equals(final Object obj) {
-		final Board other = (Board) obj;
-		return points.equals(other.points) && curves.equals(other.curves);
-	}
+	public abstract List<Point> pointList();
+
+	public abstract List<Curve> curveList();
 	
-	@Override
-	public String toString() {
-		return String.format("points: %s, curves: %s", points, curves);
-	}
+	public abstract List<Line> lineList();
+
+	public List<Point> newPoints() { return Collections.emptyList(); }
+
+	public abstract int pointCount();
+
+	public abstract int curveCount();
+	
+	public Board parent() { return null; }
+	
+	public int depth() { return 0; }
+
+	public boolean hasParent() { return false; }
+
+	public Curve curve() { return null; }
+	
+	PointSet pointsInt() { return PointSet.EMPTY; }
+	
+	CurveSet curvesInt() { return CurveSet.EMPTY; }
+	
 }

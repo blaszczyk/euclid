@@ -32,4 +32,9 @@ public class CurveSet extends ElementSet<Curve, CurveSet> {
 		return new CurveSet(this);
 	}
 
+	@Override
+	CurveSet self() {
+		return this;
+	}
+
 }

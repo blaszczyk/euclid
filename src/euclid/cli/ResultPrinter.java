@@ -39,8 +39,7 @@ public class ResultPrinter {
 		Reconstruction construction = Reconstruction.from(solution, problem.constructor().create());
 		while(construction != null) {
 			println("construct " + construction.curve() + " from " + construction.constituents());
-			final Board board = construction.board();
-			println("new points: " + board.points().without(board.parent().points()));
+			println("new points: " + construction.newPoints());
 			construction = construction.next();
 		}
 		println();

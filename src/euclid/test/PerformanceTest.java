@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.swing.Timer;
 
 import euclid.algorithm.Algorithm;
+import euclid.algorithm.AlgorithmFactory;
 import euclid.engine.EngineParameters;
 import euclid.engine.SearchEngine;
 import euclid.kpi.KpiReporter;
@@ -45,10 +46,10 @@ public class PerformanceTest {
 		Thread.sleep(1000);
 		
 		final Problem problem = new ProblemParser(testCaseFile).parse();
-		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
+		final Algorithm<Board> algorithm = AlgorithmFactory.create(problem);
 		final EngineParameters params = new EngineParameters(testCaseFile.getName(), problem.maxSolutions(), problem.depthFirst(), 
 				false, Runtime.getRuntime().availableProcessors(), bunchSize, 100000);
-		final SearchEngine<? extends Board> engine = new SearchEngine<>(algorithm, params);
+		final SearchEngine<Board> engine = new SearchEngine<>(algorithm, params);
 		
 		final long startTime = System.currentTimeMillis();
 		engine.start();

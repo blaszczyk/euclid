@@ -1,9 +1,7 @@
 package euclid.sets;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.TreeSet;
 
 import euclid.geometry.Element;
@@ -32,27 +30,17 @@ public abstract class ElementSet<E extends Element<? super E>, S extends Element
 		}
 	}
 	
-	public List<E> asList() {
-		return new ArrayList<>(this);
-	}
-	
-	public abstract S copy();
+	abstract S self();
 
-	public S adjoin(final E e) {
-		final S result = copy();
-		result.add(e);
-		return result;
+	abstract S copy();
+
+	S adjoin(final E e) {
+		add(e);
+		return self();
 	}
 
-	public S adjoin(final S other) {
-		final S result = copy();
-		result.addAll(other);
-		return result;
-	}
-	
-	public S without(final S other) {
-		final S result = copy();
-		result.removeAll(other);
-		return result;
+	S adjoin(final S other) {
+		addAll(other);
+		return self();
 	}
 }

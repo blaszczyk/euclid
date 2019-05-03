@@ -1,6 +1,7 @@
 package euclid.algorithm.priority;
 
-import euclid.sets.Board;
+import euclid.sets.CurveSet;
+import euclid.sets.PointSet;
 
 public class NoPrioritizer extends Prioritizer {
 	@Override
@@ -9,7 +10,7 @@ public class NoPrioritizer extends Prioritizer {
 	}
 
 	@Override
-	public int priotiry(final Board b, final int pointMisses, final int curveMisses) {
+	public int priotiry(final PointSet points, final CurveSet curves, final int pointMisses, final int curveMisses) {
 		return 1;
 	}
 }

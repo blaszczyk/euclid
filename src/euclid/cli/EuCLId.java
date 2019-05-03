@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import euclid.algorithm.Algorithm;
+import euclid.algorithm.AlgorithmFactory;
 import euclid.engine.EngineParameters;
 import euclid.engine.SearchEngine;
 import euclid.kpi.KpiCsvWriter;
@@ -58,14 +59,14 @@ public class EuCLId {
 
 	private final Problem problem;
 	
-	private final SearchEngine<? extends Board> engine;
+	private final SearchEngine<Board> engine;
 	
 	private final KpiMonitor monitor;
 	
 	private EuCLId(final CliParameters params) {
 		problem = new ProblemParser(params.getFileValue(KEY_FILE)).parse();
 
-		final Algorithm<? extends Board> algorithm = problem.algorithm().create(problem);
+		final Algorithm<Board> algorithm = AlgorithmFactory.create(problem);
 		final int threadCount = params.getIntValue(KEY_THREADS, Runtime.getRuntime().availableProcessors());
 		final int bunchSize = params.getIntValue(KEY_BUNCH_SIZE, 50);
 		final int maxQueueSize = params.getIntValue(KEY_MAX_QUEUE_SIZE, 100000);

@@ -2,8 +2,8 @@ package euclid.geometry;
 
 public class Segment extends Line {
 
-	final Number from;
-	final Number to;
+	private final Number from;
+	private final Number to;
 
 	public Segment(final Point normal, final Number offset, final Number end1, final Number end2) {
 		super(normal, offset);
@@ -38,7 +38,7 @@ public class Segment extends Line {
 			final Line line = other.asLine();
 			if(line.isSegment()) {
 				final Segment segment = line.asSegment();
-				return isNear(line) && from.near(segment.from()) && to.near(segment.to());
+				return isNear(line) && from.near(segment.from) && to.near(segment.to);
 			}
 		}
 		return false;

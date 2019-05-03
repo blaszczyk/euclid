@@ -1,12 +1,7 @@
 package euclid.algorithm;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import euclid.geometry.Curve;
-import euclid.geometry.Line;
-import euclid.sets.Board;
-import euclid.sets.CurveSet;
+import java.util.Set;
 
 public class ListHelper {
 	
@@ -62,15 +57,14 @@ public class ListHelper {
 		}
 	}
 
-	static List<Line> pickLines(final Board board) {
-		final CurveSet curves = board.curves();
-		final List<Line> lines = new ArrayList<>(curves.size());
-		for(final Curve c : curves) {
-			if(c.isLine()) {
-				lines.add(c.asLine());
+	static <E> int misses(final Set<E> set, final List<E> required) {
+		int count = 0;
+		for(final E e : required) {
+			if(!set.contains(e)) {
+				count++;
 			}
 		}
-		return lines;
+		return count;
 	}
 
 }

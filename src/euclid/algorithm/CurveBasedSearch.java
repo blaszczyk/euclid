@@ -1,33 +1,41 @@
 package euclid.algorithm;
 
+import static euclid.algorithm.ListHelper.*;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import euclid.algebra.Algebra;
 import euclid.algorithm.constructor.Constructor;
 import euclid.algorithm.priority.Prioritizer;
 import euclid.geometry.*;
-import euclid.problem.Problem;
 import euclid.sets.Board;
+import euclid.sets.ChildBoard;
 import euclid.sets.CurveSet;
-import euclid.sets.ElementSet;
+import euclid.sets.PointSet;
 
-abstract class CurveBasedSearch<B extends Board> implements Algorithm<B> {
+abstract class CurveBasedSearch implements Algorithm<Board> {
 
-	Problem problem;
+	AlgorithmData data;
 	Constructor constructor;
 	Prioritizer prioritizer;
 	Comparator<Curve> curveComparator;
 
-	void init(final Problem problem, final Constructor constructor, final Prioritizer prioritizer, final Comparator<Curve> curveComparator) {
-		this.problem = problem;
+	void init(final AlgorithmData data, final Constructor constructor, final Prioritizer prioritizer, final Comparator<Curve> curveComparator) {
+		this.data = data;
 		this.constructor = constructor;
 		this.prioritizer = prioritizer;
 		this.curveComparator = curveComparator;
 	}
 
 	@Override
-	public int depth(final B board) {
+	public Board first() {
+		return data.initial();
+	}
+
+	@Override
+	public int depth(final Board board) {
 		return board.depth();
 	}
 
@@ -37,42 +45,39 @@ abstract class CurveBasedSearch<B extends Board> implements Algorithm<B> {
 	}
 
 	@Override
-	public int priority(final B b) {
-		final int pointMisses = misses(b.points(), problem.required().points());
-		final int curveMisses = misses(b.curves(), problem.required().curves());
+	public int priority(final Board board) {
+		final PointSet points = board.points();
+		final CurveSet curves = board.curves();
+		final int pointMisses = misses(points, data.requiredPoints());
+		final int curveMisses = misses(curves, data.requiredCurves());
 		if(pointMisses + curveMisses == 0) {
 			return 0;
 		}
-		if(Math.max(curveMisses, pointMisses > 0 ? 1 : 0) > problem.maxDepth() - b.depth()) {
+		if(Math.max(curveMisses, pointMisses > 0 ? 1 : 0) > data.maxDepth() - board.depth()) {
 			return -1;
 		}
-		return prioritizer.priotiry(b, pointMisses, curveMisses);
+		return prioritizer.priotiry(points, curves, pointMisses, curveMisses);
 	}
 
 	@Override
-	public List<B> nextGeneration(final B board) {
+	public List<Board> nextGeneration(final Board board) {
 		final CurveSet successors = new CurveSet(curveComparator);
-		addSuccessors(board, successors);
-		successors.removeAll(board.curves());
-		final List<B> nextGeneration = new ArrayList<>(successors.size());
+		final List<Point> points = board.pointList();
+		final List<Curve> curves = board.curveList();
+		addSuccessors(board, points, successors);
+		successors.removeAll(curves);
+		final List<Board> nextGeneration = new ArrayList<>(successors.size());
 		for(final Curve successor : successors) {
-			final B next = next(board, successor);
+			final PointSet newPoints = new PointSet();
+			for(final Curve curve : curves) {
+				newPoints.addAll(Algebra.intersect(successor, curve));
+			}
+			newPoints.removeAll(points);
+			final Board next = new ChildBoard(newPoints, successor, board);
 			nextGeneration.add(next);
 		}
 		return nextGeneration;
 	}
 
-	abstract void addSuccessors(final B board, final CurveSet successors);
-
-	abstract B next(final B parent, final Curve successor);
-
-	static <E extends Element<E>, S extends ElementSet<E,S>> int misses(final S set, final S required) {
-		int count = 0;
-		for(final E e : required) {
-			if(set.containsNot(e)) {
-				count++;
-			}
-		}
-		return count;
-	}
+	abstract void addSuccessors(final Board board, final List<Point> points, final CurveSet successors);
 }

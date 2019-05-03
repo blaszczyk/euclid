@@ -27,4 +27,9 @@ public class PointSet extends ElementSet<Point, PointSet> {
 		return new PointSet(this);
 	}
 
+	@Override
+	PointSet self() {
+		return this;
+	}
+
 }

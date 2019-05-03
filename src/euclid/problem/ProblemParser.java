@@ -154,7 +154,7 @@ public class ProblemParser {
 				ps.add(parsePoint(value));
 			}
 		}
-		return new Board(ps, cs);
+		return new RootBoard(ps, cs);
 	}
 
 	private boolean isPoint(final String value) {

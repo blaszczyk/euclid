@@ -3,7 +3,6 @@ package euclid.algorithm.priority;
 import euclid.algebra.Algebra;
 import euclid.geometry.Curve;
 import euclid.geometry.Point;
-import euclid.sets.Board;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
@@ -11,20 +10,20 @@ public class FinestPrioritizer extends Prioritizer {
 
 	@Override
 	public int maxPriority() {
-		return 3 * (problem.required().points().size() + problem.required().curves().size());
+		return 3 * (data.requiredPoints().size() + data.requiredCurves().size());
 	}
 
 	@Override
-	public int priotiry(final Board b, final int pointMisses, final int curveMisses) {
-		final int nearPointMisses = nearPointMisses(b);
-		final int nearCurveMisses = nearCurveMisses(b);
+	public int priotiry(final PointSet points, final CurveSet curves, final int pointMisses, final int curveMisses) {
+		final int nearPointMisses = nearPointMisses(curves);
+		final int nearCurveMisses = nearCurveMisses(points);
 		return pointMisses + nearPointMisses + curveMisses + nearCurveMisses;
 	}
 	
-	private int nearPointMisses(final Board b) {
+	private int nearPointMisses(final CurveSet curves) {
 		int nearMisses = 0;
-		for(final Point point : problem.required().points()) {
-			nearMisses += nearMisses(point, b.curves());
+		for(final Point point : data.requiredPoints()) {
+			nearMisses += nearMisses(point, curves);
 		}
 		return nearMisses;
 	}
@@ -39,10 +38,10 @@ public class FinestPrioritizer extends Prioritizer {
 		return 2 - Math.min(hits, 2);
 	}
 	
-	private int nearCurveMisses(final Board b) {
+	private int nearCurveMisses(final PointSet points) {
 		int nearMisses = 0;
-		for(final Curve curve : problem.required().curves()) {
-			nearMisses += nearMisses(curve, b.points());
+		for(final Curve curve : data.requiredCurves()) {
+			nearMisses += nearMisses(curve, points);
 		}
 		return nearMisses;
 	}

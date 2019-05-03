@@ -1,5 +1,10 @@
 package euclid.algebra;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import euclid.geometry.Circle;
 import euclid.geometry.Curve;
 import euclid.geometry.Line;
@@ -7,7 +12,6 @@ import euclid.geometry.Number;
 import euclid.geometry.Point;
 import euclid.geometry.Ray;
 import euclid.geometry.Segment;
-import euclid.sets.PointSet;
 
 public class Algebra {
 	
@@ -50,7 +54,7 @@ public class Algebra {
 		return new Circle(center, radiusSquare);
 	}
 	
-	public static PointSet intersect(final Curve curve1, final Curve curve2) {
+	public static List<Point> intersect(final Curve curve1, final Curve curve2) {
 		if(curve1.isLine()) {
 			if(curve2.isLine()) {
 				return doIntersect(curve1.asLine(), curve2.asLine());
@@ -90,23 +94,22 @@ public class Algebra {
 		return point.sub(circle.center()).square().near(circle.radiusSquare());
 	}
 
-	static PointSet doIntersect(final Line l1, final Line l2) {
+	static List<Point> doIntersect(final Line l1, final Line l2) {
 		final Number det = l1.normal().cross(l2.normal());
 		if(det.sign() == 0) {
-			return PointSet.EMPTY;
+			return Collections.emptyList();
 		}
 		final Number x = l1.offset().mul(l2.normal().y()).sub(l2.offset().mul(l1.normal().y())).div(det);
 		final Number y = l2.offset().mul(l1.normal().x()).sub(l1.offset().mul(l2.normal().x())).div(det);
 		final Point point = new Point(x, y);
 		if((l1.hasEnds() && !doesContain(point, l1))
 			|| (l2.hasEnds() && !doesContain(point, l2))) {
-			return PointSet.EMPTY;
+			return Collections.emptyList();
 		}
-		return new PointSet(point);
+		return Collections.singletonList(point);
 	}
 
-	static PointSet doIntersect(final Line line, final Circle circle) {
-		final PointSet result = new PointSet();
+	static List<Point> doIntersect(final Line line, final Circle circle) {
 		final boolean hasNoEnds = !line.hasEnds();
 		final Point normal = line.normal();
 		final Point distance = normal.mul(line.offset().sub(normal.mul(circle.center())));
@@ -117,31 +120,46 @@ public class Algebra {
 			final Point separation = normal.orth().mul(discriminant.root());
 			final Point p1 = midpoint.add(separation);
 			final Point p2 = midpoint.sub(separation);
+			final List<Point> result = new ArrayList<>(2);
 			if(hasNoEnds || doesContain(p1, line)) {
 				result.add(p1);
 			}
 			if(hasNoEnds || doesContain(p2, line)) {
 				result.add(p2);
 			}
+			return result;
 		}
 		else if(sign == 0) {
 			final Point point = circle.center().add(distance);
 			if(hasNoEnds || doesContain(point, line)) {
-				result.add(circle.center().add(distance));
+				return Collections.singletonList(circle.center().add(distance));
 			}
 		}
-		return result;
+		return Collections.emptyList();
 	}
 	
-	static PointSet doIntersect(final Circle c1, final Circle c2) {
+	static List<Point> doIntersect(final Circle c1, final Circle c2) {
 		if(c1.center().near(c2.center()))
 		{
-			return PointSet.EMPTY;
+			return Collections.emptyList();
 		}
 		final Point normal = c1.center().sub(c2.center()).mul(Number.M_TWO);
 		final Number offset = c1.radiusSquare().sub(c1.center().square()).sub(c2.radiusSquare().sub(c2.center().square()));
 		final Line commonSection = new Line(normal, offset);
 		return doIntersect(commonSection, c1);
+	}
+
+	public static Point endPoint(final Ray ray) {
+		final Point tangent = ray.normal().orth();
+		return ray.normal().mul(ray.offset()).add(tangent.mul(ray.end()));
+	}
+	
+	public static List<Point> endPoints(final Segment segment) {
+		final Point basePoint = segment.normal().mul(segment.offset());
+		final Point tangent = segment.normal().orth();
+		final Point from = basePoint.add(tangent.mul(segment.from()));
+		final Point to = basePoint.add(tangent.mul(segment.to()));
+		return Arrays.asList(from, to);
 	}
 	
 }

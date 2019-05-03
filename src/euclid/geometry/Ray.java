@@ -2,9 +2,9 @@ package euclid.geometry;
 
 public class Ray extends Line {
 
-	final Number end;
+	private final Number end;
 	
-	final boolean orientation;
+	private final boolean orientation;
 
 	public Ray(final Point normal, final Number offset, final Number end, final boolean orientation) {
 		super(normal, offset);
@@ -37,7 +37,7 @@ public class Ray extends Line {
 			final Line line = other.asLine();
 			if(line.isRay()) {
 				final Ray ray = line.asRay();
-				return isNear(line) && end.near(ray.end()) && orientation == ray.orientation();
+				return isNear(line) && end.near(ray.end) && orientation == ray.orientation;
 			}
 		}
 		return false;
@@ -69,7 +69,7 @@ public class Ray extends Line {
 			}
 			final Ray ray = line.asRay();
 			final int compEnd = end.compareTo(ray.end);
-			return compEnd != 0 ? compEnd : ( orientation == ray.orientation() ? 0 : ( orientation ? 1 : -1) );
+			return compEnd != 0 ? compEnd : ( orientation == ray.orientation ? 0 : ( orientation ? 1 : -1) );
 		}
 		return 1;
 	}
