@@ -48,21 +48,12 @@ public class FinestPrioritizer extends CoarsePrioritizer {
 
 	private static int nearMisses(final Curve curve, final PointSet points) {
 		int hits = 0;
-		boolean hasCenter = false;
 		for(final Point point : points) {
 			if(Algebra.contains(point, curve)) {
 				hits++;
 			}
-			if(curve.isCircle() && curve.asCircle().center().near(point)) {
-				hasCenter = true;
-			}
 		}
-		if(curve.isCircle()) {
-			return ( hasCenter ? 0 : 1 ) + ( hits > 0 ? 0 : 1 );
-		}
-		else {
-			return 2 - Math.min(hits, 2);
-		}
+		return 2 - Math.min(hits, curve.isCircle() ? 1 : 2);
 	}
 
 }

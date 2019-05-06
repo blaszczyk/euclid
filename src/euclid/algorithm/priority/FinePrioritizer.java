@@ -38,7 +38,7 @@ public class FinePrioritizer extends CoarsePrioritizer {
 		}
 		return true;
 	}
-	
+
 	private int nearCurveMisses(final PointSet points) {
 		int nearMisses = 0;
 		for(final Curve curve : curves) {
@@ -52,9 +52,6 @@ public class FinePrioritizer extends CoarsePrioritizer {
 	private static boolean containsNot(final Curve curve, final PointSet points) {
 		for(final Point point : points) {
 			if(Algebra.contains(point, curve)) {
-				return false;
-			}
-			if(curve.isCircle() && curve.asCircle().center().near(point)) {
 				return false;
 			}
 		}
