@@ -10,6 +10,7 @@ public class Problem {
 	
 	private final Board initial;
 	private final Board required;
+	private final Board assist;
 	private final int maxDepth;
 	private final boolean depthFirst;
 	private final boolean shuffle;
@@ -19,11 +20,12 @@ public class Problem {
 	private final PriorityType priority;
 	private final CurveIdentification curveIdentification;
 	
-	public Problem(final Board initial, final Board required, final int maxDepth, final boolean depthFirst, 
+	public Problem(final Board initial, final Board required, final Board assist, final int maxDepth, final boolean depthFirst, 
 			final boolean shuffle, final int maxSolutions, final AlgorithmType algorithm, final ConstructorType constructor, 
 			final PriorityType priority, final CurveIdentification curveIdentification) {
 		this.initial = initial;
 		this.required = required;
+		this.assist = assist;
 		this.maxDepth = maxDepth;
 		this.depthFirst = depthFirst;
 		this.shuffle = shuffle;
@@ -40,6 +42,10 @@ public class Problem {
 
 	public final Board required() {
 		return required;
+	}
+
+	public final Board assist() {
+		return assist;
 	}
 
 	public final int maxDepth() {

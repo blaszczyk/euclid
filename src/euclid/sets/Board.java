@@ -32,6 +32,10 @@ public abstract class Board {
 	public boolean hasParent() { return false; }
 
 	public Curve curve() { return null; }
+
+	public PointSet allNewPoints() { return new PointSet(); }
+	
+	public CurveSet allNewCurves() { return new CurveSet(); }
 	
 	PointSet pointsInt() { return PointSet.EMPTY; }
 	

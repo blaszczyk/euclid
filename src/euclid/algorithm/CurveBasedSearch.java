@@ -22,11 +22,17 @@ abstract class CurveBasedSearch implements Algorithm<Board> {
 	Prioritizer prioritizer;
 	Comparator<Curve> curveComparator;
 
+	private List<Point> requiredPoints;
+	private List<Curve> requiredCurves;
+	
 	void init(final AlgorithmData data, final Constructor constructor, final Prioritizer prioritizer, final Comparator<Curve> curveComparator) {
 		this.data = data;
 		this.constructor = constructor;
 		this.prioritizer = prioritizer;
 		this.curveComparator = curveComparator;
+
+		requiredPoints = data.required().pointList();
+		requiredCurves = data.required().curveList();
 	}
 
 	@Override
@@ -46,17 +52,17 @@ abstract class CurveBasedSearch implements Algorithm<Board> {
 
 	@Override
 	public int priority(final Board board) {
-		final PointSet points = board.points();
-		final CurveSet curves = board.curves();
-		final int pointMisses = misses(points, data.requiredPoints());
-		final int curveMisses = misses(curves, data.requiredCurves());
+		final PointSet points = board.allNewPoints();
+		final CurveSet curves = board.allNewCurves();
+		final int pointMisses = misses(points, requiredPoints);
+		final int curveMisses = misses(curves, requiredCurves);
 		if(pointMisses + curveMisses == 0) {
 			return 0;
 		}
 		if(Math.max(curveMisses, pointMisses > 0 ? 1 : 0) > data.maxDepth() - board.depth()) {
 			return -1;
 		}
-		return prioritizer.priotiry(points, curves, pointMisses, curveMisses);
+		return prioritizer.priotiry(points, curves);
 	}
 
 	@Override

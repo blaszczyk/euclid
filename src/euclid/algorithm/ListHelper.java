@@ -57,7 +57,7 @@ public class ListHelper {
 		}
 	}
 
-	static <E> int misses(final Set<E> set, final List<E> required) {
+	public static <E> int misses(final Set<E> set, final List<E> required) {
 		int count = 0;
 		for(final E e : required) {
 			if(!set.contains(e)) {

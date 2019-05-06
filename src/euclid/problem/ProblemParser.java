@@ -29,6 +29,7 @@ public class ProblemParser {
 
 	public static final String KEY_INITIAL = "initial";
 	public static final String KEY_REQUIRED = "required";
+	public static final String KEY_ASSIST = "assist";
 	public static final String KEY_MAX_DEPTH = "maxdepth";
 	public static final String KEY_DEPTH_FIRST = "depthfirst";
 	public static final String KEY_SHUFFLE = "shuffle";
@@ -38,7 +39,7 @@ public class ProblemParser {
 	public static final String KEY_PRIORITY = "priority";
 	public static final String KEY_CURVE_IDENTIFIACTION = "curveidentification";
 	
-	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_MAX_DEPTH, KEY_DEPTH_FIRST,
+	private static final List<String> KEYWORDS = Arrays.asList(KEY_INITIAL, KEY_REQUIRED, KEY_ASSIST, KEY_MAX_DEPTH, KEY_DEPTH_FIRST,
 			KEY_SHUFFLE, KEY_ALGORITHM, KEY_CONSTRUCTOR, KEY_PRIORITY, KEY_CURVE_IDENTIFIACTION, KEY_MAX_SOLUTIONS);
 	
 	private static final String NUM_PTRN = "([\\w\\.\\+\\-\\*\\/\\(\\)\\$\\^]+)";
@@ -100,6 +101,7 @@ public class ProblemParser {
 
 		final Board initial = parseBoard(getValue(KEY_INITIAL));
 		final Board required = parseBoard(getValue(KEY_REQUIRED));
+		final Board assist = parseBoard(getValue(KEY_ASSIST));
 
 		final int maxDepth = Integer.parseInt(getValue(KEY_MAX_DEPTH));
 		final boolean depthFirst = Boolean.parseBoolean(getValue(KEY_DEPTH_FIRST));
@@ -110,7 +112,7 @@ public class ProblemParser {
 		final CurveIdentification curveIdentification = CurveIdentification.valueOf(getValue(KEY_CURVE_IDENTIFIACTION).toUpperCase());
 		final int maxSolutions = Integer.parseInt(getValue(KEY_MAX_SOLUTIONS));
 
-		return new Problem(initial, required, maxDepth, depthFirst, shuffle, maxSolutions, algorithm, constructor, priority, curveIdentification);
+		return new Problem(initial, required, assist, maxDepth, depthFirst, shuffle, maxSolutions, algorithm, constructor, priority, curveIdentification);
 	}
 
 	private void validateKeywords() {

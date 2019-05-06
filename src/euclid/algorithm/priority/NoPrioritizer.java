@@ -10,7 +10,7 @@ public class NoPrioritizer extends Prioritizer {
 	}
 
 	@Override
-	public int priotiry(final PointSet points, final CurveSet curves, final int pointMisses, final int curveMisses) {
+	public int priotiry(final PointSet points, final CurveSet curves) {
 		return 1;
 	}
 }

@@ -1,22 +1,18 @@
 package euclid.algorithm;
 
-import java.util.List;
-
-import euclid.geometry.Curve;
-import euclid.geometry.Point;
 import euclid.sets.Board;
 
 public class AlgorithmData {
 
 	private final Board initial;
-	private final List<Point> requiredPoints;
-	private final List<Curve> requiredCurves;
+	private final Board required;
+	private final Board assist;
 	private final int maxDepth;
 
-	AlgorithmData(final Board initial, final List<Point> requiredPoints, final List<Curve> requiredCurves, final int maxDepth) {
+	AlgorithmData(final Board initial, final Board required, final Board assist, final int maxDepth) {
 		this.initial = initial;
-		this.requiredPoints = requiredPoints;
-		this.requiredCurves = requiredCurves;
+		this.required = required;
+		this.assist = assist;
 		this.maxDepth = maxDepth;
 	}
 
@@ -24,12 +20,12 @@ public class AlgorithmData {
 		return initial;
 	}
 
-	public List<Point> requiredPoints() {
-		return requiredPoints;
+	public Board required() {
+		return required;
 	}
-
-	public List<Curve> requiredCurves() {
-		return requiredCurves;
+	
+	public Board assist() {
+		return assist;
 	}
 
 	public int maxDepth() {

@@ -6,23 +6,23 @@ import euclid.geometry.Point;
 import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 
-public class FinePrioritizer extends Prioritizer {
+public class FinePrioritizer extends CoarsePrioritizer {
 
 	@Override
 	public int maxPriority() {
-		return 2 * (data.requiredPoints().size() + data.requiredCurves().size());
+		return 2 * super.maxPriority();
 	}
 
 	@Override
-	public int priotiry(final PointSet points, final CurveSet curves, final int pointMisses, final int curveMisses) {
+	public int priotiry(final PointSet points, final CurveSet curves) {
 		final int nearPointMisses = nearPointMisses(curves);
 		final int nearCurveMisses = nearCurveMisses(points);
-		return pointMisses + nearPointMisses + curveMisses + nearCurveMisses;
+		return super.priotiry(points, curves) + nearPointMisses + nearCurveMisses;
 	}
 	
 	private int nearPointMisses(final CurveSet curves) {
 		int nearMisses = 0;
-		for(final Point point : data.requiredPoints()) {
+		for(final Point point : points) {
 			if(containsNot(point, curves)) {
 				nearMisses++;
 			}
@@ -41,7 +41,7 @@ public class FinePrioritizer extends Prioritizer {
 	
 	private int nearCurveMisses(final PointSet points) {
 		int nearMisses = 0;
-		for(final Curve curve : data.requiredCurves()) {
+		for(final Curve curve : curves) {
 			if(containsNot(curve, points)) {
 				nearMisses++;
 			}

@@ -1,19 +1,18 @@
 package euclid.algorithm;
 
-import static euclid.algorithm.ListHelper.forEachDistinctPair;
+import static euclid.algorithm.ListHelper.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 import euclid.algebra.Algebra;
 import euclid.algorithm.constructor.Constructor;
 import euclid.algorithm.priority.Prioritizer;
 import euclid.geometry.Curve;
 import euclid.geometry.Line;
-import euclid.geometry.Point;
 import euclid.problem.Problem;
 import euclid.sets.Board;
+import euclid.sets.CurveSet;
 import euclid.sets.PointSet;
 import euclid.sets.RootBoard;
 
@@ -34,46 +33,54 @@ public class AlgorithmFactory {
 	}
 
 	private static AlgorithmData createAlgorithmData(final Problem problem) {
-		final PointSet initialPoints = problem.initial().points();
-		final PointSet requiredPoints = problem.required().points();
-		final List<Curve> requiredCurves = problem.required().curveList();
+		final Board initial = enhance(problem.initial());
+		final Board required = transform(problem.required(), initial);
+		final Board assist = transform(problem.assist(), initial, required);
+		return new AlgorithmData(initial, required, assist, problem.maxDepth());
+	}
 
-		forEachDistinctPair(problem.initial().curveList(), (c1,c2) -> {
-			initialPoints.addAll(Algebra.intersect(c1, c2));
+	private static RootBoard enhance(final Board board) {
+		final PointSet points = board.points();
+		forEachDistinctPair(board.curveList(), (c1,c2) -> {
+			points.addAll(Algebra.intersect(c1, c2));
 		});
-		for(final Line line : problem.initial().lineList()) {
+		for(final Line line : board.lineList()) {
 			if(line.isRay()) {
-				initialPoints.add(Algebra.endPoint(line.asRay()));
+				points.add(Algebra.endPoint(line.asRay()));
 			}
 			else if(line.isSegment()) {
-				initialPoints.addAll(Algebra.endPoints(line.asSegment()));
+				points.addAll(Algebra.endPoints(line.asSegment()));
 			}
 		}
-
-		for(final Curve curve : problem.required().curveList()) {
+		return new RootBoard(points, board.curves());
+	}
+	
+	private static Board transform(final Board board, final Board ... excludors) {
+		final CurveSet curves = board.curves();
+		final PointSet points = board.points();
+		for(final Curve curve : new ArrayList<>(curves)) {
 			if(curve.isCircle()) {
-				final Point center = curve.asCircle().center();
-				if(initialPoints.containsNot(center) && !requiredPoints.contains(center)) {
-					requiredPoints.add(center);
-				}
+				points.add(curve.asCircle().center());
 			}
 			else {
 				final Line line = curve.asLine();
 				if(line.hasEnds()) {
 					if(line.isRay()) {
-						requiredPoints.add(Algebra.endPoint(line.asRay()));
+						points.add(Algebra.endPoint(line.asRay()));
 					}
 					else if(line.isSegment()) {
-						requiredPoints.addAll(Algebra.endPoints(line.asSegment()));
+						points.addAll(Algebra.endPoints(line.asSegment()));
 					}
-					final Line trueLine = new Line(line.normal(), line.offset());
-					requiredCurves.replaceAll(c -> c.near(line) ? trueLine : c);
+					curves.remove(line);
+					curves.add(new Line(line.normal(), line.offset()));
 				}
 			}
 		}
-
-		final Board initial = new RootBoard(initialPoints, problem.initial().curves());
-		return new AlgorithmData(initial, new ArrayList<>(requiredPoints), requiredCurves, problem.maxDepth());
+		for(final Board excludor : excludors) {
+			points.removeAll(excludor.pointList());
+			curves.removeAll(excludor.curveList());
+		}
+		return new RootBoard(points, curves);
 	}
 
 }

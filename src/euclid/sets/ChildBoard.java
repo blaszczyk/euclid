@@ -112,4 +112,14 @@ public class ChildBoard extends Board {
 	public int curveCount() {
 		return parent.curveCount() + 1;
 	}
+	
+	@Override
+	public PointSet allNewPoints() {
+		return parent.allNewPoints().adjoin(newPoints);
+	}
+	
+	@Override
+	public CurveSet allNewCurves() {
+		return parent.allNewCurves().adjoin(curve);
+	}
 }
