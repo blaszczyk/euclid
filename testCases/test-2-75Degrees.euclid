@@ -1,5 +1,5 @@
 p0 = p(0,0)
-lr = s(p0;p(10,0))
+lr = r(p0;1)
 
 # only works if random point is within this cone
 ard = pi / 6 * ( 2 + rand)
@@ -8,10 +8,11 @@ prd = p(rrd*cos(ard),rrd*sin(rrd))
 
 a=5 * pi/12
 p1=p(cos(a),sin(a))
-l1=l(p0;p1)
+l1=r(p0;p1)
 
 initial=lr : p0 : prd
 required=l1
+assist=
 maxdepth=3
 depthfirst=true
 shuffle=true

@@ -11,6 +11,7 @@ c = c(p(0,0);p(1,0))
 
 initial=lu : lo  : ld
 required=c
+assist=
 maxdepth=6
 depthfirst=false
 shuffle=false

@@ -22,8 +22,9 @@ d13 = h / sin(a1)
 ph = p(d13-1, 0)
 ch = c (p2;ph)
 
-initial=l12 : l23 : l31 : p1 : p2 : p3 
-required=c : pc : ch
+initial=l12 : l23 : l31
+required=c
+assist=ch
 maxdepth=8
 depthfirst=false
 shuffle=false
