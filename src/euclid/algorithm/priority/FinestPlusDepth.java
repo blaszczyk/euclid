@@ -12,7 +12,7 @@ public class FinestPlusDepth extends FinestPrioritizer {
 
 	@Override
 	public int priotiry(final PointSet points, final CurveSet curves) {
-		return super.priotiry(points, curves) + curves.size() - data.initial().curveCount();
+		return super.priotiry(points, curves) + curves.size();
 	}
 
 }
