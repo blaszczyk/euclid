@@ -12,7 +12,7 @@ import euclid.algorithm.Algorithm;
 import euclid.algorithm.AlgorithmFactory;
 import euclid.engine.EngineParameters;
 import euclid.engine.SearchEngine;
-import euclid.kpi.KpiReporter;
+import euclid.kpi.KpiMonitor;
 import euclid.problem.Problem;
 import euclid.problem.ProblemParser;
 import euclid.sets.Board;
@@ -44,26 +44,23 @@ public class PerformanceTest {
 	private static Map<String, Number> process(final File testCaseFile, final int timeout, final int bunchSize) throws InterruptedException {
 		System.gc();
 		Thread.sleep(1000);
-		
+
 		final Problem problem = new ProblemParser(testCaseFile).parse();
 		final Algorithm<Board> algorithm = AlgorithmFactory.create(problem);
 		final EngineParameters params = new EngineParameters(testCaseFile.getName(), problem.maxSolutions(), problem.depthFirst(), 
-				false, Runtime.getRuntime().availableProcessors(), bunchSize, 100000);
-		final SearchEngine<Board> engine = new SearchEngine<>(algorithm, params);
+				false, Runtime.getRuntime().availableProcessors(), bunchSize, 10_000);
+		final KpiMonitor monitor = new KpiMonitor(1000);
+		final Map<String, Number> result = new LinkedHashMap<>();
+		monitor.addConsumer(r -> r.items().filter(i -> i.name().matches(".*[^\\d]$")).forEach(i -> result.put(i.name(), i.value())));
+		final SearchEngine<Board> engine = new SearchEngine<>(algorithm, params, monitor);
 		
-		final long startTime = System.currentTimeMillis();
-		engine.start();
 		final Timer timer = new Timer(timeout, e -> engine.halt());
 		timer.start();
+		engine.start();
 		engine.join();
 		timer.stop();
-		final long runtime = System.currentTimeMillis() - startTime;
 		
-		final Map<String, Number> result = new LinkedHashMap<>();
-		result.put("runtime", runtime);
 		result.put("solutions", engine.solutions().size());
-		final KpiReporter engineKpi = engine.kpiReporters().iterator().next();
-		engineKpi.fetchReport(result::put);
 		engine.cleanUp();
 		return result;
 	}
