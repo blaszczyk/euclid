@@ -14,14 +14,14 @@ public class AdvancedConstructor extends BasicConstructor {
 	@Override
 	public void constructFromTwoDistinctPoints(final Point p1, final Point p2, final CurveSet successors) {
 		super.constructFromTwoDistinctPoints(p1, p2, successors);
-		successors.add(AdvancedAlgebra.bisector(p1,p2));
+		successors.addNonNull(AdvancedAlgebra.bisector(p1,p2));
 	}
 	
 	@Override
 	public void constructFromThreeDistinctPoints(final Point p1, final Point p2, final Point p3, final CurveSet successors) {
-		successors.add(AdvancedAlgebra.nonCollapsingCompass(p1, p2, p3));
-		successors.add(AdvancedAlgebra.nonCollapsingCompass(p2, p3, p1));
-		successors.add(AdvancedAlgebra.nonCollapsingCompass(p3, p1, p2));
+		successors.addNonNull(AdvancedAlgebra.nonCollapsingCompass(p1, p2, p3));
+		successors.addNonNull(AdvancedAlgebra.nonCollapsingCompass(p2, p3, p1));
+		successors.addNonNull(AdvancedAlgebra.nonCollapsingCompass(p3, p1, p2));
 		successors.addNonNull(AdvancedAlgebra.angleBisector(p1, p2, p3));
 		successors.addNonNull(AdvancedAlgebra.angleBisector(p2, p3, p1));
 		successors.addNonNull(AdvancedAlgebra.angleBisector(p3, p1, p2));

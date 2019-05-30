@@ -8,7 +8,7 @@ public class StraightEdgeOnly extends Constructor {
 
 	@Override
 	public void constructFromTwoDistinctPoints(final Point p1, final Point p2, final CurveSet successors) {
-		successors.add(Algebra.line(p1,p2));
+		successors.addNonNull(Algebra.line(p1,p2));
 	}
 
 }

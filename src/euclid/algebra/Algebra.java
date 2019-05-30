@@ -30,9 +30,9 @@ public class Algebra {
 	public static Curve line(final Point p1, final Point p2) {
 		final Point normal = p1.sub(p2).orth();
 		final Number offset = normal.mul(p1);
-		return new Line(normal, offset);
+		return lineOrNull(normal, offset);
 	}
-	
+
 	public static Curve ray(final Point p1, final Point p2) {
 		final Point normal = p1.sub(p2).orth();
 		final Number offset = normal.mul(p1);
@@ -40,7 +40,7 @@ public class Algebra {
 		final boolean orientation = normal.cross(p2).greater(end);
 		return new Ray(normal, offset, end, orientation);
 	}
-	
+
 	public static Curve segment(final Point p1, final Point p2) {
 		final Point normal = p1.sub(p2).orth();
 		final Number offset = normal.mul(p1);
@@ -48,10 +48,18 @@ public class Algebra {
 		final Number end2 = normal.cross(p2);
 		return new Segment(normal, offset, end1, end2);
 	}
-	
+
 	public static Curve circle(final Point center, final Point p) {
 		final Number radiusSquare = p.sub(center).square();
 		return new Circle(center, radiusSquare);
+	}
+
+	public static List<Curve> circles(final Point p1, final Point p2) {
+		final Number radiusSquare = p1.sub(p2).square();
+		if(!radiusSquare.near(Number.ZERO)) {
+			return Arrays.asList(new Circle(p1, radiusSquare), new Circle(p2, radiusSquare));
+		}
+		return Collections.emptyList();
 	}
 	
 	public static List<Point> intersect(final Curve curve1, final Curve curve2) {
@@ -143,8 +151,8 @@ public class Algebra {
 		{
 			return Collections.emptyList();
 		}
-		final Point normal = c1.center().sub(c2.center()).mul(Number.M_TWO);
-		final Number offset = c1.radiusSquare().sub(c1.center().square()).sub(c2.radiusSquare().sub(c2.center().square()));
+		final Point normal = c1.center().sub(c2.center());
+		final Number offset = c1.radiusSquare().sub(c1.center().square()).sub(c2.radiusSquare().sub(c2.center().square())).div(Number.M_TWO);
 		final Line commonSection = new Line(normal, offset);
 		return doIntersect(commonSection, c1);
 	}
@@ -160,6 +168,13 @@ public class Algebra {
 		final Point from = basePoint.add(tangent.mul(segment.from()));
 		final Point to = basePoint.add(tangent.mul(segment.to()));
 		return Arrays.asList(from, to);
+	}
+	
+	static Line lineOrNull(final Point normal, final Number offset) {
+		if(normal.near(Point.ORIGIN)) {
+			return null;
+		}
+		return new Line(normal, offset);
 	}
 	
 }

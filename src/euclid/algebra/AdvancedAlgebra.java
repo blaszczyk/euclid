@@ -18,7 +18,7 @@ public class AdvancedAlgebra {
 	public static Curve bisector(final Point p1, final Point p2) {
 		final Point normal = p1.sub(p2);
 		final Number offset = normal.mul(p1.add(p2)).div(Number.TWO);
-		return new Line(normal, offset);
+		return Algebra.lineOrNull(normal, offset);
 	}
 
 	public static Curve perpendicular(final Point p, final Line l) {
@@ -66,7 +66,8 @@ public class AdvancedAlgebra {
 	}
 
 	public static Curve nonCollapsingCompass(final Point p1, final Point p2, final Point center) {
-		return new Circle(center, p1.sub(p2).square());
+		final Number radiusSquare = p1.sub(p2).square();
+		return radiusSquare.near(Number.ZERO) ? null : new Circle(center, radiusSquare);
 	}
 
 }

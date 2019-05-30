@@ -8,8 +8,7 @@ public class CompassOnly extends Constructor {
 
 	@Override
 	public void constructFromTwoDistinctPoints(final Point p1, final Point p2, final CurveSet successors) {
-		successors.add(Algebra.circle(p1,p2));
-		successors.add(Algebra.circle(p2,p1));
+		successors.addAll(Algebra.circles(p1,p2));
 	}
 
 }
