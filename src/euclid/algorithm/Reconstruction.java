@@ -35,13 +35,6 @@ public class Reconstruction {
 		});
 
 		if(constructor.isAdvanced()) {
-			forEachDistinctTriple(points, (p1,p2,p3) -> {
-				final CurveSet constructed = new CurveSet();
-				constructor.constructFromThreeDistinctPoints(p1, p2, p3, constructed);
-				if(constructed.contains(newCurve)) {
-					candidates.add(new RootBoard(new PointSet(p1,p2,p3), CurveSet.EMPTY));
-				}
-			});
 			final List<Line> lines = parent.lineList();
 			forEachPair(points, lines, (p,l) -> {
 				final CurveSet constructed = new CurveSet();
@@ -55,6 +48,13 @@ public class Reconstruction {
 				constructor.constructFromDistinctLines(l1, l2, constructed);
 				if(constructed.contains(newCurve)) {
 					candidates.add(new RootBoard(PointSet.EMPTY, new CurveSet(l1,l2)));
+				}
+			});
+			forEachDistinctTriple(points, (p1,p2,p3) -> {
+				final CurveSet constructed = new CurveSet();
+				constructor.constructFromThreeDistinctPoints(p1, p2, p3, constructed);
+				if(constructed.contains(newCurve)) {
+					candidates.add(new RootBoard(new PointSet(p1,p2,p3), CurveSet.EMPTY));
 				}
 			});
 		}
