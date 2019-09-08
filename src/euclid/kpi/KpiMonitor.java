@@ -42,9 +42,9 @@ public class KpiMonitor {
 
 	public void halt() {
 		if(!halt) {
+			halt = true;
 			fetchAndProcessReport();
 		}
-		halt = true;
 	}
 
 	private void run() {

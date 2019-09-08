@@ -13,6 +13,13 @@ public class CurveBasedDedupingSearch extends BasicCurveBasedSearch {
 		if(board.hasParent()) {
 			final Board parent = board.parent();
 			final Curve last = board.curve();
+
+			if(data.required().curves().contains(last))
+			{
+				super.addSuccessors(board, points, successors);
+				return;
+			}
+
 			@SuppressWarnings("serial")
 			final CurveSet dedupeSuccessors = new CurveSet(curveComparator) {
 				public boolean add(final Curve curve) {
